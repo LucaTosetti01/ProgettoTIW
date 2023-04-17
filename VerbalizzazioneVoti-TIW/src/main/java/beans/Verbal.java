@@ -11,6 +11,7 @@ public class Verbal {
 	private int id;
 	private Date creationDate;
 	private Time creationTime;
+	private GraduationCall call;
 	private Set<Student> students = new HashSet<Student>();
 
 	public int getId() {
@@ -43,6 +44,22 @@ public class Verbal {
 
 	public void setStudents(Set<Student> students) {
 		this.students = students;
+	}
+
+	public GraduationCall getCall() {
+		return call;
+	}
+
+	public void setCall(GraduationCall call) {
+		this.call = call;
+	}
+
+	public void addStudent(Student student) {
+		this.students.add(student);
+	}
+
+	public void removeStudent(Student student) {
+		this.students.remove(student);
 	}
 
 }
