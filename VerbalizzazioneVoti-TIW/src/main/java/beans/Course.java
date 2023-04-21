@@ -4,7 +4,7 @@ public class Course {
 	private int id;
 	private String name;
 	private String description;
-	private Lecturer taughtBy;
+	private int taughtById;
 
 	public int getId() {
 		return id;
@@ -30,12 +30,12 @@ public class Course {
 		this.description = description;
 	}
 
-	public Lecturer getTaughtBy() {
-		return taughtBy;
+	public int getTaughtById() {
+		return taughtById;
 	}
 
-	public void setTaughtBy(Lecturer taughtBy) {
-		this.taughtBy = taughtBy;
+	public void setTaughtById(int taughtById) {
+		this.taughtById = taughtById;
 	}
 
 }

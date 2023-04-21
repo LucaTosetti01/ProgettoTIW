@@ -23,7 +23,7 @@ public class DegreeCourseDAO {
 	public List<DegreeCourse> findAllDegreeCourses() throws SQLException {
 		List<DegreeCourse> degreeCourses = new ArrayList<>();
 
-		String query = "SELECT * FROM corsodilaurea";
+		String query = "SELECT * FROM degree_courses";
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
 		try {
@@ -32,8 +32,8 @@ public class DegreeCourseDAO {
 			while (result.next()) {
 				DegreeCourse dCourse = new DegreeCourse();
 				dCourse.setId(result.getInt("ID"));
-				dCourse.setName(result.getString("Nome"));
-				dCourse.setDescription(result.getString("Descrizione"));
+				dCourse.setName(result.getString("Name"));
+				dCourse.setDescription(result.getString("Description"));
 				degreeCourses.add(dCourse);
 			}
 		} catch (SQLException e) {
@@ -61,7 +61,7 @@ public class DegreeCourseDAO {
 	public DegreeCourse findDegreeCourseByName(String name) throws SQLException {
 		DegreeCourse dcourse = null;
 
-		String query = "SELECT * FROM corsodilaurea WHERE Nome = ?";
+		String query = "SELECT * FROM degree_courses WHERE Name = ?";
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
 		try {
@@ -71,8 +71,46 @@ public class DegreeCourseDAO {
 			while (result.next()) {
 				dcourse = new DegreeCourse();
 				dcourse.setId(result.getInt("ID"));
-				dcourse.setName(result.getString("Nome"));
-				dcourse.setDescription(result.getString("Descrizione"));
+				dcourse.setName(result.getString("Name"));
+				dcourse.setDescription(result.getString("Description"));
+			}
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+
+		return dcourse;
+	}
+
+	public DegreeCourse findDegreeCourseById(int degreeCourse_id) throws SQLException {
+		DegreeCourse dcourse = null;
+
+		String query = "SELECT * FROM degree_courses WHERE ID = ?";
+		ResultSet result = null;
+		PreparedStatement pstatement = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, degreeCourse_id);
+			result = pstatement.executeQuery();
+			while (result.next()) {
+				dcourse = new DegreeCourse();
+				dcourse.setId(result.getInt("ID"));
+				dcourse.setName(result.getString("Name"));
+				dcourse.setDescription(result.getString("Description"));
 			}
 		} catch (SQLException e) {
 			throw new SQLException(e);

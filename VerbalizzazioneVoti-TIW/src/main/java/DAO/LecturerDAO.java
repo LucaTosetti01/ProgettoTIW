@@ -20,7 +20,7 @@ public class LecturerDAO {
 
 	public int registerLecturer(String surname, String name, String email, String username, String password)
 			throws SQLException {
-		String query = "INSERT into docente (Cognome,Nome,Email,Username,Password) VALUES (?,?,?,?,?)";
+		String query = "INSERT INTO lecturers (Surname,Name,Email,Username,Password) VALUES (?,?,?,?,?)";
 		int code = 0;
 
 		PreparedStatement pstatement = null;
@@ -46,21 +46,21 @@ public class LecturerDAO {
 		return code;
 	}
 
-	public Lecturer findLecturerById(int id_lecturer) throws SQLException {
+	public Lecturer findLecturerById(int lecturer_id) throws SQLException {
 		Lecturer lecturer = new Lecturer();
 
-		String query = "SELECT * FROM docente WHERE ID = ?";
+		String query = "SELECT * FROM lecturers WHERE ID = ?";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		try {
 			pstatement = connection.prepareStatement(query);
-			pstatement.setInt(1, id_lecturer);
+			pstatement.setInt(1, lecturer_id);
 			result = pstatement.executeQuery();
 			result.next();
 
-			lecturer.setId(id_lecturer);
-			lecturer.setSurname(result.getString("Cognome"));
-			lecturer.setName(result.getString("Nome"));
+			lecturer.setId(lecturer_id);
+			lecturer.setSurname(result.getString("Surname"));
+			lecturer.setName(result.getString("Name"));
 			lecturer.setEmail(result.getString("Email"));
 			lecturer.setUsername(result.getString("Username"));
 
@@ -83,5 +83,29 @@ public class LecturerDAO {
 			}
 		}
 		return lecturer;
+	}
+
+	public int publishTheVotes(int call_id) throws SQLException {
+		String query = "UPDATE registrations_calls SET EvaluationStatus = ? WHERE ID_Call = ?";
+		int code = 0;
+
+		PreparedStatement pstatement = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setString(1, "Pubblicato");
+			pstatement.setInt(2, call_id);
+			code = pstatement.executeUpdate();
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e1) {
+
+			}
+		}
+		return code;
 	}
 }

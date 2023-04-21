@@ -21,21 +21,21 @@ public class CourseDAO {
 		this.connection = connection;
 	}
 
-	public List<Course> findAllCoursesByLecturer(int id) throws SQLException {
+	public List<Course> findAllCoursesByLecturer(int lecturer_id) throws SQLException {
 		List<Course> courses = new ArrayList<Course>();
 
-		String query = "SELECT * FROM course WHERE ID_Docente = ? ORDER BY nome DESC";
+		String query = "SELECT * FROM courses WHERE ID_Lecturer = ? ORDER BY Name DESC";
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
 		try {
 			pstatement = connection.prepareStatement(query);
-			pstatement.setInt(1, id);
+			pstatement.setInt(1, lecturer_id);
 			result = pstatement.executeQuery();
 			while (result.next()) {
 				Course course = new Course();
-				course.setId(result.getInt("id"));
-				course.setName(result.getString("name"));
-				course.setDescription(result.getString("description"));
+				course.setId(result.getInt("ID"));
+				course.setName(result.getString("Name"));
+				course.setDescription(result.getString("Description"));
 				courses.add(course);
 			}
 		} catch (SQLException e) {
@@ -63,7 +63,7 @@ public class CourseDAO {
 	public Course findCourseByName(String name) throws SQLException {
 		Course course = null;
 
-		String query = "SELECT * FROM corso WHERE Nome = ?";
+		String query = "SELECT * FROM courses WHERE Name = ?";
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
 		try {
@@ -73,8 +73,8 @@ public class CourseDAO {
 			while (result.next()) {
 				course = new Course();
 				course.setId(result.getInt("ID"));
-				course.setName(result.getString("Nome"));
-				course.setDescription(result.getString("Descrizione"));
+				course.setName(result.getString("Name"));
+				course.setDescription(result.getString("Description"));
 			}
 		} catch (SQLException e) {
 			throw new SQLException(e);
@@ -101,7 +101,7 @@ public class CourseDAO {
 	public Course findCourseById(int c_id) throws SQLException {
 		Course course = new Course();
 
-		String query = "SELECT * FROM corso WHERE ID = ?";
+		String query = "SELECT * FROM courses WHERE ID = ?";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		try {
@@ -110,12 +110,10 @@ public class CourseDAO {
 			result = pstatement.executeQuery();
 			result.next();
 			course.setId(c_id);
-			course.setName(result.getString("Nome"));
-			course.setDescription(result.getString("Descrizione"));
-
-			LecturerDAO lecDAO = new LecturerDAO(this.connection);
-			course.setTaughtBy(lecDAO.findLecturerById(result.getInt("ID_Docente")));
-
+			course.setName(result.getString("Name"));
+			course.setDescription(result.getString("Description"));
+			course.setTaughtById(result.getInt("ID_Lecturer"));
+			
 		} catch (SQLException e) {
 			throw new SQLException(e);
 		} finally {
@@ -137,4 +135,6 @@ public class CourseDAO {
 
 		return course;
 	}
+	
+	
 }

@@ -7,7 +7,7 @@ public class GraduationCall {
 	private int id;
 	private Date date;
 	private Time time;
-	private Course course;
+	private int courseId;
 
 	public int getId() {
 		return id;
@@ -33,12 +33,12 @@ public class GraduationCall {
 		this.time = time;
 	}
 
-	public Course getCourse() {
-		return course;
+	public int getCourseId() {
+		return courseId;
 	}
 
-	public void setCourse(Course id_course) {
-		this.course = id_course;
+	public void setCourseId(int courseId) {
+		this.courseId = courseId;
 	}
 
 }

@@ -12,8 +12,8 @@ public class Student {
 	private String surname;
 	private String email;
 	private String username;
-	private Map<GraduationCall, Entry<Integer, Integer>> calls = new HashMap<GraduationCall, Entry<Integer, Integer>>();
-	//private Set<Verbal> verbals = new HashSet<Verbal>();
+	private DegreeCourse degreeCourse;
+	//private Map<GraduationCall, Entry<Integer, Integer>> calls = new HashMap<GraduationCall, Entry<Integer, Integer>>();
 
 	public int getMatricola() {
 		return matricola;
@@ -53,6 +53,14 @@ public class Student {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public DegreeCourse getDegreeCourse() {
+		return degreeCourse;
+	}
+
+	public void setDegreeCourse(DegreeCourse degreeCourse) {
+		this.degreeCourse = degreeCourse;
 	}
 
 	/*public Set<Verbal> getVerbals() {
