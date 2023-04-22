@@ -1,0 +1,51 @@
+package filters;
+
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import beans.Lecturer;
+
+public class LecturerChecker implements Filter{
+	public LecturerChecker() {
+
+	}
+
+	public void destroy() {
+
+	}
+
+	public void init(FilterConfig fConfig) throws ServletException {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		System.out.print("Lecturer filter executing ..\n");
+		HttpServletRequest req = (HttpServletRequest) request;
+		HttpServletResponse res = (HttpServletResponse) response;
+		String loginpath = req.getServletContext().getContextPath() + "/index.html";
+
+		HttpSession s = req.getSession();
+		Lecturer l = null;
+		String role = null;
+		l = (Lecturer) s.getAttribute("user");
+		role = (String) s.getAttribute("role");
+		//If the session's attribute "role" is different from "lecturer" then go back to the login page
+		if (!role.equals("lecturer")) {
+			res.sendRedirect(loginpath);
+			return;
+		}
+		// pass the request along the filter chain
+		chain.doFilter(request, response);
+	}
+}

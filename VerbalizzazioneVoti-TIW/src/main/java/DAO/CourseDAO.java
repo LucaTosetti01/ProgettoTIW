@@ -113,7 +113,7 @@ public class CourseDAO {
 			course.setName(result.getString("Name"));
 			course.setDescription(result.getString("Description"));
 			course.setTaughtById(result.getInt("ID_Lecturer"));
-			
+
 		} catch (SQLException e) {
 			throw new SQLException(e);
 		} finally {
@@ -135,6 +135,5 @@ public class CourseDAO {
 
 		return course;
 	}
-	
-	
+
 }

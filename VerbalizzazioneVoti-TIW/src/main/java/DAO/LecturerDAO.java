@@ -108,4 +108,42 @@ public class LecturerDAO {
 		}
 		return code;
 	}
+
+	public Lecturer checkCredentials(String username, String password) throws SQLException {
+		String query = "SELECT ID,Username FROM lecturers WHERE Username = ? AND Password = ?";
+
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setString(1, username);
+			pstatement.setString(2, password);
+			result = pstatement.executeQuery();
+			if (!result.isBeforeFirst()) {
+				return null;
+			} else {
+				Lecturer lect = new Lecturer();
+				lect.setId(result.getInt("ID"));
+				lect.setUsername(result.getString("Username"));
+				return lect;
+			}
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+	}
 }

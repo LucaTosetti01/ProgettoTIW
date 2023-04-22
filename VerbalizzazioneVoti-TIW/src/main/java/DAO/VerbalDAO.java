@@ -41,7 +41,7 @@ public class VerbalDAO {
 				verb.setCreationDate(result.getDate("CreationDate"));
 				verb.setCreationTime(result.getTime("CreationTime"));
 				verb.setCallId(call_id);
-				
+
 				res = Optional.of(verb);
 			}
 

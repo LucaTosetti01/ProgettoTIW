@@ -112,7 +112,8 @@ CREATE TABLE `lecturers` (
   `Username` varchar(64) NOT NULL,
   `Password` varchar(64) NOT NULL,
   PRIMARY KEY (`ID`),
-  UNIQUE KEY `Email_UNIQUE` (`Email`)
+  UNIQUE KEY `Email_UNIQUE` (`Email`),
+  UNIQUE KEY `Username_UNIQUE` (`Username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -196,6 +197,7 @@ CREATE TABLE `students` (
   `ID_DegreeCourse` int NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Email_UNIQUE` (`Email`),
+  UNIQUE KEY `Username_UNIQUE` (`Username`),
   KEY `Students->DegreeCourses_idx` (`ID_DegreeCourse`),
   CONSTRAINT `Students->DegreeCourses` FOREIGN KEY (`ID_DegreeCourse`) REFERENCES `degree_courses` (`ID`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -272,4 +274,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-04-21 11:53:30
+-- Dump completed on 2023-04-22 11:51:59

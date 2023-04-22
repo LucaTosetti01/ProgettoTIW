@@ -81,7 +81,7 @@ public class GraduationCallDAO {
 				call.setDate(date);
 				call.setTime(result.getTime("Time"));
 				call.setCourseId(result.getInt("ID_Course"));
-		
+
 				calls.add(call);
 			}
 		} catch (SQLException e) {
@@ -147,7 +147,7 @@ public class GraduationCallDAO {
 			gc.setDate(result.getDate("Date"));
 			gc.setTime(result.getTime("Time"));
 			gc.setCourseId(c_id);
-			
+
 		} catch (SQLException e) {
 			throw new SQLException(e);
 		} finally {
