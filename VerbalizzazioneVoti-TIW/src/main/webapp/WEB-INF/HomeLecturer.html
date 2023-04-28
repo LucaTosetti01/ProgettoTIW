@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Lecturer's Home</title>
+</head>
+<body>
+	<div align="right">
+		<a th:href="@{/Logout}">Logout</a>
+	</div>
+	<h1>Welcome to your personal Home Page</h1>
+	<p th:text="${session.user.name} + ' ' + ${session.user.surname}">Lecturer</p>
+	
+	<div th:if="${courses.size() >0}">
+		<table border="1">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Name</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="c : ${courses}">
+					<td th:text="${c.id}"></td> 
+					<td th:text="${c.name}"></td>
+					<td th:utext="${c.description}"></td>
+					<td>
+						<form action="#" th:action="@{/GoToHomeLecturer(courseId=${c.id})}" method="POST">
+							<input type="submit" value="Choose">
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div th:if="${courses.size() == 0}">No courses found</div>
+
+</body>
+</html>

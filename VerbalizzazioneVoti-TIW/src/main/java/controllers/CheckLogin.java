@@ -13,15 +13,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+
 import DAO.LecturerDAO;
 import DAO.StudentDAO;
 import beans.Lecturer;
 import beans.Student;
+import utils.ConnectionHandler;
 
 @WebServlet("/CheckLogin")
 public class CheckLogin extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
+	private TemplateEngine templateEngine;
 
 	public CheckLogin() {
 		super();
@@ -32,20 +39,14 @@ public class CheckLogin extends HttpServlet {
 	}
 
 	public void init() throws ServletException {
-		try {
-			ServletContext context = getServletContext();
-			String driver = context.getInitParameter("dbDriver");
-			String url = context.getInitParameter("dbUrl");
-			String user = context.getInitParameter("dbUser");
-			String password = context.getInitParameter("dbPassword");
-			Class.forName(driver);
+		this.connection = ConnectionHandler.getConnection(getServletContext());
 
-			this.connection = DriverManager.getConnection(url, user, password);
-		} catch (ClassNotFoundException e) {
-			throw new UnavailableException("Can't load db driver");
-		} catch (SQLException e) {
-			throw new UnavailableException("Can't get the connection to db");
-		}
+		ServletContext servletContext = getServletContext();
+		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
+		templateResolver.setTemplateMode(TemplateMode.HTML);
+		this.templateEngine = new TemplateEngine();
+		this.templateEngine.setTemplateResolver(templateResolver);
+		templateResolver.setSuffix(".html");
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -54,7 +55,7 @@ public class CheckLogin extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		String usern = request.getParameter("username");
-		String passw = request.getParameter("password");
+		String passw = request.getParameter("pwd");
 
 		if (usern == null || usern.isEmpty() || passw == null || passw.isEmpty()) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
@@ -75,15 +76,19 @@ public class CheckLogin extends HttpServlet {
 
 		String redirectionPath = getServletContext().getContextPath();
 		if (stud == null && lect == null) {
-			redirectionPath += "/index.html";
+			redirectionPath = "/index.html";
+			ServletContext servletContext = getServletContext();
+			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+			ctx.setVariable("errorMessage", "Username or Password are incorrect, please retry");
+			this.templateEngine.process(redirectionPath, ctx, response.getWriter());
 		} else {
 			String target = (stud != null) ? "/GoToHomeStudent" : "/GoToHomeLecturer";
 			request.getSession().setAttribute("user", (stud != null) ? stud : lect);
 			request.getSession().setAttribute("role", (stud != null) ? "student" : "lecturer");
 			redirectionPath += target;
-		}
 
-		response.sendRedirect(redirectionPath);
+			response.sendRedirect(redirectionPath);
+		}
 
 	}
 
