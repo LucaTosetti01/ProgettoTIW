@@ -168,4 +168,41 @@ public class GraduationCallDAO {
 		}
 		return gc;
 	}
+
+	public GraduationCall getGraduationCallById(int gc_id) throws SQLException {
+		GraduationCall gc = new GraduationCall();
+
+		String query = "SELECT * FROM calls WHERE ID = ?";
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, gc_id);
+			result = pstatement.executeQuery();
+			result.next();
+			gc.setId(gc_id);
+			gc.setDate(result.getDate("Date"));
+			gc.setTime(result.getTime("Time"));
+			gc.setCourseId(result.getInt("ID_Course"));
+
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		return gc;
+	}
 }

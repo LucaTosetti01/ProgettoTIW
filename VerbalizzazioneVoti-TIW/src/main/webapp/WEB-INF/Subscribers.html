@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Lecturer's Home</title>
+</head>
+<body>
+	<h1>Call recap page</h1>
+	<h3>Call details: <span th:text="${call.id} + ', ' + ${call.date} + ', ' + ${call.time} + ', ' + ${call.courseId}"></span></h3>
+	
+	<div th:if="${students.size()>0">
+	<p>List of all students that subscribed to the call</p>
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Surname</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>
+			</thead>
+		</table>
+	</div>
+</body>
+</html>

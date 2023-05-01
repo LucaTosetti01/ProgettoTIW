@@ -8,31 +8,27 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import DAO.CourseDAO;
 import DAO.GraduationCallDAO;
-import beans.Course;
+import DAO.StudentDAO;
 import beans.GraduationCall;
-import beans.Lecturer;
+import beans.Student;
 import utils.ConnectionHandler;
 
-@WebServlet("/GoToHomeLecturer")
-public class GoToHomeLecturer extends HttpServlet {
+public class GetSubscriptionToCall extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private TemplateEngine templateEngine;
 	private Connection connection;
+	private TemplateEngine templateEngine;
 
-	public GoToHomeLecturer() {
+	public GetSubscriptionToCall() {
 		super();
 	}
 
@@ -47,62 +43,41 @@ public class GoToHomeLecturer extends HttpServlet {
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Integer courseId = null;
-		List<GraduationCall> calls = null;
-		List<Course> coursesTaughtByLec = null;
-
+		Integer callId = null;
+		List<Student> students = null;
+		GraduationCall call = null;
 		
-
 		try {
-			courseId = Integer.parseInt(request.getParameter("courseid"));
-
-			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			calls = gcDAO.findAllDegreeCallByCourseId(courseId);
-
-			
+			callId = Integer.parseInt(request.getParameter("callId"));
 		} catch (NumberFormatException | NullPointerException e) {
-			calls = new ArrayList<>();
-			String requestURL = request.getRequestURI().toString();
-			if (requestURL.equals("VerbalizzazioneVoti-TIW/CheckLogin")) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-				return;
-			}
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in course's calls extraction");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
 			return;
 		}
-
-		HttpSession session = request.getSession();
-		Lecturer lec = (Lecturer) session.getAttribute("user");
-		CourseDAO courseDAO = new CourseDAO(connection);
-
+		
+		GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+		StudentDAO sDAO = new StudentDAO(this.connection);
 		try {
-			coursesTaughtByLec = courseDAO.findAllCoursesByLecturer(lec.getId());
+			students = sDAO.findAllRegistrationsToTheCall(callId);
 		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in lecturer's courses extraction");
+			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in call's students extraction");
 			return;
 		}
-
-		String path = "/WEB-INF/HomeLecturer.html";
+		try {
+			call = gcDAO.getGraduationCallById(callId);
+		} catch (SQLException e) {
+			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in call's data extraction");
+			return;
+		}
+		
+		String path = "/WEB-INF/Subscribers.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-		ctx.setVariable("calls", calls);
-		ctx.setVariable("courses", coursesTaughtByLec);
+		ctx.setVariable("students", students);
+		ctx.setVariable("call", call);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
-	}
-
-	public void destroy() {
-		try {
-			if (connection != null) {
-				connection.close();
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }
