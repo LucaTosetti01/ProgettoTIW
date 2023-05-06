@@ -60,6 +60,47 @@ public class CourseDAO {
 		return courses;
 	}
 
+	public List<Course> findAllCoursesByStudent(int student_id) throws SQLException {
+		List<Course> courses = new ArrayList<Course>();
+
+		String query = "SELECT r.ID_Course,c.ID,r.ID_Student,u.ID,u.Role,c.Name,c.Description "
+				+ "FROM registrations_courses AS r JOIN courses AS c ON r.ID_Course = c.ID JOIN users AS u ON u.ID = r.ID_Student "
+				+ "WHERE r.ID_Student = ? AND u.Role = 'Student' " + "ORDER BY c.Name DESC";
+		ResultSet result = null;
+		PreparedStatement pstatement = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, student_id);
+			result = pstatement.executeQuery();
+			while (result.next()) {
+				Course course = new Course();
+				course.setId(result.getInt("ID"));
+				course.setName(result.getString("Name"));
+				course.setDescription(result.getString("Description"));
+				courses.add(course);
+			}
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+
+		return courses;
+	}
+
 	public Course findCourseByName(String name) throws SQLException {
 		Course course = null;
 

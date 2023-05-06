@@ -20,8 +20,8 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import DAO.LecturerDAO;
 import DAO.StudentDAO;
-import beans.Lecturer;
-import beans.Student;
+import DAO.UserDAO;
+import beans.User;
 import utils.ConnectionHandler;
 
 @WebServlet("/CheckLogin")
@@ -41,6 +41,7 @@ public class CheckLogin extends HttpServlet {
 	public void init() throws ServletException {
 		this.connection = ConnectionHandler.getConnection(getServletContext());
 
+		// Necessary for processing the errorMessage in case login fail.
 		ServletContext servletContext = getServletContext();
 		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
 		templateResolver.setTemplateMode(TemplateMode.HTML);
@@ -62,29 +63,29 @@ public class CheckLogin extends HttpServlet {
 			return;
 		}
 
-		StudentDAO sDAO = new StudentDAO(connection);
-		LecturerDAO lDAO = new LecturerDAO(connection);
-		Student stud = null;
-		Lecturer lect = null;
+		UserDAO uDAO = new UserDAO(connection);
+
+		User user = null;
 
 		try {
-			stud = sDAO.checkCredentials(usern, passw);
-			lect = lDAO.checkCredentials(usern, passw);
+			user = uDAO.checkCredentials(usern, passw);
 		} catch (SQLException e) {
+			if (request.getSession(false) != null) {
+				request.getSession().invalidate();
+			}
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in db credentials checking");
 		}
 
 		String redirectionPath = getServletContext().getContextPath();
-		if (stud == null && lect == null) {
+		if (user == null) {
 			redirectionPath = "/index.html";
 			ServletContext servletContext = getServletContext();
 			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 			ctx.setVariable("errorMessage", "Username or Password are incorrect, please retry");
 			this.templateEngine.process(redirectionPath, ctx, response.getWriter());
 		} else {
-			String target = (stud != null) ? "/GoToHomeStudent" : "/GoToHomeLecturer";
-			request.getSession().setAttribute("user", (stud != null) ? stud : lect);
-			request.getSession().setAttribute("role", (stud != null) ? "student" : "lecturer");
+			String target = (user.getRole().equals("Student")) ? "/GoToHomeStudent" : "/GoToHomeLecturer";
+			request.getSession().setAttribute("user", user);
 			redirectionPath += target;
 
 			response.sendRedirect(redirectionPath);

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import beans.Course;
 import beans.GraduationCall;
-import beans.Student;
 import beans.Verbal;
 
 public class VerbalDAO {

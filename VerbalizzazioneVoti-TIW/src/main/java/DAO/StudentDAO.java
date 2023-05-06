@@ -5,10 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import beans.CallEvaluation;
 import beans.DegreeCourse;
-import beans.Student;
+import beans.User;
 import beans.Verbal;
 
 public class StudentDAO {
@@ -22,10 +27,10 @@ public class StudentDAO {
 		this.connection = connection;
 	}
 
-	public List<Student> findAllStudentsByDegreeCourse(int degreeCourse_id) throws SQLException {
-		List<Student> students = new ArrayList<>();
+	public List<User> findAllStudentsByDegreeCourse(int degreeCourse_id) throws SQLException {
+		List<User> students = new ArrayList<>();
 
-		String query = "SELECT * FROM students WHERE ID_DegreeCourse = ?";
+		String query = "SELECT * FROM users WHERE ID_DegreeCourse = ? AND Role = 'Student'";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		try {
@@ -33,13 +38,14 @@ public class StudentDAO {
 			pstatement.setInt(1, degreeCourse_id);
 			result = pstatement.executeQuery();
 			while (result.next()) {
-				Student student = new Student();
+				User student = new User();
 
-				student.setMatricola(result.getInt("ID"));
+				student.setName(result.getString("ID"));
 				student.setSurname(result.getString("Surname"));
 				student.setName(result.getString("Name"));
 				student.setEmail(result.getString("Email"));
 				student.setUsername(result.getString("Username"));
+				student.setRole(result.getString("Role"));
 
 				students.add(student);
 			}
@@ -67,7 +73,7 @@ public class StudentDAO {
 
 	public int registerStudent(String surname, String name, String email, String username, String password,
 			int id_degreeCourse) throws SQLException {
-		String query = "INSERT INTO students (Surname,Name,Email,Username,Password,ID_DegreeCourse) VALUES (?,?,?,?,?,?)";
+		String query = "INSERT INTO users (Surname,Name,Email,Username,Password,ID_DegreeCourse,Role) VALUES (?,?,?,?,?,?,?)";
 		int code = 0;
 
 		PreparedStatement pstatement = null;
@@ -79,6 +85,7 @@ public class StudentDAO {
 			pstatement.setString(4, username);
 			pstatement.setString(5, password);
 			pstatement.setInt(6, id_degreeCourse);
+			pstatement.setString(7, "Student");
 			code = pstatement.executeUpdate();
 		} catch (SQLException e) {
 			throw new SQLException(e);
@@ -94,10 +101,10 @@ public class StudentDAO {
 		return code;
 	}
 
-	public List<Student> findStudentsInVerbal(int verbal_id) throws SQLException {
-		List<Student> students = new ArrayList<Student>();
+	public List<User> findStudentsInVerbal(int verbal_id) throws SQLException {
+		List<User> students = new ArrayList<User>();
 
-		String query = "SELECT * FROM students_verbals JOIN students on ID_Student=ID WHERE ID_Verbal = ?";
+		String query = "SELECT * FROM students_verbals JOIN users on ID_Student=ID WHERE ID_Verbal = ?";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		try {
@@ -105,12 +112,13 @@ public class StudentDAO {
 			pstatement.setInt(1, verbal_id);
 			result = pstatement.executeQuery();
 			while (result.next()) {
-				Student stud = new Student();
-				stud.setMatricola(result.getInt("ID"));
+				User stud = new User();
+				stud.setId(result.getInt("ID"));
 				stud.setSurname(result.getString("Surname"));
 				stud.setName(result.getString("Name"));
 				stud.setEmail(result.getString("Email"));
 				stud.setUsername(result.getString("Username"));
+				stud.setRole(result.getString("Role"));
 				DegreeCourseDAO degCourseDAO = new DegreeCourseDAO();
 				stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(verbal_id));
 
@@ -137,11 +145,11 @@ public class StudentDAO {
 		return students;
 	}
 
-	public List<Student> findAllRegistrationsToTheCall(int call_id) throws SQLException {
-		List<Student> students = new ArrayList<Student>();
+	public List<User> findAllRegistrationsToTheCall(int call_id) throws SQLException {
+		List<User> students = new ArrayList<User>();
 
 		String query = "SELECT ID,Surname,Name,Email,Username,ID_DegreeCourse,Mark,EvaluationStatus "
-				+ "FROM students AS s JOIN registrations_calls AS r ON s.ID=r.ID_Student JOIN degree_courses AS d ON s.ID_DegreeCourse = d.ID "
+				+ "FROM users AS u JOIN registrations_calls AS r ON u.ID=r.ID_Student JOIN degree_courses AS d ON u.ID_DegreeCourse = d.ID "
 				+ "WHERE ID_Call = ?";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
@@ -150,8 +158,8 @@ public class StudentDAO {
 			pstatement.setInt(1, call_id);
 			result = pstatement.executeQuery();
 			while (result.next()) {
-				Student stud = new Student();
-				stud.setMatricola(result.getInt("ID"));
+				User stud = new User();
+				stud.setId(result.getInt("ID"));
 				stud.setSurname(result.getString("Surname"));
 				stud.setName(result.getString("Name"));
 				stud.setEmail(result.getString("Email"));
@@ -182,10 +190,57 @@ public class StudentDAO {
 		return students;
 	}
 
-	public Student findStudentById(int student_id) throws SQLException {
-		Student stud = new Student();
+	public List<User> findAllRegistrationsToTheCall(int call_id, String orderBy, String orderType) throws SQLException {
+		List<User> students = new ArrayList<User>();
 
-		String query = "SELECT * FROM students WHERE ID = ?";
+		String query = "SELECT ID,Surname,Name,Email,Username,ID_DegreeCourse,Mark,EvaluationStatus "
+				+ "FROM users AS u JOIN registrations_calls AS r ON u.ID=r.ID_Student JOIN degree_courses AS d ON u.ID_DegreeCourse = d.ID "
+				+ "WHERE ID_Call = ? " + "ORDER BY ? ?";
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
+			pstatement.setString(2, orderBy);
+			pstatement.setString(3, orderType);
+			result = pstatement.executeQuery();
+			while (result.next()) {
+				User stud = new User();
+				stud.setId(result.getInt("ID"));
+				stud.setSurname(result.getString("Surname"));
+				stud.setName(result.getString("Name"));
+				stud.setEmail(result.getString("Email"));
+				stud.setUsername(result.getString("Username"));
+				DegreeCourseDAO degCourseDAO = new DegreeCourseDAO();
+				stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_CorsoDiLaurea")));
+
+				students.add(stud);
+			}
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		return students;
+	}
+
+	public User findStudentById(int student_id) throws SQLException {
+		User stud = new User();
+
+		String query = "SELECT * FROM users WHERE ID = ? AND Role = 'Student'";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		try {
@@ -194,14 +249,15 @@ public class StudentDAO {
 			result = pstatement.executeQuery();
 			result.next();
 
-			stud.setMatricola(student_id);
+			stud.setId(student_id);
 			stud.setSurname(result.getString("Surname"));
 			stud.setName(result.getString("Name"));
 			stud.setEmail(result.getString("Email"));
 			stud.setUsername(result.getString("Username"));
+			stud.setRole(result.getString("Role"));
 
-			DegreeCourseDAO degCourseDAO = new DegreeCourseDAO();
-			stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_CorsoDiLaurea")));
+			DegreeCourseDAO degCourseDAO = new DegreeCourseDAO(this.connection);
+			stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_DegreeCourse")));
 		} catch (SQLException e) {
 			throw new SQLException(e);
 		} finally {
@@ -249,24 +305,36 @@ public class StudentDAO {
 		return code;
 	}
 
-	public Student checkCredentials(String username, String password) throws SQLException {
-		String query = "SELECT ID,Username FROM students WHERE Username = ? AND Password = ?";
+	public Map<User, CallEvaluation> findAllRegistrationsAndEvaluationToCall(int call_id) throws SQLException {
+		Map<User, CallEvaluation> studEv = new LinkedHashMap();
 
+		String query = "SELECT * " + "FROM users AS u JOIN registrations_calls AS r ON u.ID = r.ID_Student "
+				+ "WHERE r.ID_Call = ?";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		try {
 			pstatement = connection.prepareStatement(query);
-			pstatement.setString(1, username);
-			pstatement.setString(2, password);
+			pstatement.setInt(1, call_id);
 			result = pstatement.executeQuery();
-			if (!result.isBeforeFirst()) {
-				return null;
-			} else {
-				result.next();
-				Student stud = new Student();
-				stud.setMatricola(result.getInt("ID"));
-				stud.setUsername(result.getString("Username"));
-				return stud;
+			while (result.next()) {
+				User u = new User();
+				u.setId(result.getInt("ID"));
+				u.setSurname(result.getString("Surname"));
+				u.setName(result.getString("Name"));
+				u.setEmail(result.getString("Email"));
+				u.setUsername(result.getString("Username"));
+				u.setRole(result.getString("Role"));
+
+				DegreeCourseDAO dcDAO = new DegreeCourseDAO(this.connection);
+				u.setDegreeCourse(dcDAO.findDegreeCourseById(result.getInt("ID_CorsoDiLaurea")));
+
+				CallEvaluation callEv = new CallEvaluation();
+				callEv.setCall_id(call_id);
+				callEv.setStudent_id(result.getInt("ID"));
+				callEv.setMark(result.getString("Mark"));
+				callEv.setState(result.getString("EvaluationStatus"));
+
+				studEv.put(u, callEv);
 			}
 		} catch (SQLException e) {
 			throw new SQLException(e);
@@ -286,6 +354,70 @@ public class StudentDAO {
 				throw new SQLException(e2);
 			}
 		}
+		return studEv;
+	}
+
+	public Map<User, CallEvaluation> findAllRegistrationsAndEvaluationToCallOrdered(int call_id, String orderBy,
+			String orderType) throws SQLException {
+		Map<User, CallEvaluation> studEv = new LinkedHashMap();
+
+		String query = "SELECT u.ID,u.Surname,u.Name,u.Email,u.Username,u.Role,u.ID_DegreeCourse,d.Name AS DegreeName,r.Mark,r.EvaluationStatus "
+				+ "FROM users AS u JOIN registrations_calls AS r ON u.ID = r.ID_Student JOIN degree_courses AS d ON d.ID = u.ID_DegreeCourse "
+				+ "WHERE r.ID_Call = ? AND Role = 'Student' " + "ORDER BY %s %s";
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+
+		if (!Arrays.asList("ID", "Surname", "Name", "Email", "Username", "DegreeName", "Mark", "EvaluationStatus")
+				.contains(orderBy) || !Arrays.asList("ASC", "DESC").contains(orderType)) {
+			throw new SQLException();
+		}
+		query = String.format(query, orderBy, orderType);
+
+		try {
+
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
+			System.out.println(pstatement.toString());
+			result = pstatement.executeQuery();
+			while (result.next()) {
+				User u = new User();
+				u.setId(result.getInt("ID"));
+				u.setSurname(result.getString("Surname"));
+				u.setName(result.getString("Name"));
+				u.setEmail(result.getString("Email"));
+				u.setUsername(result.getString("Username"));
+				u.setRole(result.getString("Role"));
+
+				DegreeCourseDAO dcDAO = new DegreeCourseDAO(this.connection);
+				u.setDegreeCourse(dcDAO.findDegreeCourseById(result.getInt("ID_DegreeCourse")));
+
+				CallEvaluation callEv = new CallEvaluation();
+				callEv.setCall_id(call_id);
+				callEv.setStudent_id(result.getInt("ID"));
+				callEv.setMark(result.getString("Mark"));
+				callEv.setState(result.getString("EvaluationStatus"));
+
+				studEv.put(u, callEv);
+			}
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		return studEv;
 	}
 
 }

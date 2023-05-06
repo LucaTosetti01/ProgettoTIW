@@ -36,7 +36,8 @@ public class CredentialsChecker implements Filter {
 		String loginpath = req.getServletContext().getContextPath() + "/index.html";
 
 		HttpSession s = req.getSession();
-		//If the session is just created or his attribute "user" is null (for any reason) go back to the login page
+		// If the session is just created or his attribute "user" is null (for any
+		// reason) go back to the login page
 		if (s.isNew() || s.getAttribute("user") == null) {
 			res.sendRedirect(loginpath);
 			return;

@@ -2,23 +2,68 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="ISO-8859-1">
-<title>Lecturer's Home</title>
+<title>Subscribers Page</title>
 </head>
 <body>
+	<div align="right">
+		<a th:href="@{/Logout}">Logout</a>
+	</div>
 	<h1>Call recap page</h1>
-	<h3>Call details: <span th:text="${call.id} + ', ' + ${call.date} + ', ' + ${call.time} + ', ' + ${call.courseId}"></span></h3>
-	
-	<div th:if="${students.size()>0">
-	<p>List of all students that subscribed to the call</p>
-		<table>
+	<h3>
+		Call details: <span
+			th:text="${call.id} + ', ' + ${call.date} + ', ' + ${call.time} + ', ' + ${call.courseId}"></span>
+	</h3>
+
+	<div th:if="${students.size()>0}">
+		<p>List of all students that subscribed to the call</p>
+		<form th:action="@{GetSubscriptionToCall}" method="POST">
+			<input type="submit" value="Order by"> <input type="hidden"
+				name="callId" th:value="${call.id}"> <select name="orderBy">
+				<option value="ID">ID</option>
+				<option value="Surname">Surname</option>
+				<option value="Name">Name</option>
+				<option value="Email">Email</option>
+				<option value="DegreeName">Degree course</option>
+				<option value="Mark">Mark</option>
+				<option value="EvaluationStatus">Evaluation state</option>
+			</select>
+		</form>
+		<table border="1">
 			<thead>
 				<tr>
 					<th>ID</th>
 					<th>Surname</th>
 					<th>Name</th>
 					<th>Email</th>
-					<th>
+					<th>Degree course</th>
+					<th>Mark</th>
+					<th>Evaluation state</th>
+					<th></th>
+					<!-- <form th:action="@{/GoToHomeLecturer(courseid=${c.id})}"
+							method="POST">
+							<input type="submit" name="Choose" value="Choose">
+						</form> -->
+
+				</tr>
 			</thead>
+			<tbody>
+				<tr th:each="stud : ${students}">
+					<td th:text="${stud.id}"></td>
+					<td th:text="${stud.surname}"></td>
+					<td th:text="${stud.name}"></td>
+					<td th:text="${stud.email}"></td>
+					<td th:text="${stud.degreeCourse.name}"></td>
+					<td th:text="${evaluations[studStat.index].mark}"></td>
+					<td th:text="${evaluations[studStat.index].evaluationState}"></td>
+					<td>
+						<form
+							th:action="@{/GoToMarkManagement(studentid=${stud.id},callid=${call.id})}"
+							method="POST">
+							<input type="submit" value="Modify">
+						</form>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 	</div>
 </body>

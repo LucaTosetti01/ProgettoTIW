@@ -1,11 +1,30 @@
 package beans;
 
-public class Lecturer {
+public class User {
 	private int id;
 	private String name;
 	private String surname;
 	private String email;
 	private String username;
+	private String role;
+	private DegreeCourse degreeCourse;
+
+	
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public DegreeCourse getDegreeCourse() {
+		return degreeCourse;
+	}
+
+	public void setDegreeCourse(DegreeCourse degreeCourse) {
+		this.degreeCourse = degreeCourse;
+	}
 
 	public int getId() {
 		return id;

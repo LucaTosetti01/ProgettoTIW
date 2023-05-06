@@ -14,19 +14,19 @@ public class Logout extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	public Logout() {
-		
+
 	}
-	
+
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
-		if(session!=null) {
+		if (session != null) {
 			session.invalidate();
 		}
 		String loginPath = getServletContext().getContextPath() + "/index.html";
 		response.sendRedirect(loginPath);
 	}
-	
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		doGet(request,response);
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
 	}
 }

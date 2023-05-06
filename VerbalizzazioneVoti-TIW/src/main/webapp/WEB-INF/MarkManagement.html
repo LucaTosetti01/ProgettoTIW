@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Mark Management</title>
+</head>
+<body>
+	<div align="right">
+		<a th:href="@{/Logout}">Logout</a>
+	</div>
+	<h1>Modify student's evaluation</h1>
+	<form
+		th:action="@{/UpdateStudentMark(studentid=${student.id},callid=${evaluation.call_id})}"
+		method="POST">
+		<table cellpadding="10">
+			<thead>
+				<tr>
+					<th>Data</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>ID</td>
+					<td th:text="${student.id}">0</td>
+				</tr>
+				<tr>
+					<td>Surname</td>
+					<td th:text="${student.surname}">None</td>
+				</tr>
+				<tr>
+					<td>Name</td>
+					<td th:text="${student.name}">None</td>
+				</tr>
+				<tr>
+					<td>Email</td>
+					<td th:text="${student.email}">None</td>
+				</tr>
+				<tr>
+					<td>Degree course</td>
+					<td th:text="${student.degreeCourse.name}">None</td>
+				</tr>
+				<tr>
+					<td>Mark</td>
+					<td><input type="text" name="newMark"
+						th:value="${evaluation.mark}"></td>
+				</tr>
+			</tbody>
+		</table>
+		<input type="submit" value="Update">
+	</form>
+
+
+
+</body>
+</html>

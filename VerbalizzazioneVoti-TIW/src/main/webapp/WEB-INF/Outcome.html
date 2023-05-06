@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Outcome Page</title>
+</head>
+<body>
+	<div align="right">
+		<a th:href="@{/Logout}">Logout</a>
+	</div>
+	<h1>Welcome to you outcome page</h1>
+
+	<div
+		th:if="${evaluation.state} != 'Pubblicato' and ${evaluation.state} != 'Rifiutato'">Voto
+		non ancora definito</div>
+	<div
+		th:if="${evaluation.state} == 'Pubblicato' or ${evaluation.state} == 'Rifiutato'">
+		<table cellpadding="10" border="1">
+			<thead>
+				<tr>
+					<th colspan="2">Student's data</th>
+					<th colspan="2">Course's data</th>
+					<th colspan="2">Call's data</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>ID</td>
+					<td th:text="${student.id}">0</td>
+
+					<td>ID</td>
+					<td th:text="${course.id}">0</td>
+
+					<td>ID</td>
+					<td th:text="${call.id}">0</td>
+				</tr>
+				<tr>
+					<td>Surname</td>
+					<td th:text="${student.surname}">None</td>
+
+					<td>Name</td>
+					<td th:text="${course.name}">0</td>
+
+					<td>Date</td>
+					<td th:text="${call.date}">0</td>
+				</tr>
+				<tr>
+					<td>Name</td>
+					<td th:text="${student.name}">None</td>
+
+					<td>Description</td>
+					<td th:text="${course.description}">0</td>
+
+					<td>Time</td>
+					<td th:text="${call.time}">0</td>
+				</tr>
+				<tr>
+					<td>Email</td>
+					<td th:text="${student.email}">None</td>
+
+					<td>Lecturer</td>
+					<td th:text="${lecturer.surname} + ' ' + ${lecturer.name}">0</td>
+
+					<td>Mark</td>
+					<td th:text="${evaluation.mark}">None</td>
+				</tr>
+				<tr>
+					<td>Degree course</td>
+					<td th:text="${student.degreeCourse.name}">None</td>
+
+					<td></td>
+					<td></td>
+
+					<td>Evaluation state</td>
+					<td th:text="${evaluation.state}">None</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<form
+		th:if="${evaluation.mark} >17 and ${evaluation.mark}<31 and ${evaluation.state} != 'Rifiutato'">
+		<input type="submit" value="Refuse">
+	</form>
+	<p th:if="${evaluation.state} == 'Rifiutato'">Il voto &egrave;
+		stato rifiutato</p>
+</body>
+</html>

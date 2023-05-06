@@ -31,12 +31,24 @@
   </filter>
   <filter-mapping>
 	  <filter-name>CredentialsChecker</filter-name>
+	  <url-pattern>/GetSubscriptionToCall</url-pattern>
 	  <url-pattern>/GoToHomeLecturer</url-pattern>
-	  <url-pattern></url-pattern>
+	  <url-pattern>/GoToHomeStudent</url-pattern>
+	  <url-pattern>/GoToMarkManagement</url-pattern>
+	  <url-pattern>/GoToOutcome</url-pattern>
+	  <url-pattern>/UpdateStudentMark</url-pattern>
   </filter-mapping>
   <filter-mapping>
 	  <filter-name>LecturerChecker</filter-name>
+	  <url-pattern>/GetSubscriptionToCall</url-pattern>
 	  <url-pattern>/GoToHomeLecturer</url-pattern>
+	  <url-pattern>/GoToMarkManagement</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+	  <filter-name>StudentChecker</filter-name>
+	  <url-pattern>/GoToHomeStudent</url-pattern>
+	  <url-pattern>/GoToOutcome</url-pattern>
+	  <url-pattern>/UpdateStudentMark</url-pattern>
   </filter-mapping>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

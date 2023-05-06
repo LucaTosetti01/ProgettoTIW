@@ -64,6 +64,51 @@ public class GraduationCallDAO {
 		return calls;
 	}
 
+	public List<GraduationCall> findAllDegreeCallWhichStudentSubscribedToByCourseId(int student_id, int course_id)
+			throws SQLException {
+		List<GraduationCall> calls = new ArrayList<GraduationCall>();
+
+		String query = "SELECT c.ID,c.Date,c.Time,c.ID_Course "
+				+ "FROM registrations_calls as r JOIN calls AS c ON c.ID = r.ID_Call JOIN users AS u ON u.ID = r.ID_Student "
+				+ "WHERE c.ID_Course = ? AND r.ID_Student = ? " + "ORDER BY c.Date DESC";
+		ResultSet result = null;
+		PreparedStatement pstatement = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, course_id);
+			pstatement.setInt(2, student_id);
+			result = pstatement.executeQuery();
+			while (result.next()) {
+				GraduationCall call = new GraduationCall();
+
+				call.setId(result.getInt("ID"));
+				call.setDate(result.getDate("Date"));
+				call.setTime(result.getTime("Time"));
+				call.setCourseId(result.getInt("ID_Course"));
+				calls.add(call);
+			}
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+
+		return calls;
+	}
+
 	public List<GraduationCall> findAllDegreeCallByDate(Date date) throws SQLException {
 		List<GraduationCall> calls = new ArrayList<GraduationCall>();
 

@@ -26,13 +26,13 @@ import beans.GraduationCall;
 import beans.User;
 import utils.ConnectionHandler;
 
-@WebServlet("/GoToHomeLecturer")
-public class GoToHomeLecturer extends HttpServlet {
+@WebServlet("/GoToHomeStudent")
+public class GoToHomeStudent extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	private Connection connection;
 
-	public GoToHomeLecturer() {
+	public GoToHomeStudent() {
 		super();
 	}
 
@@ -49,13 +49,16 @@ public class GoToHomeLecturer extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Integer courseId = null;
 		List<GraduationCall> calls = null;
-		List<Course> coursesTaughtByLec = null;
+		List<Course> coursesStudentSubscribedTo = null;
+
+		HttpSession session = request.getSession();
+		User student = (User) session.getAttribute("user");
 
 		try {
 			courseId = Integer.parseInt(request.getParameter("courseid"));
 
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			calls = gcDAO.findAllDegreeCallByCourseId(courseId);
+			calls = gcDAO.findAllDegreeCallWhichStudentSubscribedToByCourseId(student.getId(), courseId);
 
 		} catch (NumberFormatException | NullPointerException e) {
 			calls = new ArrayList<>();
@@ -69,22 +72,21 @@ public class GoToHomeLecturer extends HttpServlet {
 			return;
 		}
 
-		HttpSession session = request.getSession();
-		User lec = (User) session.getAttribute("user");
 		CourseDAO courseDAO = new CourseDAO(connection);
 
 		try {
-			coursesTaughtByLec = courseDAO.findAllCoursesByLecturer(lec.getId());
+			coursesStudentSubscribedTo = courseDAO.findAllCoursesByStudent(student.getId());
 		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in lecturer's courses extraction");
+			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's courses extraction");
 			return;
 		}
 
-		String path = "/WEB-INF/HomeLecturer.html";
+		String path = "/WEB-INF/HomeStudent.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("calls", calls);
-		ctx.setVariable("courses", coursesTaughtByLec);
+		ctx.setVariable("courses", coursesStudentSubscribedTo);
+		ctx.setVariable("firstTime", (courseId != null) ? courseId : null);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 
