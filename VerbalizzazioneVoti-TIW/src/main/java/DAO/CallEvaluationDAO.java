@@ -138,4 +138,29 @@ public class CallEvaluationDAO {
 		}
 		return callEv;
 	}
+	
+	public int updateEvaluationStateByStudentAndCallId(int student_id, int call_id, String evaluationState) throws SQLException {
+		String query = "UPDATE registrations_calls SET EvaluationStatus = ? WHERE ID_Student = ? AND ID_Call = ?";
+		int code=0;
+		
+		PreparedStatement pstatement = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setString(1, evaluationState);
+			pstatement.setInt(2, student_id);
+			pstatement.setInt(3, call_id);
+			code = pstatement.executeUpdate();
+		}  catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e1) {
+
+			}
+		}
+		return code;
+	}
 }
