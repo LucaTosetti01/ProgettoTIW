@@ -58,7 +58,7 @@
 					<td th:text="${c.date}"></td>
 					<td th:utext="${c.time}"></td>
 					<td>
-						<form th:action="@{/GetSubscriptionToCall(callId=${c.id})}"
+						<form th:action="@{/GetSubscriptionToCall(callid=${c.id})}"
 							method="POST">
 							<input type="submit" value="Choose">
 						</form>

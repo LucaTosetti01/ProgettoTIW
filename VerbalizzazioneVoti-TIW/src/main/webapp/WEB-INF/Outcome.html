@@ -78,7 +78,7 @@
 		</table>
 	</div>
 	<div th:if="${evaluation.mark} >17 and ${evaluation.mark}<31 and ${evaluation.state} != 'Rifiutato'">
-	<form th:action="@{/UpdateStudentMark}">
+	<form th:action="@{/RefuseMark}">
 		<input type="hidden" name="studentid" th:value="${student.id}">
 		<input type="hidden" name="callid" th:value="${call.id}">
 		<input type="hidden" name="updatetype" th:value="'Rifiutato'">

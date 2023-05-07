@@ -62,7 +62,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 		prevOrderBy = (String) session.getAttribute("prevOrderBy");
 		prevOrderType = (String) session.getAttribute("prevOrderType");
 		try {
-			callId = Integer.parseInt(request.getParameter("callId"));
+			callId = Integer.parseInt(request.getParameter("callid"));
 			orderBy = (request.getParameter("orderBy")) != null ? request.getParameter("orderBy") : "ID";
 		} catch (NumberFormatException | NullPointerException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Subscribers Page</title>
+</head>
+<body>
+	<div align="right">
+		<a th:href="@{/Logout}">Logout</a>
+	</div>
+	<h1>Verbal recap page</h1>
+	<div>
+		<table cellpadding="10" border="1">
+			<thead>
+				<tr>
+					<th colspan="2">Verbal's data</th>
+					<th colspan="2">Course's data</th>
+					<th colspan="2">Call's data</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>ID</td>
+					<td th:text="${verbal.id}">0</td>
+
+					<td>ID</td>
+					<td th:text="${course.id}">0</td>
+
+					<td>ID</td>
+					<td th:text="${call.id}">0</td>
+				</tr>
+				<tr>
+					<td>Creation date</td>
+					<td th:text="${verbal.creationDate}">None</td>
+
+					<td>Name</td>
+					<td th:text="${course.name}">0</td>
+
+					<td>Date</td>
+					<td th:text="${call.date}">0</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+
+					<td>Description</td>
+					<td th:text="${course.description}">0</td>
+
+					<td>Time</td>
+					<td th:text="${call.time}">0</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+
+					<td>Lecturer</td>
+					<td th:text="${lecturer.surname} + ' ' + ${lecturer.name}">0</td>
+
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<br>
+	
+	<div th:if="${students.size()>0}">
+		<p>List of all students that subscribed to the call</p>
+		<table border="1">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Surname</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Degree course</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="stud : ${students}">
+					<td th:text="${stud.id}"></td>
+					<td th:text="${stud.surname}"></td>
+					<td th:text="${stud.name}"></td>
+					<td th:text="${stud.email}"></td>
+					<td th:text="${stud.degreeCourse.name}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

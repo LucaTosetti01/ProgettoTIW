@@ -138,11 +138,12 @@ public class CallEvaluationDAO {
 		}
 		return callEv;
 	}
-	
-	public int updateEvaluationStateByStudentAndCallId(int student_id, int call_id, String evaluationState) throws SQLException {
+
+	public int updateEvaluationStateByStudentAndCallId(int student_id, int call_id, String evaluationState)
+			throws SQLException {
 		String query = "UPDATE registrations_calls SET EvaluationStatus = ? WHERE ID_Student = ? AND ID_Call = ?";
-		int code=0;
-		
+		int code = 0;
+
 		PreparedStatement pstatement = null;
 		try {
 			pstatement = connection.prepareStatement(query);
@@ -150,7 +151,82 @@ public class CallEvaluationDAO {
 			pstatement.setInt(2, student_id);
 			pstatement.setInt(3, call_id);
 			code = pstatement.executeUpdate();
-		}  catch (SQLException e) {
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e1) {
+
+			}
+		}
+		return code;
+	}
+
+	public int publishAllMarksByCallId(int call_id) throws SQLException {
+		boolean autoCommitSettedHere = false;
+		if(connection.getAutoCommit()) {
+			connection.setAutoCommit(false);
+			autoCommitSettedHere = true;
+		}
+		
+		String query = "UPDATE registrations_calls SET Mark = 'Rimandato' WHERE EvaluationStatus = 'Rifiutato'";
+				
+		PreparedStatement pstatement = null;
+		
+		String query2 = "UPDATE registrations_calls " + "SET EvaluationStatus = 'Verbalizzato' "
+				+ "WHERE ID_Call = ? AND (EvaluationStatus = 'Pubblicato' OR EvaluationStatus = 'Rifiutato')";
+		
+		
+		PreparedStatement pstatement2 = null;
+		int code = 0;
+
+		
+		try {
+			pstatement = connection.prepareStatement(query);
+			code = pstatement.executeUpdate();
+			
+			pstatement2 = connection.prepareStatement(query2);
+			pstatement2.setInt(1, call_id);
+			code = pstatement2.executeUpdate();
+			
+			if(autoCommitSettedHere) {
+				connection.commit();
+			}
+		} catch (SQLException e) {
+			if(autoCommitSettedHere) {
+				connection.rollback();
+			}
+			throw new SQLException(e);
+		} finally {
+			if(autoCommitSettedHere) {
+				connection.setAutoCommit(true);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e1) {
+
+			}
+		}
+		return code;
+	}
+	
+	public int updateMarkByStudentAndCallId(int student_id, int call_id, String newMark) throws SQLException {
+		String query = "UPDATE registrations_calls SET Mark = ? WHERE ID_Call = ? AND ID_Student = ?";
+		int code = 0;
+
+		PreparedStatement pstatement = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setString(1, newMark);
+			pstatement.setInt(2, call_id);
+			pstatement.setInt(3, student_id);
+			code = pstatement.executeUpdate();
+		} catch (SQLException e) {
 			throw new SQLException(e);
 		} finally {
 			try {

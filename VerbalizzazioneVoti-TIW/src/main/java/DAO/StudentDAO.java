@@ -148,9 +148,9 @@ public class StudentDAO {
 	public List<User> findAllRegistrationsToTheCall(int call_id) throws SQLException {
 		List<User> students = new ArrayList<User>();
 
-		String query = "SELECT ID,Surname,Name,Email,Username,ID_DegreeCourse,Mark,EvaluationStatus "
+		String query = "SELECT u.ID,u.Surname,u.Name,u.Email,u.Username,u.ID_DegreeCourse "
 				+ "FROM users AS u JOIN registrations_calls AS r ON u.ID=r.ID_Student JOIN degree_courses AS d ON u.ID_DegreeCourse = d.ID "
-				+ "WHERE ID_Call = ?";
+				+ "WHERE r.ID_Call = ?";
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		try {
@@ -164,8 +164,8 @@ public class StudentDAO {
 				stud.setName(result.getString("Name"));
 				stud.setEmail(result.getString("Email"));
 				stud.setUsername(result.getString("Username"));
-				DegreeCourseDAO degCourseDAO = new DegreeCourseDAO();
-				stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_CorsoDiLaurea")));
+				DegreeCourseDAO degCourseDAO = new DegreeCourseDAO(this.connection);
+				stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_DegreeCourse")));
 
 				students.add(stud);
 			}
@@ -212,7 +212,7 @@ public class StudentDAO {
 				stud.setEmail(result.getString("Email"));
 				stud.setUsername(result.getString("Username"));
 				DegreeCourseDAO degCourseDAO = new DegreeCourseDAO();
-				stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_CorsoDiLaurea")));
+				stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_DegreeCourse")));
 
 				students.add(stud);
 			}

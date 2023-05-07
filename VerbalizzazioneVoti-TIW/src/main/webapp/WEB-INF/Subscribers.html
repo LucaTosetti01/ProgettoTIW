@@ -54,7 +54,7 @@
 					<td th:text="${stud.email}"></td>
 					<td th:text="${stud.degreeCourse.name}"></td>
 					<td th:text="${evaluations[studStat.index].mark}"></td>
-					<td th:text="${evaluations[studStat.index].evaluationState}"></td>
+					<td th:text="${evaluations[studStat.index].state}"></td>
 					<td>
 						<form
 							th:action="@{/GoToMarkManagement(studentid=${stud.id},callid=${call.id})}"
@@ -65,6 +65,13 @@
 				</tr>
 			</tbody>
 		</table>
+		
+		<div>
+			<form th:action="@{/VerbalizeStudentsMarks}">
+				<input type="hidden" name="callid" th:value="${call.id}">
+				<input type="submit" value="Verbalize">
+			</form>
+		</div>
 	</div>
 </body>
 </html>
