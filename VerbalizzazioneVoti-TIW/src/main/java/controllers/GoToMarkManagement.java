@@ -18,7 +18,6 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import DAO.CallEvaluationDAO;
 import DAO.StudentDAO;
-import DAO.UserDAO;
 import beans.CallEvaluation;
 import beans.User;
 import utils.ConnectionHandler;

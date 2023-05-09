@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import DAO.CallEvaluationDAO;
 import DAO.VerbalDAO;
-import beans.Verbal;
 import utils.ConnectionHandler;
 
 @WebServlet("/VerbalizeStudentsMarks")

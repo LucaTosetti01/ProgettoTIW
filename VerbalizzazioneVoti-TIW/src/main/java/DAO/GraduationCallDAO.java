@@ -9,7 +9,6 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-import beans.Course;
 import beans.GraduationCall;
 
 public class GraduationCallDAO {

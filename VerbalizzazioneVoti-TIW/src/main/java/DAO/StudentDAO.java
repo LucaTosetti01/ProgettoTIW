@@ -6,15 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import beans.CallEvaluation;
-import beans.DegreeCourse;
 import beans.User;
-import beans.Verbal;
 
 public class StudentDAO {
 	private Connection connection;
@@ -306,7 +303,7 @@ public class StudentDAO {
 	}
 
 	public Map<User, CallEvaluation> findAllRegistrationsAndEvaluationToCall(int call_id) throws SQLException {
-		Map<User, CallEvaluation> studEv = new LinkedHashMap();
+		Map<User, CallEvaluation> studEv = new LinkedHashMap<User, CallEvaluation>();
 
 		String query = "SELECT * " + "FROM users AS u JOIN registrations_calls AS r ON u.ID = r.ID_Student "
 				+ "WHERE r.ID_Call = ?";
@@ -359,7 +356,7 @@ public class StudentDAO {
 
 	public Map<User, CallEvaluation> findAllRegistrationsAndEvaluationToCallOrdered(int call_id, String orderBy,
 			String orderType) throws SQLException {
-		Map<User, CallEvaluation> studEv = new LinkedHashMap();
+		Map<User, CallEvaluation> studEv = new LinkedHashMap<User, CallEvaluation>();
 
 		String query = "SELECT u.ID,u.Surname,u.Name,u.Email,u.Username,u.Role,u.ID_DegreeCourse,d.Name AS DegreeName,r.Mark,r.EvaluationStatus "
 				+ "FROM users AS u JOIN registrations_calls AS r ON u.ID = r.ID_Student JOIN degree_courses AS d ON d.ID = u.ID_DegreeCourse "

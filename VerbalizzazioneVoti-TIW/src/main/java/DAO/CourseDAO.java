@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import beans.Course;
-import beans.DegreeCourse;
 
 public class CourseDAO {
 	private Connection connection;

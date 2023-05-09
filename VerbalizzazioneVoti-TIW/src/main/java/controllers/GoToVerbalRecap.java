@@ -30,6 +30,7 @@ import utils.ConnectionHandler;
 
 @WebServlet("/GoToVerbalRecap")
 public class GoToVerbalRecap extends HttpServlet{
+	private static final long serialVersionUID = 1L;
 	private Connection connection;
 	private TemplateEngine templateEngine;
 	

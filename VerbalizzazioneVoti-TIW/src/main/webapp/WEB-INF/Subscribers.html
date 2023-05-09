@@ -17,15 +17,18 @@
 	<div th:if="${students.size()>0}">
 		<p>List of all students that subscribed to the call</p>
 		<form th:action="@{GetSubscriptionToCall}" method="POST">
-			<input type="submit" value="Order by"> <input type="hidden"
-				name="callId" th:value="${call.id}"> <select name="orderBy">
-				<option value="ID">ID</option>
-				<option value="Surname">Surname</option>
-				<option value="Name">Name</option>
-				<option value="Email">Email</option>
-				<option value="DegreeName">Degree course</option>
-				<option value="Mark">Mark</option>
-				<option value="EvaluationStatus">Evaluation state</option>
+			<input type="submit" value="Order by"> 
+			<input type="hidden" name="callid" th:value="${call.id}">
+			<input type="hidden" name="prevOrderBy" th:value="${param.orderBy}">
+			<input type="hidden" name="prevOrderType" th:value="${orderType}">
+			<select name="orderBy">
+				<option value="ID" th:selected="${#request.getParameter('orderBy') == 'ID'}">ID</option>
+				<option value="Surname" th:selected="${#request.getParameter('orderBy') == 'Surname'}">Surname</option>
+				<option value="Name" th:selected="${#request.getParameter('orderBy') == 'Name'}">Name</option>
+				<option value="Email" th:selected="${#request.getParameter('orderBy') == 'Email'}">Email</option>
+				<option value="DegreeName" th:selected="${#request.getParameter('orderBy') == 'DegreeName'}">Degree course</option>
+				<option value="Mark" th:selected="${#request.getParameter('orderBy') == 'Mark'}">Mark</option>
+				<option value="EvaluationStatus" th:selected="${#request.getParameter('orderBy') == 'EvaluationStatus'}">Evaluation state</option>
 			</select>
 		</form>
 		<table border="1">
@@ -39,11 +42,6 @@
 					<th>Mark</th>
 					<th>Evaluation state</th>
 					<th></th>
-					<!-- <form th:action="@{/GoToHomeLecturer(courseid=${c.id})}"
-							method="POST">
-							<input type="submit" name="Choose" value="Choose">
-						</form> -->
-
 				</tr>
 			</thead>
 			<tbody>

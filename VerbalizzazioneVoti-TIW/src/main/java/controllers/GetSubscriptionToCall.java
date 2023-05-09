@@ -3,7 +3,6 @@ package controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,14 +12,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
 import DAO.StudentDAO;
 import beans.CallEvaluation;
@@ -54,36 +51,32 @@ public class GetSubscriptionToCall extends HttpServlet {
 		GraduationCall call = null;
 
 		String orderBy = null;
-		String orderType = null;
-		HttpSession session = request.getSession();
+		boolean orderType;
 		String prevOrderBy = null;
-		String prevOrderType = null;
+		boolean prevOrderType;
 
-		prevOrderBy = (String) session.getAttribute("prevOrderBy");
-		prevOrderType = (String) session.getAttribute("prevOrderType");
 		try {
 			callId = Integer.parseInt(request.getParameter("callid"));
 			orderBy = (request.getParameter("orderBy")) != null ? request.getParameter("orderBy") : "ID";
+			orderType = (request.getParameter("orderType")) != null ? Boolean.parseBoolean(request.getParameter("orderType")) : true;
+			prevOrderType = request.getParameter("prevOrderType") != null ? Boolean.parseBoolean(request.getParameter("prevOrderType")) : true;
+			prevOrderBy = request.getParameter("prevOrderBy");
 		} catch (NumberFormatException | NullPointerException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
 			return;
 		}
 
 		if (orderBy.equals(prevOrderBy)) {
-			if (prevOrderType.equals("ASC")) {
-				orderType = "DESC";
-			} else {
-				orderType = "ASC";
-			}
+			orderType = !prevOrderType;
 		} else {
-			orderType = "ASC";
+			orderType = true;		//"ASC"
 		}
-
+		
 		GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 		StudentDAO sDAO = new StudentDAO(this.connection);
 
 		try {
-			studentsWithEvaluations = sDAO.findAllRegistrationsAndEvaluationToCallOrdered(callId, orderBy, orderType);
+			studentsWithEvaluations = sDAO.findAllRegistrationsAndEvaluationToCallOrdered(callId, orderBy, orderType ? "ASC" : "DESC");
 			/*
 			 * studentsWithEvaluations = (orderBy!=null) ?
 			 * sDAO.findAllRegistrationsAndEvaluationToCallOrdered(callId, orderBy,
@@ -103,8 +96,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 
 		List<User> students = studentsWithEvaluations.keySet().stream().toList();
 		List<CallEvaluation> callEvaluations = studentsWithEvaluations.values().stream().toList();
-		session.setAttribute("prevOrderBy", orderBy);
-		session.setAttribute("prevOrderType", orderType);
+
 
 		String path = "/WEB-INF/Subscribers.html";
 		ServletContext servletContext = getServletContext();
@@ -112,6 +104,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 		ctx.setVariable("students", students);
 		ctx.setVariable("call", call);
 		ctx.setVariable("evaluations", callEvaluations);
+		ctx.setVariable("orderType", orderType);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 
