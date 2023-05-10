@@ -42,6 +42,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 		this.templateEngine = new TemplateEngine();
 		this.templateEngine.setTemplateResolver(templateResolver);
 		templateResolver.setSuffix(".html");
+		
 		connection = ConnectionHandler.getConnection(getServletContext());
 	}
 
@@ -62,7 +63,19 @@ public class GetSubscriptionToCall extends HttpServlet {
 			prevOrderType = request.getParameter("prevOrderType") != null ? Boolean.parseBoolean(request.getParameter("prevOrderType")) : true;
 			prevOrderBy = request.getParameter("prevOrderBy");
 		} catch (NumberFormatException | NullPointerException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			//request.setAttribute("errore", "ERRORE CO3KIOEFK");
+			//request.getRequestDispatcher("/WEB-INF/HomeLecturer.html").forward(request, response);
+			//return;
+			
+			//response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			//return;
+			String errorPath="/GoToHomeLecturer";
+			request.setAttribute("error", "Incorrect param values");
+			request.getRequestDispatcher(errorPath).forward(request, response);
+			/*ServletContext servletContext = getServletContext();
+			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+			ctx.setVariable("errorMessage", "Incorrect param values");
+			templateEngine.process(errorPath, ctx, response.getWriter());*/
 			return;
 		}
 
@@ -84,7 +97,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 			 * orderBy, orderType);
 			 */
 		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in call's students extraction");
+			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in students and their evaluations data extraction");
 			return;
 		}
 		try {

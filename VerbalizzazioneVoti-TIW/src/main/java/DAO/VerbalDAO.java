@@ -6,8 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import beans.User;
 import beans.Verbal;
 
 public class VerbalDAO {
@@ -21,8 +24,8 @@ public class VerbalDAO {
 		this.connection = connection;
 	}
 
-	public Optional<Verbal> findAllVerbalsByCall(int call_id) throws SQLException {
-		Optional<Verbal> res = Optional.empty();
+	public List<Verbal> findAllVerbalsByCall(int call_id) throws SQLException {
+		List<Verbal> res = new ArrayList<>();
 
 		String query = "SELECT * FROM verbals WHERE ID_Call = ?";
 		PreparedStatement pstatement = null;
@@ -39,7 +42,7 @@ public class VerbalDAO {
 				verb.setCreationTime(result.getTime("CreationTime"));
 				verb.setCallId(call_id);
 
-				res = Optional.of(verb);
+				res.add(verb);
 			}
 
 		} catch (SQLException e) {
@@ -62,11 +65,11 @@ public class VerbalDAO {
 		}
 		return res;
 	}
-	
+
 	public int createVerbal(Date creationDate, Time creationTime, int call_id) throws SQLException {
 		String query = "INSERT INTO verbals (CreationDate, CreationTime, ID_Call) VALUES (?,?,?)";
-		int code=0;
-		
+		int code = 0;
+
 		PreparedStatement pstatement = null;
 		try {
 			pstatement = connection.prepareStatement(query);
@@ -87,26 +90,151 @@ public class VerbalDAO {
 		}
 		return code;
 	}
-	
+
+	public int saveStudentsWithinVerbal(int call_id) throws SQLException {
+		this.connection.setAutoCommit(false);
+		
+		String query = "SELECT MAX(ID) AS ID FROM verbals";
+		String query2 = "INSERT INTO students_verbals (ID_Student, ID_Verbal) VALUES (?,?)";
+
+		int code = 0, maxIdInserted = -1;
+		List<User> students = null;
+
+		PreparedStatement pstatement = null;
+		PreparedStatement pstatement2 = null;
+		ResultSet result = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			result = pstatement.executeQuery();
+			result.next();
+			maxIdInserted = result.getInt("ID");
+
+			StudentDAO sDAO = new StudentDAO(this.connection);
+			students = sDAO.findAllRegistrationsToTheCall(call_id);
+
+			pstatement2 = connection.prepareStatement(query2);
+
+			for (User student : students) {
+				pstatement2.setInt(1, student.getId());
+				pstatement2.setInt(2, maxIdInserted);
+				code = pstatement2.executeUpdate();
+			}
+			connection.commit();
+		} catch (SQLException e) {
+			connection.rollback();
+			throw new SQLException(e);
+		} finally {
+			connection.setAutoCommit(true);
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e1) {
+
+			}
+		}
+		return code;
+	}
+
 	public Verbal getVerbalById(int verbal_id) throws SQLException {
 		String query = "SELECT * FROM verbals WHERE ID = ?";
 		Verbal verbal = new Verbal();
-		
+
 		PreparedStatement pstatement = null;
-		ResultSet result= null;
-		
+		ResultSet result = null;
+
 		try {
 			pstatement = connection.prepareStatement(query);
 			pstatement.setInt(1, verbal_id);
 			result = pstatement.executeQuery();
 			result.next();
-			
+
 			verbal.setId(verbal_id);
 			verbal.setCreationDate(result.getDate("CreationDate"));
 			verbal.setCreationTime(result.getTime("CreationTime"));
 			verbal.setCallId(result.getInt("ID_Call"));
-			
-		}catch (SQLException e) {
+
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		return verbal;
+	}
+
+	public Verbal getVerbalByCallId(int call_id) throws SQLException {
+		String query = "SELECT * FROM verbals WHERE ID_Call = ?";
+		Verbal verbal = new Verbal();
+
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
+			result = pstatement.executeQuery();
+			result.next();
+
+			verbal.setId(result.getInt("ID"));
+			verbal.setCreationDate(result.getDate("CreationDate"));
+			verbal.setCreationTime(result.getTime("CreationTime"));
+			verbal.setCallId(result.getInt("ID_Call"));
+
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		return verbal;
+	}
+
+	public Verbal getVerbalByCallIdDateTime(Date date, Time time, int call_id) throws SQLException {
+		String query = "SELECT * FROM verbals WHERE ID_Call = ? AND CreationDate = ? AND CreationTime = ?";
+		Verbal verbal = new Verbal();
+
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
+			pstatement.setDate(2, date);
+			pstatement.setTime(3, time);
+			result = pstatement.executeQuery();
+			result.next();
+
+			verbal.setId(result.getInt("ID"));
+			verbal.setCreationDate(result.getDate("CreationDate"));
+			verbal.setCreationTime(result.getTime("CreationTime"));
+			verbal.setCallId(result.getInt("ID_Call"));
+
+		} catch (SQLException e) {
 			throw new SQLException(e);
 		} finally {
 			try {
@@ -127,43 +255,5 @@ public class VerbalDAO {
 		return verbal;
 	}
 	
-	public Verbal getVerbalByCallId(int call_id) throws SQLException {
-		String query = "SELECT * FROM verbals WHERE ID_Call = ?";
-		Verbal verbal = new Verbal();
-		
-		PreparedStatement pstatement = null;
-		ResultSet result= null;
-		
-		try {
-			pstatement = connection.prepareStatement(query);
-			pstatement.setInt(1, call_id);
-			result = pstatement.executeQuery();
-			result.next();
-			
-			verbal.setId(result.getInt("ID"));
-			verbal.setCreationDate(result.getDate("CreationDate"));
-			verbal.setCreationTime(result.getTime("CreationTime"));
-			verbal.setCallId(result.getInt("ID_Call"));
-			
-		}catch (SQLException e) {
-			throw new SQLException(e);
-		} finally {
-			try {
-				if (result != null) {
-					result.close();
-				}
-			} catch (Exception e1) {
-				throw new SQLException(e1);
-			}
-			try {
-				if (pstatement != null) {
-					pstatement.close();
-				}
-			} catch (Exception e2) {
-				throw new SQLException(e2);
-			}
-		}
-		return verbal;
-	}
 
 }

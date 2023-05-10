@@ -1,9 +1,11 @@
 package DAO;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -165,45 +167,37 @@ public class CallEvaluationDAO {
 		return code;
 	}
 
-	public int publishAllMarksByCallId(int call_id) throws SQLException {
-		boolean autoCommitSettedHere = false;
-		if(connection.getAutoCommit()) {
-			connection.setAutoCommit(false);
-			autoCommitSettedHere = true;
-		}
-		
+	public int publishAllMarksByCallId(Date date, Time time, int call_id) throws SQLException {
+		connection.setAutoCommit(false);
+
 		String query = "UPDATE registrations_calls SET Mark = 'Rimandato' WHERE EvaluationStatus = 'Rifiutato'";
-				
+
 		PreparedStatement pstatement = null;
-		
+
 		String query2 = "UPDATE registrations_calls " + "SET EvaluationStatus = 'Verbalizzato' "
 				+ "WHERE ID_Call = ? AND (EvaluationStatus = 'Pubblicato' OR EvaluationStatus = 'Rifiutato')";
-		
-		
+
 		PreparedStatement pstatement2 = null;
 		int code = 0;
 
-		
 		try {
 			pstatement = connection.prepareStatement(query);
 			code = pstatement.executeUpdate();
-			
+
 			pstatement2 = connection.prepareStatement(query2);
 			pstatement2.setInt(1, call_id);
 			code = pstatement2.executeUpdate();
-			
-			if(autoCommitSettedHere) {
-				connection.commit();
-			}
+
+			VerbalDAO vDAO = new VerbalDAO(this.connection);
+			vDAO.createVerbal(date, time, call_id);
+			vDAO.saveStudentsWithinVerbal(call_id);
+
+			connection.commit();
 		} catch (SQLException e) {
-			if(autoCommitSettedHere) {
-				connection.rollback();
-			}
+			connection.rollback();
 			throw new SQLException(e);
 		} finally {
-			if(autoCommitSettedHere) {
-				connection.setAutoCommit(true);
-			}
+			connection.setAutoCommit(true);
 			try {
 				if (pstatement != null) {
 					pstatement.close();
@@ -214,7 +208,7 @@ public class CallEvaluationDAO {
 		}
 		return code;
 	}
-	
+
 	public int updateMarkByStudentAndCallId(int student_id, int call_id, String newMark) throws SQLException {
 		String query = "UPDATE registrations_calls SET Mark = ? WHERE ID_Call = ? AND ID_Student = ?";
 		int code = 0;
@@ -239,4 +233,5 @@ public class CallEvaluationDAO {
 		}
 		return code;
 	}
+
 }

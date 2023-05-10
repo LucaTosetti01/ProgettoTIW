@@ -18,7 +18,7 @@ public class LecturerDAO {
 		this.connection = connection;
 	}
 
-	public int registerLecturer(String surname, String name, String email, String username, String password)
+	public int insertLecturer(String surname, String name, String email, String username, String password)
 			throws SQLException {
 		String query = "INSERT INTO users (Surname,Name,Email,Username,Password,Role) VALUES (?,?,?,?,?,?)";
 		int code = 0;
@@ -85,29 +85,5 @@ public class LecturerDAO {
 			}
 		}
 		return lecturer;
-	}
-
-	public int publishTheVotes(int call_id) throws SQLException {
-		String query = "UPDATE registrations_calls SET EvaluationStatus = ? WHERE ID_Call = ?";
-		int code = 0;
-
-		PreparedStatement pstatement = null;
-		try {
-			pstatement = connection.prepareStatement(query);
-			pstatement.setString(1, "Pubblicato");
-			pstatement.setInt(2, call_id);
-			code = pstatement.executeUpdate();
-		} catch (SQLException e) {
-			throw new SQLException(e);
-		} finally {
-			try {
-				if (pstatement != null) {
-					pstatement.close();
-				}
-			} catch (Exception e1) {
-
-			}
-		}
-		return code;
 	}
 }

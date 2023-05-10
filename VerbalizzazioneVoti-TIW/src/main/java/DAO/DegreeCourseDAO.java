@@ -58,44 +58,6 @@ public class DegreeCourseDAO {
 		return degreeCourses;
 	}
 
-	public DegreeCourse findDegreeCourseByName(String name) throws SQLException {
-		DegreeCourse dcourse = null;
-
-		String query = "SELECT * FROM degree_courses WHERE Name = ?";
-		ResultSet result = null;
-		PreparedStatement pstatement = null;
-		try {
-			pstatement = connection.prepareStatement(query);
-			pstatement.setString(1, name);
-			result = pstatement.executeQuery();
-			while (result.next()) {
-				dcourse = new DegreeCourse();
-				dcourse.setId(result.getInt("ID"));
-				dcourse.setName(result.getString("Name"));
-				dcourse.setDescription(result.getString("Description"));
-			}
-		} catch (SQLException e) {
-			throw new SQLException(e);
-		} finally {
-			try {
-				if (result != null) {
-					result.close();
-				}
-			} catch (Exception e1) {
-				throw new SQLException(e1);
-			}
-			try {
-				if (pstatement != null) {
-					pstatement.close();
-				}
-			} catch (Exception e2) {
-				throw new SQLException(e2);
-			}
-		}
-
-		return dcourse;
-	}
-
 	public DegreeCourse findDegreeCourseById(int degreeCourse_id) throws SQLException {
 		DegreeCourse dcourse = null;
 

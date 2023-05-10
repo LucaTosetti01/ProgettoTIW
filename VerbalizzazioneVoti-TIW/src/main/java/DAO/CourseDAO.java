@@ -100,44 +100,6 @@ public class CourseDAO {
 		return courses;
 	}
 
-	public Course findCourseByName(String name) throws SQLException {
-		Course course = null;
-
-		String query = "SELECT * FROM courses WHERE Name = ?";
-		ResultSet result = null;
-		PreparedStatement pstatement = null;
-		try {
-			pstatement = connection.prepareStatement(query);
-			pstatement.setString(1, name);
-			result = pstatement.executeQuery();
-			while (result.next()) {
-				course = new Course();
-				course.setId(result.getInt("ID"));
-				course.setName(result.getString("Name"));
-				course.setDescription(result.getString("Description"));
-			}
-		} catch (SQLException e) {
-			throw new SQLException(e);
-		} finally {
-			try {
-				if (result != null) {
-					result.close();
-				}
-			} catch (Exception e1) {
-				throw new SQLException(e1);
-			}
-			try {
-				if (pstatement != null) {
-					pstatement.close();
-				}
-			} catch (Exception e2) {
-				throw new SQLException(e2);
-			}
-		}
-
-		return course;
-	}
-
 	public Course findCourseById(int c_id) throws SQLException {
 		Course course = new Course();
 

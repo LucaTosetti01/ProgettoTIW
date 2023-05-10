@@ -42,7 +42,7 @@
 	<br>
 	<br>
 
-	<div th:if="${calls.size() >0}">
+	<div th:if="${calls.size() >0 and calls[0]!=null}">
 		<p>List of calls associated with the course you chose</p>
 		<table border="1">
 			<thead>
@@ -58,8 +58,11 @@
 					<td th:text="${c.date}"></td>
 					<td th:utext="${c.time}"></td>
 					<td>
-						<form th:action="@{/GetSubscriptionToCall(callid=${c.id},orderBy='ID',orderType='true')}"
+						<form th:action="@{/GetSubscriptionToCall}"
 							method="POST">
+							<input type="hidden" name="callid" th:value="${c.id}">
+							<input type="hidden" name="orderBy" th:value="'ID'">
+							<input type="hidden" name="orderType" th:value="'true'">
 							<input type="submit" value="Choose">
 						</form>
 					</td>
@@ -68,6 +71,8 @@
 		</table>
 	</div>
 
-	<div th:if="${courses.size() == 0}">No calls found</div>
+	<div th:if="${courses.size() > 0 and calls.size()==0}">No calls found</div>
+	
+	<p style="color:red;" th:text="${errorMessage}"></p>
 </body>
 </html>

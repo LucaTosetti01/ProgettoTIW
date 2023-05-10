@@ -175,44 +175,6 @@ public class GraduationCallDAO {
 		return code;
 	}
 
-	public GraduationCall getGraduationCallByIdAndCourse(int gc_id, int c_id) throws SQLException {
-		GraduationCall gc = new GraduationCall();
-
-		String query = "SELECT * FROM calls WHERE ID = ? AND ID_Course = ?";
-		PreparedStatement pstatement = null;
-		ResultSet result = null;
-		try {
-			pstatement = connection.prepareStatement(query);
-			pstatement.setInt(1, gc_id);
-			pstatement.setInt(2, c_id);
-			result = pstatement.executeQuery();
-			result.next();
-			gc.setId(gc_id);
-			gc.setDate(result.getDate("Date"));
-			gc.setTime(result.getTime("Time"));
-			gc.setCourseId(c_id);
-
-		} catch (SQLException e) {
-			throw new SQLException(e);
-		} finally {
-			try {
-				if (result != null) {
-					result.close();
-				}
-			} catch (Exception e1) {
-				throw new SQLException(e1);
-			}
-			try {
-				if (pstatement != null) {
-					pstatement.close();
-				}
-			} catch (Exception e2) {
-				throw new SQLException(e2);
-			}
-		}
-		return gc;
-	}
-
 	public GraduationCall getGraduationCallById(int gc_id) throws SQLException {
 		GraduationCall gc = new GraduationCall();
 

@@ -43,6 +43,7 @@ public class GoToHomeLecturer extends HttpServlet {
 		this.templateEngine = new TemplateEngine();
 		this.templateEngine.setTemplateResolver(templateResolver);
 		templateResolver.setSuffix(".html");
+		
 		connection = ConnectionHandler.getConnection(getServletContext());
 	}
 
@@ -50,7 +51,7 @@ public class GoToHomeLecturer extends HttpServlet {
 		Integer courseId = null;
 		List<GraduationCall> calls = null;
 		List<Course> coursesTaughtByLec = null;
-
+		String error = (String) request.getAttribute("error");
 		try {
 			courseId = Integer.parseInt(request.getParameter("courseid"));
 
@@ -59,8 +60,8 @@ public class GoToHomeLecturer extends HttpServlet {
 
 		} catch (NumberFormatException | NullPointerException e) {
 			calls = new ArrayList<>();
-			String requestURL = request.getRequestURI().toString();
-			if (requestURL.equals("VerbalizzazioneVoti-TIW/CheckLogin")) {
+			calls.add(null);
+			if (request.getParameter("courseid")!=null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
 				return;
 			}
@@ -85,6 +86,7 @@ public class GoToHomeLecturer extends HttpServlet {
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("calls", calls);
 		ctx.setVariable("courses", coursesTaughtByLec);
+		ctx.setVariable("errorMessage", error);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 

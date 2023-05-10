@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="ISO-8859-1">
+<meta charset="UTF-8">
 <title>Subscribers Page</title>
 </head>
 <body>
@@ -34,13 +34,90 @@
 		<table border="1">
 			<thead>
 				<tr>
-					<th>ID</th>
-					<th>Surname</th>
-					<th>Name</th>
-					<th>Email</th>
-					<th>Degree course</th>
-					<th>Mark</th>
-					<th>Evaluation state</th>
+					<th:block th:if="${#request.getParameter('orderBy') == 'ID'}">
+						<th:block th:if="${orderType}">
+							<th>ID &#x25B2;</th>
+						</th:block>
+						<th:block th:unless="${orderType}">
+							<th>ID &#x25BC;</th>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${#request.getParameter('orderBy') == 'ID'}">
+						<th>ID</th>
+					</th:block>
+					
+					<th:block th:if="${#request.getParameter('orderBy') == 'Surname'}">
+						<th:block th:if="${orderType}">
+							<th>Surname &#x25B2;</th>
+						</th:block>
+						<th:block th:unless="${orderType}">
+							<th>Surname &#x25BC;</th>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${#request.getParameter('orderBy') == 'Surname'}">
+						<th>Surname</th>
+					</th:block>
+					
+					<th:block th:if="${#request.getParameter('orderBy') == 'Name'}">
+						<th:block th:if="${orderType}">
+							<th>Name &#x25B2;</th>
+						</th:block>
+						<th:block th:unless="${orderType}">
+							<th>Name &#x25BC;</th>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${#request.getParameter('orderBy') == 'Name'}">
+						<th>Name</th>
+					</th:block>
+					
+					<th:block th:if="${#request.getParameter('orderBy') == 'Email'}">
+						<th:block th:if="${orderType}">
+							<th>Email &#x25B2;</th>
+						</th:block>
+						<th:block th:unless="${orderType}">
+							<th>Email &#x25BC;</th>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${#request.getParameter('orderBy') == 'Email'}">
+						<th>Email</th>
+					</th:block>
+					
+					<th:block th:if="${#request.getParameter('orderBy') == 'DegreeName'}">
+						<th:block th:if="${orderType}">
+							<th>Degree course &#x25B2;</th>
+						</th:block>
+						<th:block th:unless="${orderType}">
+							<th>Degree course &#x25BC;</th>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${#request.getParameter('orderBy') == 'DegreeName'}">
+						<th>Degree course</th>
+					</th:block>
+					
+					<th:block th:if="${#request.getParameter('orderBy') == 'Mark'}">
+						<th:block th:if="${orderType}">
+							<th>Mark &#x25B2;</th>
+						</th:block>
+						<th:block th:unless="${orderType}">
+							<th>Mark &#x25BC;</th>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${#request.getParameter('orderBy') == 'Mark'}">
+						<th>Mark</th>
+					</th:block>
+					
+					<th:block th:if="${#request.getParameter('orderBy') == 'EvaluationState'}">
+						<th:block th:if="${orderType}">
+							<th>Evaluation state &#x25B2;</th>
+						</th:block>
+						<th:block th:unless="${orderType}">
+							<th>Evaluation state &#x25BC;</th>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${#request.getParameter('orderBy') == 'EvaluationState'}">
+						<th>Evaluation state</th>
+					</th:block>
+					
 					<th></th>
 				</tr>
 			</thead>

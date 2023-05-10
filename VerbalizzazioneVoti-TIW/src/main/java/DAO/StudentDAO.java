@@ -68,7 +68,7 @@ public class StudentDAO {
 		return students;
 	}
 
-	public int registerStudent(String surname, String name, String email, String username, String password,
+	public int insertStudent(String surname, String name, String email, String username, String password,
 			int id_degreeCourse) throws SQLException {
 		String query = "INSERT INTO users (Surname,Name,Email,Username,Password,ID_DegreeCourse,Role) VALUES (?,?,?,?,?,?,?)";
 		int code = 0;
@@ -274,32 +274,6 @@ public class StudentDAO {
 			}
 		}
 		return stud;
-	}
-
-	public int modifyStudentMark(int student_id, int call_id, String mark) throws SQLException {
-		String query = "UPDATE registrations_calls SET Mark = ? AND EvaluationStatus = ? WHERE ID_Student = ? AND ID_Call = ?";
-		int code = 0;
-
-		PreparedStatement pstatement = null;
-		try {
-			pstatement = connection.prepareStatement(query);
-			pstatement.setString(1, mark);
-			pstatement.setString(2, "Inserito");
-			pstatement.setInt(3, student_id);
-			pstatement.setInt(4, call_id);
-			code = pstatement.executeUpdate();
-		} catch (SQLException e) {
-			throw new SQLException(e);
-		} finally {
-			try {
-				if (pstatement != null) {
-					pstatement.close();
-				}
-			} catch (Exception e1) {
-
-			}
-		}
-		return code;
 	}
 
 	public Map<User, CallEvaluation> findAllRegistrationsAndEvaluationToCall(int call_id) throws SQLException {

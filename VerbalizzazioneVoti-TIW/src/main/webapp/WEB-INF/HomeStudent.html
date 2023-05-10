@@ -41,7 +41,7 @@
 	<br>
 	<br>
 
-	<div th:if="${calls.size() >0}">
+	<div th:if="${calls.size() >0 and calls[0]!=null}">
 		<p>List of calls associated with the course you chose</p>
 		<table border="1">
 			<thead>
@@ -68,8 +68,8 @@
 		</table>
 	</div>
 
-	<div th:if="${calls.size() == 0} and ${firstTime!=null}">No calls
+	<div th:if="${calls.size() == 0} and courses.size()>0}">No calls
 		found</div>
-
+	<p style="color:red;" th:text="${errorMessage}"></p>
 </body>
 </html>

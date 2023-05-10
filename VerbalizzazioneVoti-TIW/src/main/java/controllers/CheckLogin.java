@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -75,6 +76,12 @@ public class CheckLogin extends HttpServlet {
 		String redirectionPath = getServletContext().getContextPath();
 		if (user == null) {
 			redirectionPath = "/index.html";
+			//request.setAttribute("errorMessage", "Username or Password are incorrect, please retry!");
+			/*System.out.print(request.getAttribute("errorMessage"));
+			RequestDispatcher ds = request.getRequestDispatcher(redirectionPath);
+			ds.forward(request, response);*/
+			
+			
 			ServletContext servletContext = getServletContext();
 			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 			ctx.setVariable("errorMessage", "Username or Password are incorrect, please retry");
