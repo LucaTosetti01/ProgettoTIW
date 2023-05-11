@@ -16,108 +16,99 @@
 
 	<div th:if="${students.size()>0}">
 		<p>List of all students that subscribed to the call</p>
-		<form th:action="@{GetSubscriptionToCall}" method="POST">
-			<input type="submit" value="Order by"> 
-			<input type="hidden" name="callid" th:value="${call.id}">
-			<input type="hidden" name="prevOrderBy" th:value="${param.orderBy}">
-			<input type="hidden" name="prevOrderType" th:value="${orderType}">
-			<select name="orderBy">
-				<option value="ID" th:selected="${#request.getParameter('orderBy') == 'ID'}">ID</option>
-				<option value="Surname" th:selected="${#request.getParameter('orderBy') == 'Surname'}">Surname</option>
-				<option value="Name" th:selected="${#request.getParameter('orderBy') == 'Name'}">Name</option>
-				<option value="Email" th:selected="${#request.getParameter('orderBy') == 'Email'}">Email</option>
-				<option value="DegreeName" th:selected="${#request.getParameter('orderBy') == 'DegreeName'}">Degree course</option>
-				<option value="Mark" th:selected="${#request.getParameter('orderBy') == 'Mark'}">Mark</option>
-				<option value="EvaluationStatus" th:selected="${#request.getParameter('orderBy') == 'EvaluationStatus'}">Evaluation state</option>
-			</select>
-		</form>
 		<table border="1">
 			<thead>
 				<tr>
 					<th:block th:if="${#request.getParameter('orderBy') == 'ID'}">
 						<th:block th:if="${orderType}">
-							<th>ID &#x25B2;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=${#request.getParameter('orderBy')}!='ID' ? 'true' : ${!orderType})}">ID &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
-							<th>ID &#x25BC;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=${#request.getParameter('orderBy')}!='ID' ? 'true' : ${!orderType})}">ID &#x25BC;</a></th>
 						</th:block>
 					</th:block>
 					<th:block th:unless="${#request.getParameter('orderBy') == 'ID'}">
-						<th>ID</th>
+						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType='true')}">ID</a></th>
 					</th:block>
-					
+
 					<th:block th:if="${#request.getParameter('orderBy') == 'Surname'}">
 						<th:block th:if="${orderType}">
-							<th>Surname &#x25B2;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType=${#request.getParameter('orderBy')}!='Surname' ? 'true' : ${!orderType})}">Surname &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
-							<th>Surname &#x25BC;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType=${#request.getParameter('orderBy')}!='Surname' ? 'true' : ${!orderType})}">Surname &#x25BC;</a></th>
 						</th:block>
 					</th:block>
-					<th:block th:unless="${#request.getParameter('orderBy') == 'Surname'}">
-						<th>Surname</th>
+					<th:block
+						th:unless="${#request.getParameter('orderBy') == 'Surname'}">
+						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType='true')}">Surname</a></th>
 					</th:block>
-					
+
 					<th:block th:if="${#request.getParameter('orderBy') == 'Name'}">
 						<th:block th:if="${orderType}">
-							<th>Name &#x25B2;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType=${#request.getParameter('orderBy')}!='Name' ? 'true' : ${!orderType})}">Name &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
-							<th>Name &#x25BC;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType=${#request.getParameter('orderBy')}!='Name' ? 'true' : ${!orderType})}">Name &#x25BC;</a></th>
 						</th:block>
 					</th:block>
-					<th:block th:unless="${#request.getParameter('orderBy') == 'Name'}">
-						<th>Name</th>
+					<th:block
+						th:unless="${#request.getParameter('orderBy') == 'Name'}">
+						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType='true')}">Name</a></th>
 					</th:block>
-					
+
 					<th:block th:if="${#request.getParameter('orderBy') == 'Email'}">
 						<th:block th:if="${orderType}">
-							<th>Email &#x25B2;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType=${#request.getParameter('orderBy')}!='Email' ? 'true' : ${!orderType})}">Email &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
-							<th>Email &#x25BC;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType=${#request.getParameter('orderBy')}!='Email' ? 'true' : ${!orderType})}">Email &#x25BC;</a></th>
 						</th:block>
 					</th:block>
-					<th:block th:unless="${#request.getParameter('orderBy') == 'Email'}">
-						<th>Email</th>
+					<th:block
+						th:unless="${#request.getParameter('orderBy') == 'Email'}">
+						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType='true')}">Email</a></th>
 					</th:block>
-					
+
 					<th:block th:if="${#request.getParameter('orderBy') == 'DegreeName'}">
 						<th:block th:if="${orderType}">
-							<th>Degree course &#x25B2;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType=${#request.getParameter('orderBy')}!='DegreeName' ? 'true' : ${!orderType})}">Degree course &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
-							<th>Degree course &#x25BC;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType=${#request.getParameter('orderBy')}!='DegreeName' ? 'true' : ${!orderType})}">Degree course &#x25BC;</a></th>
 						</th:block>
 					</th:block>
-					<th:block th:unless="${#request.getParameter('orderBy') == 'DegreeName'}">
-						<th>Degree course</th>
+					<th:block
+						th:unless="${#request.getParameter('orderBy') == 'DegreeName'}">
+						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType='true')}">Degree course</a></th>
 					</th:block>
-					
+
 					<th:block th:if="${#request.getParameter('orderBy') == 'Mark'}">
 						<th:block th:if="${orderType}">
-							<th>Mark &#x25B2;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType=${#request.getParameter('orderBy')}!='Mark' ? 'true' : ${!orderType})}">Mark &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
-							<th>Mark &#x25BC;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType=${#request.getParameter('orderBy')}!='Mark' ? 'true' : ${!orderType})}">Mark &#x25BC;</a></th>
 						</th:block>
 					</th:block>
-					<th:block th:unless="${#request.getParameter('orderBy') == 'Mark'}">
-						<th>Mark</th>
+					<th:block
+						th:unless="${#request.getParameter('orderBy') == 'Mark'}">
+						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType='true')}">Mark</a></th>
 					</th:block>
-					
-					<th:block th:if="${#request.getParameter('orderBy') == 'EvaluationState'}">
+
+					<th:block th:if="${#request.getParameter('orderBy') == 'EvaluationStatus'}">
 						<th:block th:if="${orderType}">
-							<th>Evaluation state &#x25B2;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType=${#request.getParameter('orderBy')}!='EvaluationStatus' ? 'true' : ${!orderType})}">Evaluation state &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
-							<th>Evaluation state &#x25BC;</th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType=${#request.getParameter('orderBy')}!='EvaluationStatus' ? 'true' : ${!orderType})}">Evaluation state &#x25BC;</a></th>
 						</th:block>
 					</th:block>
-					<th:block th:unless="${#request.getParameter('orderBy') == 'EvaluationState'}">
-						<th>Evaluation state</th>
+					<th:block
+						th:unless="${#request.getParameter('orderBy') == 'EvaluationStatus'}">
+						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType='true')}">Evaluation state</a></th>
 					</th:block>
-					
+
 					<th></th>
 				</tr>
 			</thead>
@@ -140,11 +131,11 @@
 				</tr>
 			</tbody>
 		</table>
-		
+
 		<div>
 			<form th:action="@{/VerbalizeStudentsMarks}">
-				<input type="hidden" name="callid" th:value="${call.id}">
-				<input type="submit" value="Verbalize">
+				<input type="hidden" name="callid" th:value="${call.id}"> <input
+					type="submit" value="Verbalize">
 			</form>
 		</div>
 	</div>

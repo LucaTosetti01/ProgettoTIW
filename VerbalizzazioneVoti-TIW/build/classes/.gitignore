@@ -1,3 +1,6 @@
-/controllers/
 /DAO/
 /beans/
+/controllers/
+/filters/
+/utils/
+/exceptions/

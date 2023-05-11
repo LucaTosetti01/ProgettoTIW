@@ -8,8 +8,8 @@
 	<div align="right">
 		<a th:href="@{/Logout}">Logout</a>
 	</div>
-	<h1>Welcome to your personal Home Page</h1>
-	<h3 th:text="${session.user.name} + ' ' + ${session.user.surname}">Lecturer</h3>
+	<h1>Home Page lecturer</h1>
+	<h3 th:text="'Welcome to you home page:' + ${session.user.name} + ' ' + ${session.user.surname}">Lecturer</h3>
 
 	<div th:if="${courses.size() >0}">
 		<p>List of courses taught by you</p>
@@ -27,7 +27,6 @@
 					<td th:text="${c.name}"></td>
 					<td th:utext="${c.description}"></td>
 					<td>
-						<!--<a th:href="@{/GoToHomeLecturer(courseid=${c.id})}">Choose</a>-->
 						<form th:action="@{/GoToHomeLecturer(courseid=${c.id})}"
 							method="POST">
 							<input type="submit" name="Choose" value="Choose">

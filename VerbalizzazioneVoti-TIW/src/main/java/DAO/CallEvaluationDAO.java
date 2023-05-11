@@ -170,7 +170,7 @@ public class CallEvaluationDAO {
 	public int publishAllMarksByCallId(Date date, Time time, int call_id) throws SQLException {
 		connection.setAutoCommit(false);
 
-		String query = "UPDATE registrations_calls SET Mark = 'Rimandato' WHERE EvaluationStatus = 'Rifiutato'";
+		String query = "UPDATE registrations_calls SET Mark = 'Rimandato' WHERE EvaluationStatus = 'Rifiutato' AND ID_Call = ?";
 
 		PreparedStatement pstatement = null;
 
@@ -182,6 +182,7 @@ public class CallEvaluationDAO {
 
 		try {
 			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
 			code = pstatement.executeUpdate();
 
 			pstatement2 = connection.prepareStatement(query2);
@@ -232,6 +233,30 @@ public class CallEvaluationDAO {
 			}
 		}
 		return code;
+	}
+	
+	public int getNumberOfVerbalizableMarks() throws SQLException {
+		String query = "SELECT COUNT(*) AS NumberOfVerbalizable FROM registrations_calls WHERE EvaluationStatus = 'Pubblicato'";
+		int numberOfVerbalizableMarks;
+		
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			result = pstatement.executeQuery();
+			numberOfVerbalizableMarks = result.getInt("NumberOfVerbalizable");
+		} catch (SQLException e) {
+			throw new SQLException(e);
+		} finally {
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e1) {
+
+			}
+		}
+		return numberOfVerbalizableMarks;
 	}
 
 }

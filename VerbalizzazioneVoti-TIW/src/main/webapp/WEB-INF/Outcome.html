@@ -11,10 +11,10 @@
 	<h1>Welcome to you outcome page</h1>
 
 	<div
-		th:if="${evaluation.state} != 'Pubblicato' and ${evaluation.state} != 'Rifiutato'">Voto
+		th:if="${evaluation.state} == 'Non inserito' or ${evaluation.state} == 'Inserito'">Voto
 		non ancora definito</div>
 	<div
-		th:if="${evaluation.state} == 'Pubblicato' or ${evaluation.state} == 'Rifiutato'">
+		th:if="${evaluation.state} != 'Non inserito' and ${evaluation.state} != 'Inserito'">
 		<table cellpadding="10" border="1">
 			<thead>
 				<tr>
@@ -77,7 +77,7 @@
 			</tbody>
 		</table>
 	</div>
-	<div th:if="${evaluation.mark} >17 and ${evaluation.mark}<31 and ${evaluation.state} != 'Rifiutato'">
+	<div th:if="${actualNumber} and (${evaluation.state} != 'Rifiutato' or ${evaluation.state} != 'Pubblicato')">
 	<form th:action="@{/RefuseMark}">
 		<input type="hidden" name="studentid" th:value="${student.id}">
 		<input type="hidden" name="callid" th:value="${call.id}">

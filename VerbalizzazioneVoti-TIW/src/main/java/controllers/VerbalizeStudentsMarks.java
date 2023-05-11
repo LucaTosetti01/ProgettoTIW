@@ -53,17 +53,26 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 		Date currentDate = Date.valueOf(LocalDate.now());
 		Time currentTime = Time.valueOf(LocalTime.now());
 
+		
 		try {
-			ceDAO.publishAllMarksByCallId(currentDate, currentTime, callId);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			if(ceDAO.getNumberOfVerbalizableMarks()>0) {
+				try {
+					ceDAO.publishAllMarksByCallId(currentDate, currentTime, callId);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 
-		try {
-			verbalId = vDAO.getVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
+				try {
+					verbalId = vDAO.getVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId;
@@ -88,5 +97,6 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
+
 
 }

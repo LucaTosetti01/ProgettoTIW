@@ -55,6 +55,7 @@ public class GoToOutcome extends HttpServlet {
 		Course studentCourse = null;
 		GraduationCall courseCall = null;
 		User courseLecturer = null;
+		boolean actualNumber = false;
 
 		try {
 			studentId = Integer.parseInt(request.getParameter("studentid"));
@@ -99,6 +100,7 @@ public class GoToOutcome extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's evaluation data extraction");
 			return;
 		}
+		actualNumber = checkIfActualNumber(evaluation.getMark());
 
 		String path = "WEB-INF/Outcome.html";
 		ServletContext servletContext = getServletContext();
@@ -108,10 +110,22 @@ public class GoToOutcome extends HttpServlet {
 		ctx.setVariable("call", courseCall);
 		ctx.setVariable("course", studentCourse);
 		ctx.setVariable("lecturer", courseLecturer);
+		ctx.setVariable("markActualNumber", actualNumber);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
+	}
+	
+	
+	private boolean checkIfActualNumber(String mark) {
+		int integerMark;
+		try {
+			integerMark = Integer.parseInt(mark);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
 	}
 }

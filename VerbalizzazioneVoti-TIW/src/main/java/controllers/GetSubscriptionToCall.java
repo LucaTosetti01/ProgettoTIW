@@ -53,36 +53,16 @@ public class GetSubscriptionToCall extends HttpServlet {
 
 		String orderBy = null;
 		boolean orderType;
-		String prevOrderBy = null;
-		boolean prevOrderType;
 
 		try {
 			callId = Integer.parseInt(request.getParameter("callid"));
 			orderBy = (request.getParameter("orderBy")) != null ? request.getParameter("orderBy") : "ID";
 			orderType = (request.getParameter("orderType")) != null ? Boolean.parseBoolean(request.getParameter("orderType")) : true;
-			prevOrderType = request.getParameter("prevOrderType") != null ? Boolean.parseBoolean(request.getParameter("prevOrderType")) : true;
-			prevOrderBy = request.getParameter("prevOrderBy");
 		} catch (NumberFormatException | NullPointerException e) {
-			//request.setAttribute("errore", "ERRORE CO3KIOEFK");
-			//request.getRequestDispatcher("/WEB-INF/HomeLecturer.html").forward(request, response);
-			//return;
-			
-			//response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-			//return;
 			String errorPath="/GoToHomeLecturer";
 			request.setAttribute("error", "Incorrect param values");
 			request.getRequestDispatcher(errorPath).forward(request, response);
-			/*ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-			ctx.setVariable("errorMessage", "Incorrect param values");
-			templateEngine.process(errorPath, ctx, response.getWriter());*/
 			return;
-		}
-
-		if (orderBy.equals(prevOrderBy)) {
-			orderType = !prevOrderType;
-		} else {
-			orderType = true;		//"ASC"
 		}
 		
 		GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);

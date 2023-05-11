@@ -61,13 +61,19 @@ public class GoToHomeLecturer extends HttpServlet {
 		} catch (NumberFormatException | NullPointerException e) {
 			calls = new ArrayList<>();
 			calls.add(null);
-			if (request.getParameter("courseid")!=null) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-				return;
+			System.out.println(request.getParameter("courseid"));
+			if (request.getParameter("courseid")!=null ) {
+				error = "Incorrect param values";
+				//response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+				//return;
 			}
 		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in course's calls extraction");
+			String errorPath="/GoToHomeLecturer";
+			request.setAttribute("error", "Failure in course's calls extraction");
+			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
+			//response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in course's calls extraction");
+			//return;
 		}
 
 		HttpSession session = request.getSession();
