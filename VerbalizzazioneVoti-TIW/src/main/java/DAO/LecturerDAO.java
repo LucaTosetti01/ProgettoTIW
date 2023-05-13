@@ -34,7 +34,7 @@ public class LecturerDAO {
 			pstatement.setString(6, "Lecturer");
 			code = pstatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in insertion of a new lecturer");
 		} finally {
 			try {
 				if (pstatement != null) {
@@ -67,7 +67,7 @@ public class LecturerDAO {
 			lecturer.setRole(result.getString("Role"));
 
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in lecturer's data extraction");
 		} finally {
 			try {
 				if (result != null) {

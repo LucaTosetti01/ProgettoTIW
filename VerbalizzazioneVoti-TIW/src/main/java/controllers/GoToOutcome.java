@@ -10,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -25,6 +26,7 @@ import beans.CallEvaluation;
 import beans.Course;
 import beans.GraduationCall;
 import beans.User;
+import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/GoToOutcome")
@@ -57,49 +59,39 @@ public class GoToOutcome extends HttpServlet {
 		User courseLecturer = null;
 		boolean actualNumber = false;
 
+		HttpSession session = request.getSession();
+		User studLogged = (User) session.getAttribute("user");
 		try {
-			studentId = Integer.parseInt(request.getParameter("studentid"));
 			callId = Integer.parseInt(request.getParameter("callid"));
+		
+			StudentDAO sDAO = new StudentDAO(this.connection);
+			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+			CourseDAO cDAO = new CourseDAO(this.connection);
+			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+			LecturerDAO lDAO = new LecturerDAO(this.connection);
+			
+			sDAO.checkIfStudentIsSubscribedToCall(studLogged.getId(), callId);
+			
+			student = sDAO.findStudentById(studLogged.getId());
+			evaluation = ceDAO.findEvaluationByCallAndStudentId(callId, studLogged.getId());
+			courseCall = gcDAO.getGraduationCallById(evaluation.getCall_id());
+			studentCourse = cDAO.findCourseById(courseCall.getCourseId());
+			courseLecturer = lDAO.findLecturerById(studentCourse.getTaughtById());
+			
 		} catch (NumberFormatException | NullPointerException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			String errorPath = "/GoToHomeStudent";
+			request.setAttribute("errorMessage", "Incorrect param values");
+			request.getRequestDispatcher(errorPath).forward(request, response);
+			return;
+		} catch (SQLException | StudentDAOException e) {
+			String errorPath = "/GoToHomeStudent";
+			request.setAttribute("errorMessage", e.getMessage());
+			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
 		}
 
-		StudentDAO sDAO = new StudentDAO(this.connection);
-		CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
-		CourseDAO cDAO = new CourseDAO(this.connection);
-		GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-		LecturerDAO lDAO = new LecturerDAO(this.connection);
-		try {
-			student = sDAO.findStudentById(studentId);
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's data extraction");
-			return;
-		}
-		try {
-			evaluation = ceDAO.findEvaluationByCallAndStudentId(callId, studentId);
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's evaluation data extraction");
-			return;
-		}
-		try {
-			courseCall = gcDAO.getGraduationCallById(evaluation.getCall_id());
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's evaluation data extraction");
-			return;
-		}
-		try {
-			studentCourse = cDAO.findCourseById(courseCall.getCourseId());
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's evaluation data extraction");
-			return;
-		}
-		try {
-			courseLecturer = lDAO.findLecturerById(studentCourse.getTaughtById());
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's evaluation data extraction");
-			return;
-		}
+		
+		
 		actualNumber = checkIfActualNumber(evaluation.getMark());
 
 		String path = "WEB-INF/Outcome.html";
@@ -120,11 +112,14 @@ public class GoToOutcome extends HttpServlet {
 	
 	
 	private boolean checkIfActualNumber(String mark) {
-		int integerMark;
 		try {
-			integerMark = Integer.parseInt(mark);
+			Integer.parseInt(mark);
 		} catch (NumberFormatException e) {
-			return false;
+			if(mark.equals("30L")) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 		return true;
 	}

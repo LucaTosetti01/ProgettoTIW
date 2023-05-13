@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import beans.GraduationCall;
+import exceptions.CourseDAOException;
+import exceptions.GraduationCallDAOException;
 
 public class GraduationCallDAO {
 	private Connection connection;
@@ -42,7 +44,7 @@ public class GraduationCallDAO {
 				calls.add(call);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in course's calls extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -87,7 +89,7 @@ public class GraduationCallDAO {
 				calls.add(call);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in calls' data extraction which students of the same course are subscribed to");
 		} finally {
 			try {
 				if (result != null) {
@@ -129,7 +131,7 @@ public class GraduationCallDAO {
 				calls.add(call);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in calls's data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -162,7 +164,7 @@ public class GraduationCallDAO {
 			pstatement.setInt(3, code);
 			code = pstatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in creating a new graduation call");
 		} finally {
 			try {
 				if (pstatement != null) {
@@ -192,7 +194,7 @@ public class GraduationCallDAO {
 			gc.setCourseId(result.getInt("ID_Course"));
 
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in call's data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -210,5 +212,43 @@ public class GraduationCallDAO {
 			}
 		}
 		return gc;
+	}
+	
+	public void checkIfCourseOfCallIsTaughtByLecturer(int call_id, int lecturer_id) throws SQLException, GraduationCallDAOException {
+String query = "SELECT COUNT(*) AS Counter "
+		+ "FROM calls AS c1 JOIN courses as c2 ON c1.ID_Course = c2.ID "
+		+ "WHERE c1.ID = ? AND c2.ID_Lecturer = ?";
+		
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		int numberOfRows;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
+			pstatement.setInt(2, lecturer_id);
+			result = pstatement.executeQuery();
+			result.next();
+			numberOfRows = result.getInt("Counter");
+		} catch (SQLException e) {
+			throw new SQLException("Failure while checking");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		if(numberOfRows!=1) {
+			throw new GraduationCallDAOException("The chosen call is not associated to a course taught by the lecturer logged");
+		}
 	}
 }

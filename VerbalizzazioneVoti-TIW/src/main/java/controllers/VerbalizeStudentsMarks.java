@@ -14,10 +14,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import DAO.CallEvaluationDAO;
+import DAO.GraduationCallDAO;
+import DAO.LecturerDAO;
 import DAO.VerbalDAO;
 import beans.CallEvaluation;
+import beans.User;
+import exceptions.CallEvaluationDAOException;
+import exceptions.GraduationCallDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/VerbalizeStudentsMarks")
@@ -40,40 +46,46 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 		Integer callId = null;
 		Integer verbalId = null;
 
+		Date currentDate = Date.valueOf(LocalDate.now());
+		Time currentTime = Time.valueOf(LocalTime.now());
+		
+		HttpSession session = request.getSession();
+		User lecLogged = (User) session.getAttribute("user");
 		try {
 			callId = Integer.parseInt(request.getParameter("callid"));
+		
+			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+			VerbalDAO vDAO = new VerbalDAO(this.connection);
+			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+			
+			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			ceDAO.checkIfAnyMarkIsVerbalizable();
+			
+			ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
+			verbalId = vDAO.getVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
 		} catch (NumberFormatException | NullPointerException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			String errorPath = "/GetSubscriptionToCall";
+			request.setAttribute("errorMessage", "Incorrect param values");
+			request.getRequestDispatcher(errorPath).forward(request, response);
+			return;
+		} catch (SQLException e) {
+			String errorPath = "/GetSubscriptionToCall";
+			request.setAttribute("errorMessage", e.getMessage());
+			request.getRequestDispatcher(errorPath).forward(request, response);
+			return;
+		} catch (CallEvaluationDAOException e) {
+			String errorPath = "/GetSubscriptionToCall";
+			request.setAttribute("errorMessage", e.getMessage());
+			request.getRequestDispatcher(errorPath).forward(request, response);
+			return;
+		} catch (GraduationCallDAOException e) {
+			String errorPath = "/GetSubscriptionToCall";
+			request.setAttribute("errorMessage", e.getMessage());
+			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
 		}
 
-		CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
-		VerbalDAO vDAO = new VerbalDAO(this.connection);
-
-		Date currentDate = Date.valueOf(LocalDate.now());
-		Time currentTime = Time.valueOf(LocalTime.now());
-
 		
-		try {
-			if(ceDAO.getNumberOfVerbalizableMarks()>0) {
-				try {
-					ceDAO.publishAllMarksByCallId(currentDate, currentTime, callId);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-
-				try {
-					verbalId = vDAO.getVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId;
 		response.sendRedirect(path);

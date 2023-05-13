@@ -37,7 +37,7 @@ public class DegreeCourseDAO {
 				degreeCourses.add(dCourse);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in degree courses' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -75,7 +75,7 @@ public class DegreeCourseDAO {
 				dcourse.setDescription(result.getString("Description"));
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in degree course's data extraction");
 		} finally {
 			try {
 				if (result != null) {

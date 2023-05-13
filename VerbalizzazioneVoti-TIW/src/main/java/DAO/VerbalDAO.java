@@ -46,7 +46,7 @@ public class VerbalDAO {
 			}
 
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in verbals' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -78,7 +78,7 @@ public class VerbalDAO {
 			pstatement.setInt(3, call_id);
 			code = pstatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in creating a new verbal");
 		} finally {
 			try {
 				if (pstatement != null) {
@@ -91,14 +91,13 @@ public class VerbalDAO {
 		return code;
 	}
 
-	public int saveStudentsWithinVerbal(int call_id) throws SQLException {
-		this.connection.setAutoCommit(false);
+	public int saveStudentsWithinVerbal(int call_id, List<User> students) throws SQLException {
+		//this.connection.setAutoCommit(false);
 		
 		String query = "SELECT MAX(ID) AS ID FROM verbals";
 		String query2 = "INSERT INTO students_verbals (ID_Student, ID_Verbal) VALUES (?,?)";
 
 		int code = 0, maxIdInserted = -1;
-		List<User> students = null;
 
 		PreparedStatement pstatement = null;
 		PreparedStatement pstatement2 = null;
@@ -109,9 +108,6 @@ public class VerbalDAO {
 			result.next();
 			maxIdInserted = result.getInt("ID");
 
-			StudentDAO sDAO = new StudentDAO(this.connection);
-			students = sDAO.findAllRegistrationsToTheCall(call_id);
-
 			pstatement2 = connection.prepareStatement(query2);
 
 			for (User student : students) {
@@ -119,12 +115,12 @@ public class VerbalDAO {
 				pstatement2.setInt(2, maxIdInserted);
 				code = pstatement2.executeUpdate();
 			}
-			connection.commit();
+			//connection.commit();
 		} catch (SQLException e) {
-			connection.rollback();
-			throw new SQLException(e);
+			//connection.rollback();
+			throw new SQLException("Failure in saving students within a new verbal");
 		} finally {
-			connection.setAutoCommit(true);
+			//connection.setAutoCommit(true);
 			try {
 				if (pstatement != null) {
 					pstatement.close();
@@ -155,7 +151,7 @@ public class VerbalDAO {
 			verbal.setCallId(result.getInt("ID_Call"));
 
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in verbal's data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -194,7 +190,7 @@ public class VerbalDAO {
 			verbal.setCallId(result.getInt("ID_Call"));
 
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in verbal's data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -235,7 +231,7 @@ public class VerbalDAO {
 			verbal.setCallId(result.getInt("ID_Call"));
 
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in verbal's data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -254,6 +250,8 @@ public class VerbalDAO {
 		}
 		return verbal;
 	}
+	
+	
 	
 
 }

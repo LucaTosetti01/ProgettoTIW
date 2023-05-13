@@ -42,7 +42,7 @@ public class UserDAO {
 				return user;
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in user's data extraction");
 		} finally {
 			try {
 				if (result != null) {

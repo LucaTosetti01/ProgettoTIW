@@ -12,6 +12,7 @@ import java.util.Map;
 
 import beans.CallEvaluation;
 import beans.User;
+import exceptions.StudentDAOException;
 
 public class StudentDAO {
 	private Connection connection;
@@ -47,7 +48,7 @@ public class StudentDAO {
 				students.add(student);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in students' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -85,7 +86,7 @@ public class StudentDAO {
 			pstatement.setString(7, "Student");
 			code = pstatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in insertion of a new student");
 		} finally {
 			try {
 				if (pstatement != null) {
@@ -122,7 +123,7 @@ public class StudentDAO {
 				students.add(stud);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in students' data extraction, that are belonging to a verbal");
 		} finally {
 			try {
 				if (result != null) {
@@ -167,7 +168,7 @@ public class StudentDAO {
 				students.add(stud);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in students' data extraction which are subscribed to the same call");
 		} finally {
 			try {
 				if (result != null) {
@@ -214,7 +215,7 @@ public class StudentDAO {
 				students.add(stud);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in students' data extraction which are subscribed to the same call");
 		} finally {
 			try {
 				if (result != null) {
@@ -256,7 +257,7 @@ public class StudentDAO {
 			DegreeCourseDAO degCourseDAO = new DegreeCourseDAO(this.connection);
 			stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_DegreeCourse")));
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in student's data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -308,7 +309,7 @@ public class StudentDAO {
 				studEv.put(u, callEv);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in students and evaluations' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -348,7 +349,6 @@ public class StudentDAO {
 
 			pstatement = connection.prepareStatement(query);
 			pstatement.setInt(1, call_id);
-			System.out.println(pstatement.toString());
 			result = pstatement.executeQuery();
 			while (result.next()) {
 				User u = new User();
@@ -371,7 +371,7 @@ public class StudentDAO {
 				studEv.put(u, callEv);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in students and evaluations' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -391,4 +391,126 @@ public class StudentDAO {
 		return studEv;
 	}
 
+	public void checkIfStudentIsSubscribedToCourse(int student_id, int course_id)
+			throws SQLException, StudentDAOException {
+		String query = "SELECT COUNT(*) AS Counter FROM registrations_courses WHERE ID_Student = ? AND ID_Course = ?";
+
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		int numberOfRows;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, student_id);
+			pstatement.setInt(2, course_id);
+			result = pstatement.executeQuery();
+			result.next();
+			numberOfRows = result.getInt("Counter");
+		} catch (SQLException e) {
+			throw new SQLException("Failure in students and evaluations' data extraction");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		if (numberOfRows != 1) {
+			throw new StudentDAOException("The logged student is not subscribed to the course chosen");
+		}
+	}
+
+	public void checkIfStudentIsSubscribedToCall(int student_id, int call_id) throws SQLException, StudentDAOException {
+		String query = "SELECT COUNT(*) AS Counter,c1.ID_Course "
+				+ "FROM registrations_calls AS rc JOIN calls AS c1 ON rc.ID_Call = c1.ID "
+				+ "WHERE rc.ID_Student = ? AND rc.ID_Call = ? GROUP BY c1.ID_Course";
+
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		int numberOfRows;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, student_id);
+			pstatement.setInt(2, call_id);
+			result = pstatement.executeQuery();
+			result.next();
+			int courseId = result.getInt("ID_Course");
+			checkIfStudentIsSubscribedToCourse(student_id, courseId);
+			numberOfRows = result.getInt("Counter");
+		} catch (SQLException e) {
+			throw new SQLException("Failure in students and evaluations' data extraction");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		if (numberOfRows != 1) {
+			throw new StudentDAOException("The chosen student is not subscribed to the call which is being considered");
+		}
+	}
+	
+	public List<User> findAllStudentsInVerbalById(int verbal_id) throws SQLException {
+		List<User> students = new ArrayList<User>();
+
+		String query = "SELECT * "
+				+ "FROM students_verbals AS sv JOIN users AS u ON u.ID=sv.ID_Student "
+				+ "WHERE sv.ID_Verbal = ? AND u.Role = 'Student'";
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, verbal_id);
+			result = pstatement.executeQuery();
+			while (result.next()) {
+				User stud = new User();
+				stud.setId(result.getInt("ID"));
+				stud.setSurname(result.getString("Surname"));
+				stud.setName(result.getString("Name"));
+				stud.setEmail(result.getString("Email"));
+				stud.setUsername(result.getString("Username"));
+				DegreeCourseDAO degCourseDAO = new DegreeCourseDAO(this.connection);
+				stud.setDegreeCourse(degCourseDAO.findDegreeCourseById(result.getInt("ID_DegreeCourse")));
+
+				students.add(stud);
+			}
+		} catch (SQLException e) {
+			throw new SQLException("Failure while extraction student's data that are registered in the verbal");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		return students;
+	}
+	
 }

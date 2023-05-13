@@ -21,9 +21,11 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import DAO.CourseDAO;
 import DAO.GraduationCallDAO;
+import DAO.StudentDAO;
 import beans.Course;
 import beans.GraduationCall;
 import beans.User;
+import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/GoToHomeStudent")
@@ -43,7 +45,7 @@ public class GoToHomeStudent extends HttpServlet {
 		this.templateEngine = new TemplateEngine();
 		this.templateEngine.setTemplateResolver(templateResolver);
 		templateResolver.setSuffix(".html");
-		
+
 		connection = ConnectionHandler.getConnection(getServletContext());
 	}
 
@@ -54,33 +56,34 @@ public class GoToHomeStudent extends HttpServlet {
 
 		HttpSession session = request.getSession();
 		User student = (User) session.getAttribute("user");
-		String error = (String) request.getAttribute("error");
+		String error = (String) request.getAttribute("errorMessage");
+		boolean firstTime = false;
 
+		calls = new ArrayList<>();
 		try {
-			courseId = Integer.parseInt(request.getParameter("courseid"));
+			// Retrieving courses to which student is subscribed
+			CourseDAO courseDAO = new CourseDAO(connection);
+			coursesStudentSubscribedTo = courseDAO.findAllCoursesByStudent(student.getId());
 
+			// Retrieving query string parameter "courseid"
+			courseId = Integer.parseInt(request.getParameter("courseid"));
+			//Checking if the query string parameter is correct
+			StudentDAO sDAO = new StudentDAO(this.connection);
+			sDAO.checkIfStudentIsSubscribedToCourse(student.getId(), courseId);
+
+			//Retrieving calls associated to the course that has been chosen by the student
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			calls = gcDAO.findAllDegreeCallWhichStudentSubscribedToByCourseId(student.getId(), courseId);
-
 		} catch (NumberFormatException | NullPointerException e) {
-			calls = new ArrayList<>();
-			calls.add(null);
-			if (request.getParameter("courseid")!=null) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-				return;
+			if (request.getParameter("courseid") != null) {
+				error = "Incorrect param values";
+			} else {
+				firstTime = true;
 			}
 		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in course's calls extraction");
-			return;
-		}
-
-		CourseDAO courseDAO = new CourseDAO(connection);
-
-		try {
-			coursesStudentSubscribedTo = courseDAO.findAllCoursesByStudent(student.getId());
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in student's courses extraction");
-			return;
+			error = e.getMessage();
+		} catch (StudentDAOException e) {
+			error = e.getMessage();
 		}
 
 		String path = "/WEB-INF/HomeStudent.html";
@@ -89,6 +92,7 @@ public class GoToHomeStudent extends HttpServlet {
 		ctx.setVariable("calls", calls);
 		ctx.setVariable("courses", coursesStudentSubscribedTo);
 		ctx.setVariable("errorMessage", error);
+		ctx.setVariable("firstTime", firstTime);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 

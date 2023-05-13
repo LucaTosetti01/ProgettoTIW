@@ -13,57 +13,47 @@ import javax.servlet.http.HttpSession;
 
 import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
-import DAO.StudentDAO;
 import beans.User;
-import exceptions.CallEvaluationDAOException;
 import exceptions.GraduationCallDAOException;
-import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
-@WebServlet("/UpdateStudentMark")
-public class UpdateStudentMark extends HttpServlet {
+@WebServlet("/PublishStudentsMarks")
+public class PublishStudentsMarks extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
-
-	public UpdateStudentMark() {
+	
+	public PublishStudentsMarks() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void init() throws ServletException {
 		this.connection = ConnectionHandler.getConnection(getServletContext());
 	}
-
+	
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		Integer studentId = null, callId = null;
-		String newMark = null;
-
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Integer callId = null;
+		
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
+		
 		try {
-			studentId = Integer.parseInt(request.getParameter("studentid"));
 			callId = Integer.parseInt(request.getParameter("callid"));
-			newMark = request.getParameter("newMark");
 			
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			StudentDAO sDAO = new StudentDAO(this.connection);
 			
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
-			ceDAO.checkIfMarkFormatIsCorrect(newMark);
 			
-			ceDAO.updateMarkByStudentAndCallId(studentId, callId, newMark);
+			ceDAO.publishAllMarksByCallId(callId);
 		} catch (NumberFormatException | NullPointerException e) {
-			String errorPath = "/GoToMarkManagement";
+			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", "Incorrect param values");
 			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
-		} catch (SQLException | GraduationCallDAOException | StudentDAOException | CallEvaluationDAOException e) {
-			String errorPath = "/GoToMarkManagement";
+		} catch (SQLException | GraduationCallDAOException e) {
+			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", e.getMessage());
 			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
@@ -72,12 +62,11 @@ public class UpdateStudentMark extends HttpServlet {
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GetSubscriptionToCall?callid=" + callId;
 		response.sendRedirect(path);
-
+		
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
@@ -88,4 +77,7 @@ public class UpdateStudentMark extends HttpServlet {
 		super.destroy();
 	}
 
+	
+	
+	
 }

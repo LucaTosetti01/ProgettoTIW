@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -26,6 +27,7 @@ import beans.Course;
 import beans.GraduationCall;
 import beans.User;
 import beans.Verbal;
+import exceptions.GraduationCallDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/GoToVerbalRecap")
@@ -61,27 +63,38 @@ public class GoToVerbalRecap extends HttpServlet{
 		User lecturer = null;
 		List<User> students = null;
 		
-		try {
-			verbalId = Integer.parseInt(request.getParameter("verbalid"));
-		} catch (NumberFormatException | NullPointerException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-			return;
-		}
+		HttpSession session = request.getSession();
+		User lecLogged = (User) session.getAttribute("user");
 		
-		VerbalDAO vDAO = new VerbalDAO(this.connection);
-		GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-		CourseDAO cDAO = new CourseDAO(this.connection);
-		LecturerDAO lDAO = new LecturerDAO(this.connection);
-		StudentDAO sDAO = new StudentDAO(this.connection);
 		try {
+			VerbalDAO vDAO = new VerbalDAO(this.connection);
+			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+			CourseDAO cDAO = new CourseDAO(this.connection);
+			LecturerDAO lDAO = new LecturerDAO(this.connection);
+			StudentDAO sDAO = new StudentDAO(this.connection);
+			
+			verbalId = Integer.parseInt(request.getParameter("verbalid"));
 			verbal = vDAO.getVerbalById(verbalId);
+			
+			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(verbal.getCallId(), lecLogged.getId());
+			
 			call = gcDAO.getGraduationCallById(verbal.getCallId());
 			course = cDAO.findCourseById(call.getCourseId());
 			lecturer = lDAO.findLecturerById(course.getTaughtById());
-			students = sDAO.findAllRegistrationsToTheCall(call.getId());
-		} catch (SQLException e) {
-			e.printStackTrace();
+			students = sDAO.findAllStudentsInVerbalById(verbal.getId());
+		
+		} catch (NumberFormatException | NullPointerException e) {
+			String errorPath = "/GetSubscriptionToCall";
+			request.setAttribute("errorMessage", "Incorrect param values");
+			request.getRequestDispatcher(errorPath).forward(request, response);
+			return;
+		} catch (SQLException | GraduationCallDAOException e) {
+			String errorPath = "/GetSubscriptionToCall";
+			request.setAttribute("errorMessage", e.getMessage());
+			request.getRequestDispatcher(errorPath).forward(request, response);
+			return;
 		}
+		
 		
 		String path = "/WEB-INF/Verbal.html";
 		ServletContext servletContext = getServletContext();

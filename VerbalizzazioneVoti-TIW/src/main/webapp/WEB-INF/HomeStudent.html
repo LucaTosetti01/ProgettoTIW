@@ -41,7 +41,7 @@
 	<br>
 	<br>
 
-	<div th:if="${calls.size() >0 and calls[0]!=null}">
+	<div th:if="${calls.size() >0}">
 		<p>List of calls associated with the course you chose</p>
 		<table border="1">
 			<thead>
@@ -58,7 +58,7 @@
 					<td th:utext="${c.time}"></td>
 					<td>
 						<form
-							th:action="@{/GoToOutcome(callid=${c.id},studentid=${session.user.id})}"
+							th:action="@{/GoToOutcome(callid=${c.id})}"
 							method="POST">
 							<input type="submit" value="Choose">
 						</form>
@@ -68,7 +68,8 @@
 		</table>
 	</div>
 
-	<div th:if="${calls.size() == 0} and courses.size()>0}">No calls
+
+	<div th:if="${calls.size() == 0 and courses.size()>0 and errorMessage==null and !firstTime}">No calls
 		found</div>
 	<p style="color:red;" th:text="${errorMessage}"></p>
 </body>

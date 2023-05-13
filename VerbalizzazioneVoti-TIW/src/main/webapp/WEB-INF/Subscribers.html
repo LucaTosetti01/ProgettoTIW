@@ -13,21 +13,20 @@
 		Call details: <span
 			th:text="${call.id} + ', ' + ${call.date} + ', ' + ${call.time} + ', ' + ${call.courseId}"></span>
 	</h3>
-
 	<div th:if="${students.size()>0}">
 		<p>List of all students that subscribed to the call</p>
 		<table border="1">
 			<thead>
 				<tr>
-					<th:block th:if="${#request.getParameter('orderBy') == 'ID'}">
+					<th:block th:if="${#request.getParameter('orderBy') == 'ID' or #request.getParameter('orderBy') == null}">
 						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=${#request.getParameter('orderBy')}!='ID' ? 'true' : ${!orderType})}">ID &#x25B2;</a></th>
+							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=(${#request.getParameter('orderBy')}!='ID' and ${#request.getParameter('orderBy')}!=null) ? 'true' : ${!orderType})}">ID &#x25B2;</a></th>
 						</th:block>
 						<th:block th:unless="${orderType}">
 							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=${#request.getParameter('orderBy')}!='ID' ? 'true' : ${!orderType})}">ID &#x25BC;</a></th>
 						</th:block>
 					</th:block>
-					<th:block th:unless="${#request.getParameter('orderBy') == 'ID'}">
+					<th:block th:unless="${#request.getParameter('orderBy') == 'ID' or #request.getParameter('orderBy') == null}">
 						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType='true')}">ID</a></th>
 					</th:block>
 
@@ -125,7 +124,7 @@
 						<form
 							th:action="@{/GoToMarkManagement(studentid=${stud.id},callid=${call.id})}"
 							method="POST">
-							<input type="submit" value="Modify">
+							<input type="submit" value="Modify" th:disabled="${evaluations[studStat.index].state == 'Verbalizzato' or evaluations[studStat.index].state == 'Rifiutato' or evaluations[studStat.index].state == 'Pubblicato'}">
 						</form>
 					</td>
 				</tr>
@@ -133,11 +132,18 @@
 		</table>
 
 		<div>
+			<form th:action="@{/PublishStudentsMarks}">
+				<input type="hidden" name="callid" th:value="${call.id}"> <input
+					type="submit" value="Publish">
+			</form>
+			
 			<form th:action="@{/VerbalizeStudentsMarks}">
 				<input type="hidden" name="callid" th:value="${call.id}"> <input
-					type="submit" value="Verbalize">
+					type="submit" value="Verbalize" th:disabled="${numberOfVerbalizableMarks < 1}">
 			</form>
 		</div>
 	</div>
+	
+	<p style="color:red;" th:text="${errorMessage}"></p>
 </body>
 </html>

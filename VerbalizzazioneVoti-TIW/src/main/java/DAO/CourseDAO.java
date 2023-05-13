@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import beans.Course;
+import exceptions.CourseDAOException;
 
 public class CourseDAO {
 	private Connection connection;
@@ -38,7 +39,7 @@ public class CourseDAO {
 				courses.add(course);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in courses' data extraction taught by lecturer");
 		} finally {
 			try {
 				if (result != null) {
@@ -79,7 +80,7 @@ public class CourseDAO {
 				courses.add(course);
 			}
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in courses' data extraction which student is subscribed to");
 		} finally {
 			try {
 				if (result != null) {
@@ -117,7 +118,7 @@ public class CourseDAO {
 			course.setTaughtById(result.getInt("ID_Lecturer"));
 
 		} catch (SQLException e) {
-			throw new SQLException(e);
+			throw new SQLException("Failure in course's data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -136,6 +137,43 @@ public class CourseDAO {
 		}
 
 		return course;
+	}
+	
+	public void checkIfCourseIsTaughtByLecturer(int course_id, int lecturer_id) throws SQLException, CourseDAOException {
+		String query = "SELECT COUNT(*) AS Counter FROM courses WHERE ID = ? AND ID_Lecturer = ?";
+		
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		int numberOfRows;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, course_id);
+			pstatement.setInt(2, lecturer_id);
+			result = pstatement.executeQuery();
+			result.next();
+			numberOfRows = result.getInt("Counter");
+		} catch (SQLException e) {
+			throw new SQLException("Failure in course's data extraction");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		if(numberOfRows!=1) {
+			throw new CourseDAOException("The chosen course is not taught by the lecturer logged");
+		}
+		
 	}
 
 }
