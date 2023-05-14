@@ -60,7 +60,7 @@ public class CourseDAO {
 		return courses;
 	}
 
-	public List<Course> findAllCoursesByStudent(int student_id) throws SQLException {
+	public List<Course> findAllCoursesByStudentId(int student_id) throws SQLException {
 		List<Course> courses = new ArrayList<Course>();
 
 		String query = "SELECT r.ID_Course,c.ID,r.ID_Student,u.ID,u.Role,c.Name,c.Description "

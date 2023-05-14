@@ -63,7 +63,7 @@ public class GoToHomeStudent extends HttpServlet {
 		try {
 			// Retrieving courses to which student is subscribed
 			CourseDAO courseDAO = new CourseDAO(connection);
-			coursesStudentSubscribedTo = courseDAO.findAllCoursesByStudent(student.getId());
+			coursesStudentSubscribedTo = courseDAO.findAllCoursesByStudentId(student.getId());
 
 			// Retrieving query string parameter "courseid"
 			courseId = Integer.parseInt(request.getParameter("courseid"));
