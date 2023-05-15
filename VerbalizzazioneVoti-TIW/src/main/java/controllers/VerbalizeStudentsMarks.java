@@ -87,7 +87,7 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 
 		
 		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId;
+		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId +"&callid=" + callId;
 		response.sendRedirect(path);
 	}
 

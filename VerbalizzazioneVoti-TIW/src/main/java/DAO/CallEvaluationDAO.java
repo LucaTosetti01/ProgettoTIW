@@ -344,7 +344,7 @@ public class CallEvaluationDAO {
 			result.next();
 			numberOfRows = result.getInt("Counter");
 		} catch (SQLException e) {
-			throw new SQLException("Failure in students and evaluations' data extraction");
+			throw new SQLException("Failure in evaluations' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -378,7 +378,7 @@ public class CallEvaluationDAO {
 			result.next();
 			status = result.getString("EvaluationStatus");
 		} catch (SQLException e) {
-			throw new SQLException("Failure in students and evaluations' data extraction");
+			throw new SQLException("Failure in evaluations' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -396,7 +396,7 @@ public class CallEvaluationDAO {
 			}
 		}
 		if(Arrays.asList("Pubblicato","Verbalizzato","Rifiutato").contains(status)) {
-			throw new CallEvaluationDAOException("The chosen course is not modifiable");
+			throw new CallEvaluationDAOException("The chosen student's mark is not modifiable");
 		}
 	}
 

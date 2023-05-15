@@ -56,7 +56,7 @@ public class GoToVerbalRecap extends HttpServlet{
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Integer verbalId = null;
+		Integer verbalId = null, callId = null;
 		Verbal verbal = null;
 		GraduationCall call = null;
 		Course course = null;
@@ -73,10 +73,12 @@ public class GoToVerbalRecap extends HttpServlet{
 			LecturerDAO lDAO = new LecturerDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
 			
+			System.out.println(request.getParameter("callid"));
 			verbalId = Integer.parseInt(request.getParameter("verbalid"));
+			callId = Integer.parseInt(request.getParameter("callid"));
 			verbal = vDAO.getVerbalById(verbalId);
 			
-			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(verbal.getCallId(), lecLogged.getId());
+			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
 			
 			call = gcDAO.getGraduationCallById(verbal.getCallId());
 			course = cDAO.findCourseById(call.getCourseId());

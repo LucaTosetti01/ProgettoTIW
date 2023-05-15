@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `tiwproject` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `tiwproject`;
 -- MySQL dump 10.13  Distrib 8.0.32, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: tiwproject
@@ -110,7 +108,7 @@ DROP TABLE IF EXISTS `registrations_calls`;
 CREATE TABLE `registrations_calls` (
   `ID_Student` int NOT NULL,
   `ID_Call` int NOT NULL,
-  `Mark` enum('','Assente','Rimandato','Riprovato','18','20','21','22','23','24','25','26','27','28','29','30','30 e lode') NOT NULL,
+  `Mark` enum('','Assente','Rimandato','Riprovato','18','20','21','22','23','24','25','26','27','28','29','30','30L') NOT NULL,
   `EvaluationStatus` enum('Non inserito','Inserito','Pubblicato','Rifiutato','Verbalizzato') NOT NULL,
   PRIMARY KEY (`ID_Student`,`ID_Call`),
   KEY `ID_Call_idx` (`ID_Call`),
@@ -126,7 +124,7 @@ CREATE TABLE `registrations_calls` (
 
 LOCK TABLES `registrations_calls` WRITE;
 /*!40000 ALTER TABLE `registrations_calls` DISABLE KEYS */;
-INSERT INTO `registrations_calls` VALUES (4,4,'Rimandato','Verbalizzato'),(5,4,'29','Verbalizzato'),(6,4,'Assente','Non inserito');
+INSERT INTO `registrations_calls` VALUES (4,4,'Rimandato','Verbalizzato'),(5,4,'30L','Verbalizzato'),(6,4,'Assente','Verbalizzato');
 /*!40000 ALTER TABLE `registrations_calls` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -154,7 +152,7 @@ CREATE TABLE `registrations_courses` (
 
 LOCK TABLES `registrations_courses` WRITE;
 /*!40000 ALTER TABLE `registrations_courses` DISABLE KEYS */;
-INSERT INTO `registrations_courses` VALUES (4,1),(4,4),(4,5);
+INSERT INTO `registrations_courses` VALUES (4,1),(4,4),(5,4),(6,4),(4,5);
 /*!40000 ALTER TABLE `registrations_courses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -168,8 +166,9 @@ DROP TABLE IF EXISTS `students_verbals`;
 CREATE TABLE `students_verbals` (
   `ID_Student` int NOT NULL,
   `ID_Verbal` int NOT NULL,
-  KEY `students_verbals->Verbals_idx` (`ID_Verbal`),
+  PRIMARY KEY (`ID_Student`,`ID_Verbal`),
   KEY `students_verbals->Students_idx` (`ID_Student`),
+  KEY `students_verbals->Verbals_idx` (`ID_Verbal`),
   CONSTRAINT `students_verbals->Students` FOREIGN KEY (`ID_Student`) REFERENCES `users` (`ID`) ON UPDATE CASCADE,
   CONSTRAINT `students_verbals->Verbals` FOREIGN KEY (`ID_Verbal`) REFERENCES `verbals` (`ID`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -181,6 +180,7 @@ CREATE TABLE `students_verbals` (
 
 LOCK TABLES `students_verbals` WRITE;
 /*!40000 ALTER TABLE `students_verbals` DISABLE KEYS */;
+INSERT INTO `students_verbals` VALUES (4,1),(5,1),(6,2);
 /*!40000 ALTER TABLE `students_verbals` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -230,10 +230,9 @@ CREATE TABLE `verbals` (
   `CreationTime` time NOT NULL,
   `ID_Call` int NOT NULL,
   PRIMARY KEY (`ID`),
-  UNIQUE KEY `ID_Call_UNIQUE` (`ID_Call`),
   KEY `Verbals->Calls_idx` (`ID_Call`),
   CONSTRAINT `Verbals->Calls` FOREIGN KEY (`ID_Call`) REFERENCES `calls` (`ID`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -242,7 +241,7 @@ CREATE TABLE `verbals` (
 
 LOCK TABLES `verbals` WRITE;
 /*!40000 ALTER TABLE `verbals` DISABLE KEYS */;
-INSERT INTO `verbals` VALUES (15,'2023-05-07','18:25:52',4);
+INSERT INTO `verbals` VALUES (1,'2023-05-14','18:47:46',4),(2,'2023-05-14','18:49:13',4);
 /*!40000 ALTER TABLE `verbals` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -255,4 +254,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-08 20:32:16
+-- Dump completed on 2023-05-14 21:24:42

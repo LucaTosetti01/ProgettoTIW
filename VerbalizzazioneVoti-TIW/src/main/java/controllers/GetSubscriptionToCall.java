@@ -96,6 +96,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 			
 			
 		} catch (NumberFormatException | NullPointerException e) {
+			
 			String errorPath = "/GoToHomeLecturer";
 			request.setAttribute("errorMessage", "Incorrect param values");
 			request.getRequestDispatcher(errorPath).forward(request, response);
@@ -118,6 +119,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 		ctx.setVariable("students", students);
 		ctx.setVariable("call", call);
 		ctx.setVariable("evaluations", callEvaluations);
+		ctx.setVariable("orderBy", orderBy);
 		ctx.setVariable("orderType", orderType);
 		ctx.setVariable("errorMessage", error);
 		ctx.setVariable("numberOfVerbalizableMarks", numberOfVerbalizableMarks);
