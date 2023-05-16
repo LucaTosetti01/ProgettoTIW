@@ -36,7 +36,11 @@
 	  <url-pattern>/GoToHomeStudent</url-pattern>
 	  <url-pattern>/GoToMarkManagement</url-pattern>
 	  <url-pattern>/GoToOutcome</url-pattern>
+	  <url-pattern>/GoToVerbalRecap</url-pattern>
+	  <url-pattern>/PublishStudentMark</url-pattern>
+	  <url-pattern>/RefuseMark</url-pattern>
 	  <url-pattern>/UpdateStudentMark</url-pattern>
+	  <url-pattern>/VerbalizeStudentsMarks</url-pattern>
   </filter-mapping>
   <filter-mapping>
 	  <filter-name>LecturerChecker</filter-name>
@@ -45,6 +49,9 @@
 	  <url-pattern>/GoToMarkManagement</url-pattern>
 	  <url-pattern>/UpdateStudentMark</url-pattern>
 	  <url-pattern>/GoToVerbalRecap</url-pattern>
+	  <url-pattern>/PublishStudentMark</url-pattern>
+	  <url-pattern>/UpdateStudentMark</url-pattern>
+	  <url-pattern>/VerbalizeStudentsMarks</url-pattern>
   </filter-mapping>
   <filter-mapping>
 	  <filter-name>StudentChecker</filter-name>

@@ -441,10 +441,15 @@ public class StudentDAO {
 			pstatement.setInt(1, student_id);
 			pstatement.setInt(2, call_id);
 			result = pstatement.executeQuery();
+			
+			//If the result has no rows, i throw an exception
+			if (!result.isBeforeFirst()) {
+				throw new StudentDAOException("The chosen student is not subscribed to the call which is being considered");
+			}
 			result.next();
+			//numberOfRows = result.getInt("Counter");
 			int courseId = result.getInt("ID_Course");
 			checkIfStudentIsSubscribedToCourse(student_id, courseId);
-			numberOfRows = result.getInt("Counter");
 		} catch (SQLException e) {
 			throw new SQLException("Failure in students and evaluations' data extraction");
 		} finally {
@@ -463,9 +468,7 @@ public class StudentDAO {
 				throw new SQLException(e2);
 			}
 		}
-		if (numberOfRows != 1) {
-			throw new StudentDAOException("The chosen student is not subscribed to the call which is being considered");
-		}
+		
 	}
 	
 	public List<User> findAllStudentsInVerbalById(int verbal_id) throws SQLException {
