@@ -118,7 +118,7 @@ public class VerbalDAO {
 			//connection.commit();
 		} catch (SQLException e) {
 			//connection.rollback();
-			throw new SQLException("Failure in saving students within a new verbal");
+			throw new SQLException("Failure while saving students within a new verbal");
 		} finally {
 			//connection.setAutoCommit(true);
 			try {
@@ -132,7 +132,7 @@ public class VerbalDAO {
 		return code;
 	}
 
-	public Verbal getVerbalById(int verbal_id) throws SQLException {
+	public Verbal findVerbalById(int verbal_id) throws SQLException {
 		String query = "SELECT * FROM verbals WHERE ID = ?";
 		Verbal verbal = new Verbal();
 
@@ -171,7 +171,7 @@ public class VerbalDAO {
 		return verbal;
 	}
 
-	public Verbal getVerbalByCallId(int call_id) throws SQLException {
+	public Verbal findVerbalByCallId(int call_id) throws SQLException {
 		String query = "SELECT * FROM verbals WHERE ID_Call = ?";
 		Verbal verbal = new Verbal();
 
@@ -210,7 +210,7 @@ public class VerbalDAO {
 		return verbal;
 	}
 
-	public Verbal getVerbalByCallIdDateTime(Date date, Time time, int call_id) throws SQLException {
+	public Verbal findVerbalByCallIdDateTime(Date date, Time time, int call_id) throws SQLException {
 		String query = "SELECT * FROM verbals WHERE ID_Call = ? AND CreationDate = ? AND CreationTime = ?";
 		Verbal verbal = new Verbal();
 
@@ -250,8 +250,4 @@ public class VerbalDAO {
 		}
 		return verbal;
 	}
-	
-	
-	
-
 }

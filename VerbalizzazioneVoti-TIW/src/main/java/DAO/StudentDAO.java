@@ -123,7 +123,7 @@ public class StudentDAO {
 				students.add(stud);
 			}
 		} catch (SQLException e) {
-			throw new SQLException("Failure in students' data extraction, that are belonging to a verbal");
+			throw new SQLException("Failure in data extraction of students, belonging to a verbal");
 		} finally {
 			try {
 				if (result != null) {
@@ -168,7 +168,7 @@ public class StudentDAO {
 				students.add(stud);
 			}
 		} catch (SQLException e) {
-			throw new SQLException("Failure in students' data extraction which are subscribed to the same call");
+			throw new SQLException("Failure in data extraction of students that are subscribed to the same call");
 		} finally {
 			try {
 				if (result != null) {
@@ -215,7 +215,7 @@ public class StudentDAO {
 				students.add(stud);
 			}
 		} catch (SQLException e) {
-			throw new SQLException("Failure in students' data extraction which are subscribed to the same call");
+			throw new SQLException("Failure in data extraction of students that are subscribed to the same call (ordered)");
 		} finally {
 			try {
 				if (result != null) {
@@ -371,7 +371,7 @@ public class StudentDAO {
 				studEv.put(u, callEv);
 			}
 		} catch (SQLException e) {
-			throw new SQLException("Failure in students and evaluations' data extraction");
+			throw new SQLException("Failure in students and evaluations' data extraction (ordered)");
 		} finally {
 			try {
 				if (result != null) {
@@ -424,7 +424,7 @@ public class StudentDAO {
 			}
 		}
 		if (numberOfRows != 1) {
-			throw new StudentDAOException("The logged student is not subscribed to the course chosen");
+			throw new StudentDAOException("The logged student is not subscribed to the chosen course");
 		}
 	}
 
@@ -496,7 +496,7 @@ public class StudentDAO {
 				students.add(stud);
 			}
 		} catch (SQLException e) {
-			throw new SQLException("Failure while extraction student's data that are registered in the verbal");
+			throw new SQLException("Failure while extracting student's data that are registered in the same verbal");
 		} finally {
 			try {
 				if (result != null) {

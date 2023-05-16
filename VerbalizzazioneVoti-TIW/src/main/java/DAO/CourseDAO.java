@@ -39,7 +39,7 @@ public class CourseDAO {
 				courses.add(course);
 			}
 		} catch (SQLException e) {
-			throw new SQLException("Failure in courses' data extraction taught by lecturer");
+			throw new SQLException("Failure in data extraction of the course taught by the lecturer");
 		} finally {
 			try {
 				if (result != null) {
@@ -80,7 +80,7 @@ public class CourseDAO {
 				courses.add(course);
 			}
 		} catch (SQLException e) {
-			throw new SQLException("Failure in courses' data extraction which student is subscribed to");
+			throw new SQLException("Failure in data extraction of the courses to which student is subscribed");
 		} finally {
 			try {
 				if (result != null) {
@@ -171,7 +171,7 @@ public class CourseDAO {
 			}
 		}
 		if(numberOfRows!=1) {
-			throw new CourseDAOException("The chosen course is not taught by the lecturer logged");
+			throw new CourseDAOException("The chosen course is not taught by the logged lecturer");
 		}
 		
 	}

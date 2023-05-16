@@ -88,7 +88,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 			//Retrieving a map of students and their respective evaluations ordered using "orderBy" and "orderType"
 			studentsWithEvaluations = sDAO.findAllRegistrationsAndEvaluationToCallOrdered(callId, orderBy,
 					orderType ? "ASC" : "DESC");
-			call = gcDAO.getGraduationCallById(callId);
+			call = gcDAO.findGraduationCallById(callId);
 
 			//Splitting the map into 2 different lists but still maintaining the order;
 			students = studentsWithEvaluations.keySet().stream().toList();

@@ -62,7 +62,7 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			ceDAO.checkIfAnyMarkIsVerbalizable();
 			
 			ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
-			verbalId = vDAO.getVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
+			verbalId = vDAO.findVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
 		} catch (NumberFormatException | NullPointerException e) {
 			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", "Incorrect param values");

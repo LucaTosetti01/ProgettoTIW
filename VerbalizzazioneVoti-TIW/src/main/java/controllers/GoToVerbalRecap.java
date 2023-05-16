@@ -76,11 +76,11 @@ public class GoToVerbalRecap extends HttpServlet{
 			System.out.println(request.getParameter("callid"));
 			verbalId = Integer.parseInt(request.getParameter("verbalid"));
 			callId = Integer.parseInt(request.getParameter("callid"));
-			verbal = vDAO.getVerbalById(verbalId);
+			verbal = vDAO.findVerbalById(verbalId);
 			
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
 			
-			call = gcDAO.getGraduationCallById(verbal.getCallId());
+			call = gcDAO.findGraduationCallById(verbal.getCallId());
 			course = cDAO.findCourseById(call.getCourseId());
 			lecturer = lDAO.findLecturerById(course.getTaughtById());
 			students = sDAO.findAllStudentsInVerbalById(verbal.getId());

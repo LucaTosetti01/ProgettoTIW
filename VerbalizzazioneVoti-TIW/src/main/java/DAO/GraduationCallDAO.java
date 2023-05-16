@@ -164,7 +164,7 @@ public class GraduationCallDAO {
 			pstatement.setInt(3, code);
 			code = pstatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new SQLException("Failure in creating a new graduation call");
+			throw new SQLException("Failure in creation of a new graduation call");
 		} finally {
 			try {
 				if (pstatement != null) {
@@ -177,7 +177,7 @@ public class GraduationCallDAO {
 		return code;
 	}
 
-	public GraduationCall getGraduationCallById(int gc_id) throws SQLException {
+	public GraduationCall findGraduationCallById(int gc_id) throws SQLException {
 		GraduationCall gc = new GraduationCall();
 
 		String query = "SELECT * FROM calls WHERE ID = ?";
@@ -215,7 +215,7 @@ public class GraduationCallDAO {
 	}
 	
 	public void checkIfCourseOfCallIsTaughtByLecturer(int call_id, int lecturer_id) throws SQLException, GraduationCallDAOException {
-String query = "SELECT COUNT(*) AS Counter "
+		String query = "SELECT COUNT(*) AS Counter "
 		+ "FROM calls AS c1 JOIN courses as c2 ON c1.ID_Course = c2.ID "
 		+ "WHERE c1.ID = ? AND c2.ID_Lecturer = ?";
 		
@@ -230,7 +230,7 @@ String query = "SELECT COUNT(*) AS Counter "
 			result.next();
 			numberOfRows = result.getInt("Counter");
 		} catch (SQLException e) {
-			throw new SQLException("Failure while checking");
+			throw new SQLException("Failure in calls and courses' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -248,7 +248,7 @@ String query = "SELECT COUNT(*) AS Counter "
 			}
 		}
 		if(numberOfRows!=1) {
-			throw new GraduationCallDAOException("The chosen call is not associated to a course taught by the lecturer logged");
+			throw new GraduationCallDAOException("The chosen call is not associated to a course taught by the logged lecturer");
 		}
 	}
 }

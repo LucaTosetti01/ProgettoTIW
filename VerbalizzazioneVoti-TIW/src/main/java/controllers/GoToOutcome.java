@@ -74,7 +74,7 @@ public class GoToOutcome extends HttpServlet {
 			
 			student = sDAO.findStudentById(studLogged.getId());
 			evaluation = ceDAO.findEvaluationByCallAndStudentId(callId, studLogged.getId());
-			courseCall = gcDAO.getGraduationCallById(evaluation.getCall_id());
+			courseCall = gcDAO.findGraduationCallById(evaluation.getCall_id());
 			studentCourse = cDAO.findCourseById(courseCall.getCourseId());
 			courseLecturer = lDAO.findLecturerById(studentCourse.getTaughtById());
 			
