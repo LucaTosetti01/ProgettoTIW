@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Lecturer's Home</title>
+</head>
+<body>
+	<div align="right">
+		<a th:href="@{/Logout}">Logout</a>
+	</div>
+	<h1>Welcome to your personal Home Page</h1>
+	<h3 th:text="${session.user.name} + ' ' + ${session.user.surname}">Lecturer</h3>
+
+	<div th:if="${courses.size() >0}">
+		<p>List of courses you are subscribed to</p>
+		<table border="1">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Name</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="c : ${courses}">
+					<td th:text="${c.id}"></td>
+					<td th:text="${c.name}"></td>
+					<td th:utext="${c.description}"></td>
+					<td>
+						<form th:action="@{/GoToHomeStudent(courseid=${c.id})}"
+							method="POST">
+							<input type="submit" name="Choose" value="Choose">
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div th:if="${courses.size() == 0}">No courses found</div>
+	<br>
+	<br>
+
+	<div th:if="${calls.size() >0}">
+		<p>List of calls associated with the course you chose</p>
+		<table border="1">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Date</th>
+					<th>Time</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="c : ${calls}">
+					<td th:text="${c.id}"></td>
+					<td th:text="${c.date}"></td>
+					<td th:utext="${c.time}"></td>
+					<td>
+						<form
+							th:action="@{/GoToOutcome(callid=${c.id})}"
+							method="POST">
+							<input type="submit" value="Choose">
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+
+	<div th:if="${calls.size() == 0 and courses.size()>0 and errorMessage==null and !firstTime}">No calls
+		found</div>
+	<p style="color:red;" th:text="${errorMessage}"></p>
+</body>
+</html>
