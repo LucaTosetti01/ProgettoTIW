@@ -155,7 +155,8 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 						//subscribers component otherwhise i would have a error message
 						//with the subiscribers of another course (if precedently I've selected
 						//a course which had some calls)
-						//subscribersList.reset();
+						callsList.reset();
+						outcome.reset();
 						return;
 					}
 					//self.alert.textContent = "";
@@ -166,6 +167,8 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 					window.sessionStorage.removeItem('username');
 				} else {
 					self.alert.textContent = message;
+					callsList.reset();
+					outcome.reset();
 				}
 			}
 		});
@@ -212,7 +215,7 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 				}
 				e.target.parentNode.parentNode.classList.add("selectedCall");
 
-				subscribersList.show(e.target.getAttribute("callid"));
+				outcome.show(e.target.getAttribute("callid"));
 			}, false);
 
 			anchor.href = "#";
@@ -220,17 +223,55 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 			self.listContainerBody.appendChild(row);
 		});
 	};
+
+	this.autoClick = function(callId) {
+		var e = new Event("click");
+		//Selector needed to search a tag <a> that has an attribute callid = '${callId}'
+		var selector = "a[callid='" + callId + "']";
+		var anchorToClick = (callId) ? this.listContainer.querySelector(selector) : this.listContainerBody.querySelectorAll("a")[0];
+		if (anchorToClick) {
+			anchorToClick.dispatchEvent(e);
+		}
+	}
 }
 
-function Outcome(_alert, _dataContainer, _dataContainerBody) {
+function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm) {
 	this.alert = _alert;
 	this.dataContainer = _dataContainer;
 	this.dataContainerBody = _dataContainerBody;
+	this.refuseForm = _refuseForm;
 
 	this.reset = function() {
 		this.dataContainer.style.visibility = "hidden";
+		this.refuseForm.style.visibility = "hidden";
 	}
-	
+
+	this.registerEvent = function(orchestrator) {
+		this.refuseForm.querySelector("input[type='button']").addEventListener("click", function(e) {
+			var form = e.target.closest("form");
+			if (form.checkValidity()) {
+				let self = this;
+				let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent
+				let currentCall = form.querySelector("input[type = 'hidden']").value;
+				makeCall("POST", "RefuseMark", form, function(req) {
+					if (req.readyState === 4) {
+						var message = req.responseText;
+						if (req.status === 200) {
+							orchestrator.refresh(currentCourse, currentCall);
+						} else if (req.status === 403) {
+							window.location.href = req.getResponseHeader("Location");
+							window.sessionStorage.removeItem('username');
+						} else {
+							self.alert.textContent = message;
+						}
+					}
+				});
+			} else {
+				form.reportValidity();
+			}
+		});
+	};
+
 	this.show = function(callId) {
 		let self = this;
 		this.dataContainer.querySelector("p").textContent = "This is your outcome of the selected call";
@@ -241,26 +282,174 @@ function Outcome(_alert, _dataContainer, _dataContainerBody) {
 				var message = req.responseText;
 				if (req.status === 200) {
 					let outcomeToShow = JSON.parse(req.responseText);
-					if (outcomeToShow. === 0) {
+					if (outcomeToShow.length === 0) {
 						self.alert.textContent = "No calls found for the course: " + courseId;
 						//Since I didn't found calls i must reset the content of the 
 						//subscribers component otherwhise i would have a error message
 						//with the subiscribers of another course (if precedently I've selected
 						//a course which had some calls)
-						//subscribersList.reset();
+						outcome.reset();
 						return;
 					}
-					//self.alert.textContent = "";
-					self.update(callsToShow);
-					self.listContainer.style.visibility = "visible";
+					self.alert.textContent = "";
+					self.update(outcomeToShow);
+					self.dataContainer.style.visibility = "visible";
+					self.refuseForm.style.visibility = "visible";
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
 				} else {
 					self.alert.textContent = message;
+					outcome.reset();
 				}
 			}
 		});
+	}
+
+	this.update = function(outcomeMap) {
+		let row, self = this;
+		let idStudentCell, idCourseCell, idCallCell;
+		let surnameStudentCell, nameCourseCell, dateCallCell;
+		let nameStudentCell, descriptionCourseCell, timeCallCell;
+		let emailStudentCell, lecturerCourseCell, markCallCell;
+		let degreeCourseCell, evaluationStateCell;
+
+		this.dataContainerBody.innerHTML = "";
+
+		this.refuseForm.querySelector("input[type = 'hidden']").value = outcomeMap["call"].id;
+
+		var temp = this.dataContainer.querySelector("input[name='closeWindowOutcome']").addEventListener("click", function(e) {
+			outcome.reset();
+		})
+
+		row = document.createElement("tr");
+
+		//First row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "ID";
+		row.appendChild(temp);
+		idStudentCell = document.createElement("td");
+		idStudentCell.textContent = outcomeMap["student"].id;
+		row.appendChild(idStudentCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "ID";
+		row.appendChild(temp);
+		idCourseCell = document.createElement("td");
+		idCourseCell.textContent = outcomeMap["course"].id;
+		row.appendChild(idCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "ID";
+		row.appendChild(temp);
+		idCallCell = document.createElement("td");
+		idCallCell.textContent = outcomeMap["call"].id;
+		row.appendChild(idCallCell);
+
+		self.dataContainerBody.appendChild(row);
+		//Second row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "Surname";
+		row.appendChild(temp);
+		surnameStudentCell = document.createElement("td");
+		surnameStudentCell.textContent = outcomeMap["student"].surname;
+		row.appendChild(surnameStudentCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Name";
+		row.appendChild(temp);
+		nameCourseCell = document.createElement("td");
+		nameCourseCell.textContent = outcomeMap["course"].name;
+		row.appendChild(nameCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Date";
+		row.appendChild(temp);
+		dateCallCell = document.createElement("td");
+		dateCallCell.textContent = outcomeMap["call"].date;
+		row.appendChild(dateCallCell);
+
+		self.dataContainerBody.appendChild(row);
+		//Third row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "Name";
+		row.appendChild(temp);
+		nameStudentCell = document.createElement("td");
+		nameStudentCell.textContent = outcomeMap["student"].id;
+		row.appendChild(nameStudentCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Description";
+		row.appendChild(temp);
+		descriptionCourseCell = document.createElement("td");
+		descriptionCourseCell.textContent = outcomeMap["course"].description;
+		row.appendChild(descriptionCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Time";
+		row.appendChild(temp);
+		timeCallCell = document.createElement("td");
+		timeCallCell.textContent = outcomeMap["call"].time;
+		row.appendChild(timeCallCell);
+
+		self.dataContainerBody.appendChild(row);
+		//Forth row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "Email";
+		row.appendChild(temp);
+		emailStudentCell = document.createElement("td");
+		emailStudentCell.textContent = outcomeMap["student"].email;
+		row.appendChild(emailStudentCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Lecturer";
+		row.appendChild(temp);
+		lecturerCourseCell = document.createElement("td");
+		lecturerCourseCell.textContent = outcomeMap["lecturer"].surname + " " + outcomeMap["lecturer"].name;
+		row.appendChild(lecturerCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Mark";
+		row.appendChild(temp);
+		markCallCell = document.createElement("td");
+		markCallCell.textContent = outcomeMap["evaluation"].mark;
+		row.appendChild(markCallCell);
+
+		self.dataContainerBody.appendChild(row);
+		//Fifth row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "Degree course";
+		row.appendChild(temp);
+		degreeCourseCell = document.createElement("td");
+		degreeCourseCell.textContent = outcomeMap["student"].degreeCourse.name;
+		row.appendChild(degreeCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "";
+		row.appendChild(temp);
+		idStudentCell = document.createElement("td");
+		idStudentCell.textContent = "";
+		row.appendChild(idStudentCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Evaluation state";
+		row.appendChild(temp);
+		evaluationStateCell = document.createElement("td");
+		evaluationStateCell.textContent = outcomeMap["evaluation"].state;
+		row.appendChild(evaluationStateCell);
+
+		self.dataContainerBody.appendChild(row);
+
 	}
 }
 
@@ -283,20 +472,30 @@ function PageOrchestrator() {
 			document.getElementById("id_callsContainerBody")
 		);
 
+		outcome = new Outcome(
+			alertContainer,
+			document.getElementById("id_outcomeContainer"),
+			document.getElementById("id_outcomeContainerBody"),
+			document.getElementById("id_refuseForm")
+		);
+		outcome.registerEvent(this);
+
 
 		document.querySelector("a[href='Logout']").addEventListener("click", function() {
 			window.sessionStorage.removeItem("username");
 		})
 	};
 
-	this.refresh = function(currentCourse) {
+	this.refresh = function(currentCourse, currentCall) {
 		alertContainer.textContent = "";
 		coursesList.reset();
 		callsList.reset();
+		outcome.reset();
 
 		coursesList.show(function() {
 			coursesList.autoClick(currentCourse);
 		});
+
 
 	}
 }

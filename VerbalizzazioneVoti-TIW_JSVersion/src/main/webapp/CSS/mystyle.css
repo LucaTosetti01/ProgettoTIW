@@ -19,6 +19,6 @@ th.sortable {
 }
 
 .outcomeTable {
-	padding: 10px;
-	border: 1;
+	border-spacing: 5px;
+	border: 1px;
 }

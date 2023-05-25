@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import DAO.CallEvaluationDAO;
 import DAO.CourseDAO;
@@ -72,14 +73,12 @@ public class GetOutcome extends HttpServlet {
 			courseLecturer = lDAO.findLecturerById(studentCourse.getTaughtById());
 			
 		} catch (NumberFormatException | NullPointerException e) {
-			String errorPath = "/GoToHomeStudent";
-			request.setAttribute("errorMessage", "Incorrect param values");
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
 			return;
 		} catch (SQLException | StudentDAOException e) {
-			String errorPath = "/GoToHomeStudent";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print(e.getMessage());
 			return;
 		}
 
@@ -90,20 +89,14 @@ public class GetOutcome extends HttpServlet {
 		mapStringToData.put("course", studentCourse);
 		mapStringToData.put("lecturer", courseLecturer);
 		
-		String json = new Gson().toJson(mapStringToData);
+		Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+		String json = gson.toJson(mapStringToData);
 		
 		actualNumber = checkIfActualNumber(evaluation.getMark());
 
-		String path = "WEB-INF/Outcome.html";
-		/*ServletContext servletContext = getServletContext();
-		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-		ctx.setVariable("student", student);
-		ctx.setVariable("evaluation", evaluation);
-		ctx.setVariable("call", courseCall);
-		ctx.setVariable("course", studentCourse);
-		ctx.setVariable("lecturer", courseLecturer);
-		ctx.setVariable("markActualNumber", actualNumber);
-		templateEngine.process(path, ctx, response.getWriter());*/
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(json);
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
