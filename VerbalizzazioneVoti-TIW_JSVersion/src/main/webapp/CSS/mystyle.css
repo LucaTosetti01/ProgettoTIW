@@ -1,0 +1,24 @@
+.boxed {
+	border: 1px solid black;
+}
+
+th.sortable {
+	cursor: pointer;
+}
+
+.alertmessage{
+	color: red;
+}
+
+.selectedCourse{
+	background-color: lightgreen;
+}
+
+.selectedCall{
+	background-color: lightgreen;
+}
+
+.outcomeTable {
+	padding: 10px;
+	border: 1;
+}

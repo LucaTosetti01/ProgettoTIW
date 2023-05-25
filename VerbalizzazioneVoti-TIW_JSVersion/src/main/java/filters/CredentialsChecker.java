@@ -39,7 +39,9 @@ public class CredentialsChecker implements Filter {
 		// If the session is just created or his attribute "user" is null (for any
 		// reason) go back to the login page
 		if (s.isNew() || s.getAttribute("user") == null) {
-			res.sendRedirect(loginpath);
+			res.setStatus(403);
+			res.setHeader("Location", loginpath);
+			System.out.println("Login checker FAILED...");
 			return;
 		}
 		// pass the request along the filter chain

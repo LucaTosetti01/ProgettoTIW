@@ -13,10 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import DAO.CourseDAO;
 import DAO.GraduationCallDAO;
@@ -34,7 +30,6 @@ import utils.ConnectionHandler;
 public class GoToVerbalRecap extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
-	private TemplateEngine templateEngine;
 	
 	public GoToVerbalRecap() {
 		super();
@@ -44,13 +39,7 @@ public class GoToVerbalRecap extends HttpServlet{
 	@Override
 	public void init() throws ServletException {
 		connection = ConnectionHandler.getConnection(getServletContext());
-		
-		ServletContext servletContext = getServletContext();
-		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
+
 	}
 	
 	
@@ -99,14 +88,14 @@ public class GoToVerbalRecap extends HttpServlet{
 		
 		
 		String path = "/WEB-INF/Verbal.html";
-		ServletContext servletContext = getServletContext();
+		/*ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("verbal", verbal);
 		ctx.setVariable("call", call);
 		ctx.setVariable("course", course);
 		ctx.setVariable("lecturer", lecturer);
 		ctx.setVariable("students", students);
-		templateEngine.process(path, ctx, response.getWriter());
+		templateEngine.process(path, ctx, response.getWriter());*/
 	}
 
 	@Override

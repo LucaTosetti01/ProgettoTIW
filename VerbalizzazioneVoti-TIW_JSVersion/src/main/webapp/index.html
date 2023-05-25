@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
 <meta charset="ISO-8859-1">
 <title>Login page</title>
+<script src="utils.js" charset="utf-8" defer></script>
+<script src="LoginManagement.js" charset="utf-8" defer></script>
 </head>
 <body>
 	<h1>APP LOGIN</h1>
-	<form action="CheckLogin"
-		method="POST">
+	<form action="#">
 		Username: <input type="text" name="username"> <br>
-		Password: <input type="password" name="pwd"><br> <input type="submit" value="login">
+		Password: <input type="password" name="pwd"><br> 
+		<input id="loginButton" type="submit" value="login">
 	</form>
-	<p style="color:red;" th:text="${errorMessage}"></p>
+	<p style="color:red;" id="errorMessage"></p>
 </body>
 </html>

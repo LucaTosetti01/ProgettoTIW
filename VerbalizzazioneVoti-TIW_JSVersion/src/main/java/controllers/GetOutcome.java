@@ -3,6 +3,8 @@ package controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -12,10 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+import com.google.gson.Gson;
 
 import DAO.CallEvaluationDAO;
 import DAO.CourseDAO;
@@ -29,29 +28,23 @@ import beans.User;
 import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
-@WebServlet("/GoToOutcome")
-public class GoToOutcome extends HttpServlet {
+@WebServlet("/GetOutcome")
+public class GetOutcome extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
-	private TemplateEngine templateEngine;
 
-	public GoToOutcome() {
+	public GetOutcome() {
 		super();
 	}
 
 	public void init() throws ServletException {
 		connection = ConnectionHandler.getConnection(getServletContext());
 
-		ServletContext servletContext = getServletContext();
-		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
+		
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Integer studentId = null, callId = null;
+		Integer callId = null;
 		User student = null;
 		CallEvaluation evaluation = null;
 		Course studentCourse = null;
@@ -90,12 +83,19 @@ public class GoToOutcome extends HttpServlet {
 			return;
 		}
 
+		Map<String, Object> mapStringToData = new HashMap<>();
+		mapStringToData.put("student", student);
+		mapStringToData.put("evaluation", evaluation);
+		mapStringToData.put("call", courseCall);
+		mapStringToData.put("course", studentCourse);
+		mapStringToData.put("lecturer", courseLecturer);
 		
+		String json = new Gson().toJson(mapStringToData);
 		
 		actualNumber = checkIfActualNumber(evaluation.getMark());
 
 		String path = "WEB-INF/Outcome.html";
-		ServletContext servletContext = getServletContext();
+		/*ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("student", student);
 		ctx.setVariable("evaluation", evaluation);
@@ -103,7 +103,7 @@ public class GoToOutcome extends HttpServlet {
 		ctx.setVariable("course", studentCourse);
 		ctx.setVariable("lecturer", courseLecturer);
 		ctx.setVariable("markActualNumber", actualNumber);
-		templateEngine.process(path, ctx, response.getWriter());
+		templateEngine.process(path, ctx, response.getWriter());*/
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

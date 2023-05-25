@@ -7,25 +7,23 @@ import java.sql.SQLException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+import com.google.gson.Gson;
 
 import DAO.UserDAO;
 import beans.User;
 import utils.ConnectionHandler;
 
 @WebServlet("/CheckLogin")
+@MultipartConfig
 public class CheckLogin extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
-	private TemplateEngine templateEngine;
 
 	public CheckLogin() {
 		super();
@@ -38,13 +36,6 @@ public class CheckLogin extends HttpServlet {
 	public void init() throws ServletException {
 		this.connection = ConnectionHandler.getConnection(getServletContext());
 
-		// Necessary for processing the errorMessage in case login fail.
-		ServletContext servletContext = getServletContext();
-		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -56,12 +47,12 @@ public class CheckLogin extends HttpServlet {
 		String passw = request.getParameter("pwd");
 
 		if (usern == null || usern.isEmpty() || passw == null || passw.isEmpty()) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Missing parameters");
 			return;
 		}
 
 		UserDAO uDAO = new UserDAO(connection);
-
 		User user = null;
 
 		try {
@@ -70,7 +61,8 @@ public class CheckLogin extends HttpServlet {
 			if (request.getSession(false) != null) {
 				request.getSession().invalidate();
 			}
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in db credentials checking");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().println("Failure in db credentials checking");
 		}
 
 		String redirectionPath = getServletContext().getContextPath();
@@ -80,18 +72,16 @@ public class CheckLogin extends HttpServlet {
 			/*System.out.print(request.getAttribute("errorMessage"));
 			RequestDispatcher ds = request.getRequestDispatcher(redirectionPath);
 			ds.forward(request, response);*/
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().println("Username or Password are incorrect, please retry");
 			
-			
-			ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-			ctx.setVariable("errorMessage", "Username or Password are incorrect, please retry");
-			this.templateEngine.process(redirectionPath, ctx, response.getWriter());
 		} else {
-			String target = (user.getRole().equals("Student")) ? "/GoToHomeStudent" : "/GoToHomeLecturer";
+			String json = new Gson().toJson(user);
 			request.getSession().setAttribute("user", user);
-			redirectionPath += target;
-
-			response.sendRedirect(redirectionPath);
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().println(json);
 		}
 
 	}

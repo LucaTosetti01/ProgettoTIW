@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Lecturer's Home</title>
+<link rel="stylesheet" type="text/css" media="all" href="CSS/mystyle.css" />
+<script src="utils.js" charset="utf-8" defer></script>
+<script src="LecturerHomePageHandler.js" charset="utf-8" defer></script>
+<script src="sort.js" charset="utf-8" defer></script>
+</head>
+<body>
+	<div align="right">
+		<a href="Logout">Logout</a>
+	</div>
+	<h1>Home Page lecturer</h1>
+	<h3>
+		Welcome to your home page: <span id="id_username"></span>
+	</h3>
+
+
+	<table id="id_generalContainer">
+		<tr>
+			<td>
+				<div>
+					<p>List of courses taught by you</p>
+					<table id="id_coursesContainer">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody id="id_coursesContainerBody">
+						</tbody>
+					</table>
+				</div>
+			</td>
+			<td>
+				<div id="id_callsContainer">
+					<p></p>
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Date</th>
+								<th>Time</th>
+							</tr>
+						</thead>
+						<tbody id="id_callsContainerBody">
+						</tbody>
+					</table>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<div id="id_subscribersContainer">
+					<p></p>
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Surname</th>
+								<th>Name</th>
+								<th>Email</th>
+								<th>Degree course</th>
+								<th>Mark</th>
+								<th>Evaluation state</th>
+							</tr>
+						</thead>
+						<tbody id="id_subscribersContainerBody"> </tbody>
+					</table>
+				</div>
+			</td>
+		</tr>
+	</table>
+
+	<br>
+	<br>
+
+	<div id="id_alert" class="alertmessage"></div>
+</body>
+</html>

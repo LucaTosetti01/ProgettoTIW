@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Lecturer's Home</title>
+<link rel="stylesheet" type="text/css" media="all"
+	href="CSS/mystyle.css" />
+<script src="utils.js" charset="utf-8" defer></script>
+<script src="StudentHomePageHandler.js" charset="utf-8" defer></script>
+</head>
+<body>
+	<div align="right">
+		<a href="Logout">Logout</a>
+	</div>
+	<h1>Home Page student</h1>
+	<h3>
+		Welcome to your home page: <span id="id_username"></span>
+	</h3>
+
+	<table id="id_generalContainer">
+		<tr>
+			<td>
+				<div>
+					<p>List of courses you are subscribed to</p>
+					<table id="id_coursesContainer">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody id="id_coursesContainerBody">
+						</tbody>
+					</table>
+				</div>
+			</td>
+			<td>
+				<div id="id_callsContainer">
+					<p></p>
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Date</th>
+								<th>Time</th>
+							</tr>
+						</thead>
+						<tbody id="id_callsContainerBody">
+						</tbody>
+					</table>
+				</div>
+			</td>
+			<td>
+				<div id="id_outcomeContainer">
+					<p></p>
+					<table class="outcomeTable">
+						<thead>
+							<tr>
+								<th colspan="2">Student's data</th>
+								<th colspan="2">Course's data</th>
+								<th colspan="2">Call's data</th>
+							</tr>
+						</thead>
+						<tbody id="id_outcomeContainerBody"> </tbody>
+					</table>
+				</div>
+			</td>
+		</tr>
+	</table>
+
+	<div id="id_alert" class="alertmessage"></div>
+</body>
+</html>

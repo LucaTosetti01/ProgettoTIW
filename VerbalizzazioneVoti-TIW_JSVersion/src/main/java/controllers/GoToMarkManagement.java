@@ -12,10 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
@@ -31,7 +27,6 @@ import utils.ConnectionHandler;
 public class GoToMarkManagement extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
-	private TemplateEngine templateEngine;
 
 	public GoToMarkManagement() {
 		super();
@@ -40,12 +35,7 @@ public class GoToMarkManagement extends HttpServlet {
 	public void init() throws ServletException {
 		this.connection = ConnectionHandler.getConnection(getServletContext());
 
-		ServletContext servletContext = getServletContext();
-		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
+		
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -87,12 +77,12 @@ public class GoToMarkManagement extends HttpServlet {
 		}
 
 		String path = "WEB-INF/MarkManagement.html";
-		ServletContext servletContext = getServletContext();
+		/*ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("student", student);
 		ctx.setVariable("evaluation", evaluation);
 		ctx.setVariable("errorMessage", error);
-		templateEngine.process(path, ctx, response.getWriter());
+		templateEngine.process(path, ctx, response.getWriter());*/
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
