@@ -1,5 +1,11 @@
-let orderType = true;			//true -> ascending, false -> descending
-let prevOrderBy = "id_ID";
+let orderType;			
+let prevOrderBy;
+
+function initializeSort() {
+	orderType = true;		//true -> ascending, false -> descending
+	prevOrderBy = "id_ID";
+	resetArrows(document.getElementById("id_subscribersContainerBody").closest("table").querySelectorAll("th"));
+}
 
 function getCellValue(tr, idx) {
 	return tr.children[idx].textContent;

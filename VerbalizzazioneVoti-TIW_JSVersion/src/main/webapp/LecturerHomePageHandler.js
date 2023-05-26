@@ -226,21 +226,24 @@ function SubscribersList(_alert, _listContainer, _listContainerBody) {
 	this.alert = _alert;
 	this.listContainer = _listContainer;
 	this.listContainerBody = _listContainerBody;
-	
-	//Registering sorting event to the headers
-	var headers = Array.from(this.listContainerBody.closest("table").querySelectorAll("th"));
-	headers.forEach(function(header) {
-		header.addEventListener("click", function(e) {
-			sortTable(header.id);
-		})
-	});
-	headers[0].querySelector("span").innerHTML = " &#x25B2;";
+
+
 
 	this.reset = function() {
 		this.listContainer.style.visibility = "hidden";
 	};
 
 	this.show = function(callId) {
+		initializeSort();		//Needed for restarting the sort algoritm always from ID column
+		//Registering sorting event to the headers
+		var headers = Array.from(this.listContainerBody.closest("table").querySelectorAll("th"));
+		headers.forEach(function(header) {
+			header.addEventListener("click", function(e) {
+				sortTable(header.id);
+			})
+		});
+		headers[0].querySelector("span").innerHTML = " &#x25B2;";
+
 		let self = this;
 		this.listContainer.querySelector("p").textContent = "List of students subscribed to the call: " + callId;
 		let urlToCall = "GetSubscriptionToCall?callid=" + callId;
