@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+
 import DAO.CallEvaluationDAO;
 import DAO.StudentDAO;
 import beans.User;
@@ -45,20 +47,18 @@ public class RefuseMark extends HttpServlet {
 			
 			ceDAO.updateEvaluationStateByStudentAndCallId(studLogged.getId(), callId, "Rifiutato");
 		} catch (NumberFormatException | NullPointerException e) {
-			String errorPath = "/GoToOutcome";
-			request.setAttribute("errorMessage", "Incorrect param values");
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
 			return;
-		} catch (SQLException | StudentDAOException e) {
-			String errorPath = "/GoToOutcome";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
+		} catch (SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().print(e.getMessage());
+			return;
+		} catch(StudentDAOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print(e.getMessage());
 			return;
 		}
-		
-		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GoToOutcome?callid=" + callId;
-		response.sendRedirect(path);
 	}
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{

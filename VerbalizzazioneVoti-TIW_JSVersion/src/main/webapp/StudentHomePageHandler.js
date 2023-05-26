@@ -98,6 +98,8 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 				//With target = <a> tag, first parentNode = <td> tag, second parentNode = <tr> tag
 				e.target.parentNode.parentNode.classList.add("selectedCourse");
 
+				self.alert.textContent = "";
+				outcome.reset();
 				//Actual effect of the listener -> showing calls of the chosen course
 				callsList.show(e.target.getAttribute("courseid"));
 			}, false);
@@ -235,46 +237,46 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 	}
 }
 
-function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm) {
+function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _closeButton) {
 	this.alert = _alert;
 	this.dataContainer = _dataContainer;
 	this.dataContainerBody = _dataContainerBody;
 	this.refuseForm = _refuseForm;
+	this.closeButton = _closeButton;
 
 	this.reset = function() {
 		this.dataContainer.style.visibility = "hidden";
+		this.dataContainerBody.style.visibility = "hidden";
 		this.refuseForm.style.visibility = "hidden";
+		this.refuseForm.querySelector("input[type='button']").style.visibility = "hidden";
+		this.closeButton.style.visibility = "hidden";
+		this.dataContainer.querySelector("p").style.visibility = "hidden";
 	}
 
 	this.registerEvent = function(orchestrator) {
 		this.refuseForm.querySelector("input[type='button']").addEventListener("click", function(e) {
 			var form = e.target.closest("form");
-			if (form.checkValidity()) {
-				let self = this;
-				let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent
-				let currentCall = form.querySelector("input[type = 'hidden']").value;
-				makeCall("POST", "RefuseMark", form, function(req) {
-					if (req.readyState === 4) {
-						var message = req.responseText;
-						if (req.status === 200) {
-							orchestrator.refresh(currentCourse, currentCall);
-						} else if (req.status === 403) {
-							window.location.href = req.getResponseHeader("Location");
-							window.sessionStorage.removeItem('username');
-						} else {
-							self.alert.textContent = message;
-						}
+			let self = this;
+			let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent
+			let currentCall = form.querySelector("input[type = 'hidden']").value;
+			makeCall("POST", "RefuseMark?callid=" + currentCall, form, function(req) {
+				if (req.readyState === 4) {
+					var message = req.responseText;
+					if (req.status === 200) {
+						orchestrator.refresh(currentCourse, currentCall);
+					} else if (req.status === 403) {
+						window.location.href = req.getResponseHeader("Location");
+						window.sessionStorage.removeItem('username');
+					} else {
+						self.alert.textContent = message;
 					}
-				});
-			} else {
-				form.reportValidity();
-			}
+				}
+			});
 		});
 	};
 
 	this.show = function(callId) {
 		let self = this;
-		this.dataContainer.querySelector("p").textContent = "This is your outcome of the selected call";
 		let urlToCall = "GetOutcome?callid=" + callId;
 
 		makeCall("GET", urlToCall, null, function(req) {
@@ -288,13 +290,11 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm) {
 						//subscribers component otherwhise i would have a error message
 						//with the subiscribers of another course (if precedently I've selected
 						//a course which had some calls)
-						outcome.reset();
+						this.reset();
 						return;
 					}
 					self.alert.textContent = "";
 					self.update(outcomeToShow);
-					self.dataContainer.style.visibility = "visible";
-					self.refuseForm.style.visibility = "visible";
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
@@ -316,139 +316,163 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm) {
 
 		this.dataContainerBody.innerHTML = "";
 
-		this.refuseForm.querySelector("input[type = 'hidden']").value = outcomeMap["call"].id;
+		let mark = outcomeMap["evaluation"].mark;
+		let state = outcomeMap["evaluation"].state;
 
-		var temp = this.dataContainer.querySelector("input[name='closeWindowOutcome']").addEventListener("click", function(e) {
-			outcome.reset();
-		})
+		if ((state === "Non inserito" || state === "Inserito")) {
+			this.dataContainer.querySelector("p").textContent = "Mark not definined yet!";
+			this.reset();
+			this.dataContainer.querySelector("p").style.visibility = "visible";
+		} else {
+			this.refuseForm.querySelector("input[type = 'hidden']").value = outcomeMap["call"].id;
 
-		row = document.createElement("tr");
+			let refuseButton = this.refuseForm.querySelector("input[type = 'button']");
+			//Check if mark is between 18 and 30L, in that case set visible the refuse button
+			if (((mark > 17 && mark < 31) || mark === "30L") && (state !== "Rifiutato" && state !== "Verbalizzato")) {
+				refuseButton.style.visibility = "visible";
+			} else {
+				refuseButton.style.visibility = "hidden";
+			}
 
-		//First row
-		row = document.createElement("tr");
+			var temp = this.dataContainer.querySelector("input[name='closeWindowOutcome']").addEventListener("click", function(e) {
+				outcome.reset();
+			})
 
-		var temp = document.createElement("td");
-		temp.textContent = "ID";
-		row.appendChild(temp);
-		idStudentCell = document.createElement("td");
-		idStudentCell.textContent = outcomeMap["student"].id;
-		row.appendChild(idStudentCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "ID";
-		row.appendChild(temp);
-		idCourseCell = document.createElement("td");
-		idCourseCell.textContent = outcomeMap["course"].id;
-		row.appendChild(idCourseCell);
+			this.dataContainer.querySelector("p").textContent = "This is your outcome of the selected call";
+			row = document.createElement("tr");
 
-		var temp = document.createElement("td");
-		temp.textContent = "ID";
-		row.appendChild(temp);
-		idCallCell = document.createElement("td");
-		idCallCell.textContent = outcomeMap["call"].id;
-		row.appendChild(idCallCell);
+			//First row
+			row = document.createElement("tr");
 
-		self.dataContainerBody.appendChild(row);
-		//Second row
-		row = document.createElement("tr");
+			var temp = document.createElement("td");
+			temp.textContent = "ID";
+			row.appendChild(temp);
+			idStudentCell = document.createElement("td");
+			idStudentCell.textContent = outcomeMap["student"].id;
+			row.appendChild(idStudentCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Surname";
-		row.appendChild(temp);
-		surnameStudentCell = document.createElement("td");
-		surnameStudentCell.textContent = outcomeMap["student"].surname;
-		row.appendChild(surnameStudentCell);
+			var temp = document.createElement("td");
+			temp.textContent = "ID";
+			row.appendChild(temp);
+			idCourseCell = document.createElement("td");
+			idCourseCell.textContent = outcomeMap["course"].id;
+			row.appendChild(idCourseCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Name";
-		row.appendChild(temp);
-		nameCourseCell = document.createElement("td");
-		nameCourseCell.textContent = outcomeMap["course"].name;
-		row.appendChild(nameCourseCell);
+			var temp = document.createElement("td");
+			temp.textContent = "ID";
+			row.appendChild(temp);
+			idCallCell = document.createElement("td");
+			idCallCell.textContent = outcomeMap["call"].id;
+			row.appendChild(idCallCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Date";
-		row.appendChild(temp);
-		dateCallCell = document.createElement("td");
-		dateCallCell.textContent = outcomeMap["call"].date;
-		row.appendChild(dateCallCell);
+			self.dataContainerBody.appendChild(row);
+			//Second row
+			row = document.createElement("tr");
 
-		self.dataContainerBody.appendChild(row);
-		//Third row
-		row = document.createElement("tr");
+			var temp = document.createElement("td");
+			temp.textContent = "Surname";
+			row.appendChild(temp);
+			surnameStudentCell = document.createElement("td");
+			surnameStudentCell.textContent = outcomeMap["student"].surname;
+			row.appendChild(surnameStudentCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Name";
-		row.appendChild(temp);
-		nameStudentCell = document.createElement("td");
-		nameStudentCell.textContent = outcomeMap["student"].id;
-		row.appendChild(nameStudentCell);
+			var temp = document.createElement("td");
+			temp.textContent = "Name";
+			row.appendChild(temp);
+			nameCourseCell = document.createElement("td");
+			nameCourseCell.textContent = outcomeMap["course"].name;
+			row.appendChild(nameCourseCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Description";
-		row.appendChild(temp);
-		descriptionCourseCell = document.createElement("td");
-		descriptionCourseCell.textContent = outcomeMap["course"].description;
-		row.appendChild(descriptionCourseCell);
+			var temp = document.createElement("td");
+			temp.textContent = "Date";
+			row.appendChild(temp);
+			dateCallCell = document.createElement("td");
+			dateCallCell.textContent = outcomeMap["call"].date;
+			row.appendChild(dateCallCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Time";
-		row.appendChild(temp);
-		timeCallCell = document.createElement("td");
-		timeCallCell.textContent = outcomeMap["call"].time;
-		row.appendChild(timeCallCell);
+			self.dataContainerBody.appendChild(row);
+			//Third row
+			row = document.createElement("tr");
 
-		self.dataContainerBody.appendChild(row);
-		//Forth row
-		row = document.createElement("tr");
+			var temp = document.createElement("td");
+			temp.textContent = "Name";
+			row.appendChild(temp);
+			nameStudentCell = document.createElement("td");
+			nameStudentCell.textContent = outcomeMap["student"].id;
+			row.appendChild(nameStudentCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Email";
-		row.appendChild(temp);
-		emailStudentCell = document.createElement("td");
-		emailStudentCell.textContent = outcomeMap["student"].email;
-		row.appendChild(emailStudentCell);
+			var temp = document.createElement("td");
+			temp.textContent = "Description";
+			row.appendChild(temp);
+			descriptionCourseCell = document.createElement("td");
+			descriptionCourseCell.textContent = outcomeMap["course"].description;
+			row.appendChild(descriptionCourseCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Lecturer";
-		row.appendChild(temp);
-		lecturerCourseCell = document.createElement("td");
-		lecturerCourseCell.textContent = outcomeMap["lecturer"].surname + " " + outcomeMap["lecturer"].name;
-		row.appendChild(lecturerCourseCell);
+			var temp = document.createElement("td");
+			temp.textContent = "Time";
+			row.appendChild(temp);
+			timeCallCell = document.createElement("td");
+			timeCallCell.textContent = outcomeMap["call"].time;
+			row.appendChild(timeCallCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Mark";
-		row.appendChild(temp);
-		markCallCell = document.createElement("td");
-		markCallCell.textContent = outcomeMap["evaluation"].mark;
-		row.appendChild(markCallCell);
+			self.dataContainerBody.appendChild(row);
+			//Forth row
+			row = document.createElement("tr");
 
-		self.dataContainerBody.appendChild(row);
-		//Fifth row
-		row = document.createElement("tr");
+			var temp = document.createElement("td");
+			temp.textContent = "Email";
+			row.appendChild(temp);
+			emailStudentCell = document.createElement("td");
+			emailStudentCell.textContent = outcomeMap["student"].email;
+			row.appendChild(emailStudentCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Degree course";
-		row.appendChild(temp);
-		degreeCourseCell = document.createElement("td");
-		degreeCourseCell.textContent = outcomeMap["student"].degreeCourse.name;
-		row.appendChild(degreeCourseCell);
+			var temp = document.createElement("td");
+			temp.textContent = "Lecturer";
+			row.appendChild(temp);
+			lecturerCourseCell = document.createElement("td");
+			lecturerCourseCell.textContent = outcomeMap["lecturer"].surname + " " + outcomeMap["lecturer"].name;
+			row.appendChild(lecturerCourseCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "";
-		row.appendChild(temp);
-		idStudentCell = document.createElement("td");
-		idStudentCell.textContent = "";
-		row.appendChild(idStudentCell);
+			var temp = document.createElement("td");
+			temp.textContent = "Mark";
+			row.appendChild(temp);
+			markCallCell = document.createElement("td");
+			markCallCell.textContent = outcomeMap["evaluation"].mark;
+			row.appendChild(markCallCell);
 
-		var temp = document.createElement("td");
-		temp.textContent = "Evaluation state";
-		row.appendChild(temp);
-		evaluationStateCell = document.createElement("td");
-		evaluationStateCell.textContent = outcomeMap["evaluation"].state;
-		row.appendChild(evaluationStateCell);
+			self.dataContainerBody.appendChild(row);
+			//Fifth row
+			row = document.createElement("tr");
 
-		self.dataContainerBody.appendChild(row);
+			var temp = document.createElement("td");
+			temp.textContent = "Degree course";
+			row.appendChild(temp);
+			degreeCourseCell = document.createElement("td");
+			degreeCourseCell.textContent = outcomeMap["student"].degreeCourse.name;
+			row.appendChild(degreeCourseCell);
+
+			var temp = document.createElement("td");
+			temp.textContent = "";
+			row.appendChild(temp);
+			idStudentCell = document.createElement("td");
+			idStudentCell.textContent = "";
+			row.appendChild(idStudentCell);
+
+			var temp = document.createElement("td");
+			temp.textContent = "Evaluation state";
+			row.appendChild(temp);
+			evaluationStateCell = document.createElement("td");
+			evaluationStateCell.textContent = outcomeMap["evaluation"].state;
+			row.appendChild(evaluationStateCell);
+
+			self.dataContainerBody.appendChild(row);
+
+			self.dataContainer.style.visibility = "visible";
+			self.dataContainerBody.style.visibility = "visible";
+			self.refuseForm.style.visibility = "visible";
+			self.closeButton.style.visibility = "visible";
+		}
 
 	}
 }
@@ -476,7 +500,8 @@ function PageOrchestrator() {
 			alertContainer,
 			document.getElementById("id_outcomeContainer"),
 			document.getElementById("id_outcomeContainerBody"),
-			document.getElementById("id_refuseForm")
+			document.getElementById("id_refuseForm"),
+			document.getElementById("closeWindowOutcome")
 		);
 		outcome.registerEvent(this);
 
@@ -495,7 +520,9 @@ function PageOrchestrator() {
 		coursesList.show(function() {
 			coursesList.autoClick(currentCourse);
 		});
-
-
+		
+		if(currentCall != undefined) {
+			callsList.autoClick(currentCall);
+		}
 	}
 }
