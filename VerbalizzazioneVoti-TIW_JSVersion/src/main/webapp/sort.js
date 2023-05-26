@@ -1,4 +1,5 @@
-let orderType = true;
+let orderType = true;			//true -> ascending, false -> descending
+let prevOrderBy = "id_ID";
 
 function getCellValue(tr, idx) {
 	return tr.children[idx].textContent;
@@ -20,7 +21,8 @@ function changeArrow(th){
 }
 
 function createComparer(idx, orderType) {
-  return function(rowa, rowb) {
+  return function(rowa, rowb) {				//Per qualche motivo rowb è la seconda riga anche se è
+  											//il primo parametro e viceversa per rowa
     // get values to compare at column idx
     // if order is ascending, compare 1st row to 2nd , otherwise 2nd to 1st
     var v1 = getCellValue(orderType ? rowa : rowb, idx),
@@ -47,12 +49,18 @@ function sortTable(clicked_id) {
   // which is an Array Like Object (see DOM specifications)
   var rowsArray = Array.from(table.querySelectorAll('tbody > tr'));
   
+  //  Toggle the criterion
+  if(prevOrderBy === clicked_id) {
+	  orderType =  !orderType;
+  } else {
+	  orderType = true;
+  }
+  prevOrderBy = clicked_id;
+  
   // sort rows with the comparator function passing
   // index of column to compare, sort criterion asc or desc)
   rowsArray.sort(createComparer(columnIdx, orderType));
-  
-  //  Toggle the criterion
-  orderType =  !orderType;
+
   
   // Change arrow colors
   resetArrows(rowHeaders);

@@ -233,7 +233,8 @@ function SubscribersList(_alert, _listContainer, _listContainerBody) {
 		header.addEventListener("click", function(e) {
 			sortTable(header.id);
 		})
-	})
+	});
+	headers[0].querySelector("span").innerHTML = " &#x25B2;";
 
 	this.reset = function() {
 		this.listContainer.style.visibility = "hidden";
