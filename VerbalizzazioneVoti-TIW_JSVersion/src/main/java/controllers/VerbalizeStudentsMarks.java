@@ -10,11 +10,14 @@ import java.time.LocalTime;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.google.gson.Gson;
 
 import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
@@ -27,6 +30,7 @@ import exceptions.GraduationCallDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/VerbalizeStudentsMarks")
+@MultipartConfig
 public class VerbalizeStudentsMarks extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
@@ -42,6 +46,26 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		int numberOfVerbalizableMarks;
+		
+		CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+		try {
+			numberOfVerbalizableMarks = ceDAO.getNumberOfVerbalizableMarks();
+		} catch (SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().print(e.getMessage());
+			return;
+		}
+		
+		String json = new Gson().toJson(numberOfVerbalizableMarks);
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(json);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		Integer callId = null;
 		Integer verbalId = null;
@@ -64,38 +88,18 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
 			verbalId = vDAO.findVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
 		} catch (NumberFormatException | NullPointerException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", "Incorrect param values");
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
 			return;
 		} catch (SQLException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().print(e.getMessage());
 			return;
-		} catch (CallEvaluationDAOException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
-			return;
-		} catch (GraduationCallDAOException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
+		} catch (CallEvaluationDAOException | GraduationCallDAOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print(e.getMessage());
 			return;
 		}
-
-		
-		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId +"&callid=" + callId;
-		response.sendRedirect(path);
-	}
-
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
 	}
 
 	@Override

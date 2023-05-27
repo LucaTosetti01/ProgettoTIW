@@ -81,7 +81,7 @@
 				</td>
 				<td>
 					<div id="id_modifyContainer">
-						<p> </p>
+						<p></p>
 						<form id="id_modifyMarkForm" action="#">
 							<p>
 								ID: <span id="id_IDForm"></span>
@@ -102,9 +102,24 @@
 								Mark: <select id="id_markForm" name="newMark">
 								</select>
 							</p>
-							<input type="button" name="updateMark" value="Modify">
-							<input type="hidden" name="studentid">
+							<input type="button" name="updateMark" value="Modify"> <input
+								type="hidden" name="studentid"> <input type="hidden"
+								name="callid">
+						</form>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div id="id_buttonContainer">
+						<form id="id_publishForm" action="#">
 							<input type="hidden" name="callid">
+							<input type="button" name="publishButton" value="Publish">
+						</form>
+
+						<form id="id_verbalizeForm" action="#">
+							<input type="hidden" name="callid">
+							<input type="button" name="verbalizeButton" value="Verbalize">
 						</form>
 					</div>
 				</td>

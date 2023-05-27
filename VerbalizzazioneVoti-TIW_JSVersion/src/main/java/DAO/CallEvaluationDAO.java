@@ -286,35 +286,13 @@ public class CallEvaluationDAO {
 	}
 	
 	public void checkIfAnyMarkIsVerbalizable() throws SQLException, CallEvaluationDAOException {
-		String query = "SELECT COUNT(*) AS Counter FROM registrations_calls WHERE EvaluationStatus = 'Pubblicato' OR EvaluationStatus = 'Rifiutato'";
-		
-		PreparedStatement pstatement = null;
-		ResultSet result = null;
-		int numberOfRows;
-		try {
-			pstatement = connection.prepareStatement(query);
-			result = pstatement.executeQuery();
-			result.next();
-			numberOfRows = result.getInt("Counter");
-		} catch (SQLException e) {
-			throw new SQLException("Failure in students and evaluations' data extraction");
-		} finally {
-			try {
-				if (result != null) {
-					result.close();
-				}
-			} catch (Exception e1) {
-				throw new SQLException(e1);
-			}
-			try {
-				if (pstatement != null) {
-					pstatement.close();
-				}
-			} catch (Exception e2) {
-				throw new SQLException(e2);
-			}
+		if (this.getNumberOfVerbalizableMarks() == 0) {
+			throw new CallEvaluationDAOException("There aren't verbalizable marks");
 		}
-		if (numberOfRows == 0) {
+	}
+	
+	public void checkIfAnyMarkIsPublishable() throws SQLException, CallEvaluationDAOException {
+		if (this.getNumberOfPublishableMarks() == 0) {
 			throw new CallEvaluationDAOException("There aren't verbalizable marks");
 		}
 	}
@@ -334,6 +312,38 @@ public class CallEvaluationDAO {
 	
 	public int getNumberOfVerbalizableMarks() throws SQLException {
 		String query = "SELECT COUNT(*) AS Counter FROM registrations_calls WHERE EvaluationStatus = 'Pubblicato' OR EvaluationStatus = 'Rifiutato'";
+		
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		int numberOfRows;
+		try {
+			pstatement = connection.prepareStatement(query);
+			result = pstatement.executeQuery();
+			result.next();
+			numberOfRows = result.getInt("Counter");
+		} catch (SQLException e) {
+			throw new SQLException("Failure in evaluations' data extraction");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		return numberOfRows;
+	}
+	
+	public int getNumberOfPublishableMarks() throws SQLException {
+		String query = "SELECT COUNT(*) AS Counter FROM registrations_calls WHERE EvaluationStatus = 'Inserito'";
 		
 		PreparedStatement pstatement = null;
 		ResultSet result = null;

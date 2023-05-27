@@ -4,6 +4,7 @@
 
 let coursesList, callsList, subscribersList;
 let wizardSingleMark;
+let buttonLine;
 let pageOrchestrator = new PageOrchestrator(); 	//Main controller
 
 window.addEventListener("load", function() {
@@ -235,11 +236,14 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 	};
 }
 
-function SubscribersList(_alert, _listContainer, _listContainerBody) {
+function SubscribersList(_alert, _listContainer, _listContainerBody, _buttonLine) {
 	this.alert = _alert;
 	this.listContainer = _listContainer;
 	this.listContainerBody = _listContainerBody;
+	this.buttonLine = _buttonLine;
 
+
+	//Registering sorting event to the headers
 	//Register listener only ONE time (if i putted this in show, i would have registered
 	//N times the same event where N is the times that this.show() is invoked)
 	var headers = Array.from(this.listContainerBody.closest("table").querySelectorAll("th"));
@@ -252,14 +256,13 @@ function SubscribersList(_alert, _listContainer, _listContainerBody) {
 
 	this.reset = function() {
 		this.listContainer.style.visibility = "hidden";
+		this.buttonLine.reset();
+		wizardSingleMark.reset();
+		//Needed for restarting the sort algoritm always from ID column
 		initializeSort();
 	};
 
 	this.show = function(callId) {
-		//Needed for restarting the sort algoritm always from ID column
-		//Registering sorting event to the headers
-
-
 		let self = this;
 		this.listContainer.querySelector("p").textContent = "List of students subscribed to the call: " + callId;
 		let urlToCall = "GetSubscriptionToCall?callid=" + callId;
@@ -275,6 +278,7 @@ function SubscribersList(_alert, _listContainer, _listContainerBody) {
 						return;
 					}
 					self.alert.textContent = "";
+					self.buttonLine.show();
 					self.update(subscribersToShow);
 					self.listContainer.style.visibility = "visible";
 				} else if (req.status == 403) {
@@ -453,6 +457,126 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 	};
 }
 
+function ButtonLine(_alert, _buttonsContainer) {
+	this.alert = _alert;
+	this.buttonsContainer = _buttonsContainer;
+
+	this.reset = function() {
+		this.buttonsContainer.style.visibility = "hidden";
+	}
+
+	this.show = function() {
+		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
+		let verbalizeButton = this.buttonsContainer.querySelector("input[name='verbalizeButton']");
+
+		let self = this;
+		makeCall("GET", "VerbalizeStudentsMarks", null, function(req) {
+			if (req.readyState === 4) {
+				var message = req.responseText;
+				if (req.status === 200) {
+					let numberOfMarksVerbalizable = JSON.parse(req.responseText);
+					if (isNaN(numberOfMarksVerbalizable)) {
+						self.alert.textContent = "The value of verbalizable marks retrieved, is not a number";
+						return;
+					}
+					makeCall("GET", "PublishStudentsMarks", null, function(req) {
+						if (req.readyState === 4) {
+							var message = req.responseText;
+							if (req.status === 200) {
+								let numberOfMarksPublishable = JSON.parse(req.responseText);
+								if (isNaN(numberOfMarksPublishable)) {
+									self.alert.textContent = "The value of verbalizable marks retrieved, is not a number";
+									return;
+								}
+								self.update(numberOfMarksVerbalizable, numberOfMarksPublishable);
+							} else if (req.status == 403) {
+								window.location.href = req.getResponseHeader("Location");
+								window.sessionStorage.removeItem('username');
+							} else {
+								self.alert.textContent = message;
+							}
+						}
+					});
+				} else if (req.status == 403) {
+					window.location.href = req.getResponseHeader("Location");
+					window.sessionStorage.removeItem('username');
+				} else {
+					self.alert.textContent = message;
+				}
+			}
+		});
+	};
+
+	this.update = function(numberOfVerbalizableMarks,numberOfMarksPublishable) {
+		let verbalizeButton = this.buttonsContainer.querySelector("input[name='verbalizeButton']");
+		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
+
+		verbalizeButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
+		publishButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
+
+		if (numberOfVerbalizableMarks < 1) {
+			verbalizeButton.disabled = true;
+		} else {
+			verbalizeButton.disabled = false;
+		}
+		if (numberOfMarksPublishable < 1) {
+			publishButton.disabled = true;
+		} else {
+			publishButton.disabled = false;
+		}
+		
+		this.buttonsContainer.style.visibility = "visible";
+	}
+
+	this.registerEvent = function(orchestrator) {
+		let self = this;
+		let publishButton = document.getElementById("id_publishForm").querySelector("input[name='publishButton']");
+
+		publishButton.addEventListener('click', function(e) {
+			let form = e.target.closest("form");
+			let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
+			let currentCall = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
+
+			makeCall("POST", "PublishStudentsMarks", form, function(req) {
+				if (req.readyState === 4) {
+					var message = req.responseText;
+					if (req.status === 200) {
+						orchestrator.refresh(currentCourse, currentCall);
+					} else if (req.status == 403) {
+						window.location.href = req.getResponseHeader("Location");
+						window.sessionStorage.removeItem('username');
+					} else {
+						self.alert.textContent = message;
+					}
+				}
+			});
+		});
+
+		let verbalizeButton = document.getElementById("id_verbalizeForm").querySelector("input[name='verbalizeButton']");
+
+		verbalizeButton.addEventListener('click', function(e) {
+			let form = e.target.closest("form");
+			let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
+			let currentCall = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
+
+			makeCall("POST", "VerbalizeStudentsMarks", form, function(req) {
+				if (req.readyState === 4) {
+					var message = req.responseText;
+					if (req.status === 200) {
+						orchestrator.refresh(currentCourse, currentCall);
+					} else if (req.status == 403) {
+						window.location.href = req.getResponseHeader("Location");
+						window.sessionStorage.removeItem('username');
+
+					} else {
+						self.alert.textContent = message;
+					}
+				}
+			});
+		});
+	};
+}
+
 function PageOrchestrator() {
 	var alertContainer = document.getElementById("id_alert");
 
@@ -472,10 +596,16 @@ function PageOrchestrator() {
 			document.getElementById("id_callsContainerBody")
 		);
 
+		buttonLine = new ButtonLine(
+			alertContainer,
+			document.getElementById("id_buttonContainer")
+		)
+		buttonLine.registerEvent(this);
 		subscribersList = new SubscribersList(
 			alertContainer,
 			document.getElementById("id_subscribersContainer"),
-			document.getElementById("id_subscribersContainerBody")
+			document.getElementById("id_subscribersContainerBody"),
+			buttonLine
 		);
 
 		wizardSingleMark = new WizardSingleMark(
@@ -484,6 +614,7 @@ function PageOrchestrator() {
 			document.getElementById("id_modifyMarkForm")
 		);
 		wizardSingleMark.registerEvent(this);
+
 
 		document.querySelector("a[href='Logout']").addEventListener("click", function() {
 			window.sessionStorage.removeItem("username");
