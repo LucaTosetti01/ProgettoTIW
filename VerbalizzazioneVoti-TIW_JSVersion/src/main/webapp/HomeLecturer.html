@@ -3,7 +3,8 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Lecturer's Home</title>
-<link rel="stylesheet" type="text/css" media="all" href="CSS/mystyle.css" />
+<link rel="stylesheet" type="text/css" media="all"
+	href="CSS/mystyle.css" />
 <script src="utils.js" charset="utf-8" defer></script>
 <script src="LecturerHomePageHandler.js" charset="utf-8" defer></script>
 <script src="sort.js" charset="utf-8" defer></script>
@@ -17,65 +18,100 @@
 		Welcome to your home page: <span id="id_username"></span>
 	</h3>
 
+	<div id="id_generalContainer">
+		<table id="id_coursesCallsContainer">
+			<tr>
+				<td>
+					<div>
+						<p>List of courses taught by you</p>
+						<table id="id_coursesContainer">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Name</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+							<tbody id="id_coursesContainerBody">
+							</tbody>
+						</table>
+					</div>
+				</td>
+				<td>
+					<div id="id_callsContainer">
+						<p></p>
+						<table>
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Date</th>
+									<th>Time</th>
+								</tr>
+							</thead>
+							<tbody id="id_callsContainerBody">
+							</tbody>
+						</table>
+					</div>
+				</td>
+			</tr>
+		</table>
 
-	<table id="id_generalContainer">
-		<tr>
-			<td>
-				<div>
-					<p>List of courses taught by you</p>
-					<table id="id_coursesContainer">
-						<thead>
-							<tr>
-								<th>ID</th>
-								<th>Name</th>
-								<th>Description</th>
-							</tr>
-						</thead>
-						<tbody id="id_coursesContainerBody">
-						</tbody>
-					</table>
-				</div>
-			</td>
-			<td>
-				<div id="id_callsContainer">
-					<p></p>
-					<table>
-						<thead>
-							<tr>
-								<th>ID</th>
-								<th>Date</th>
-								<th>Time</th>
-							</tr>
-						</thead>
-						<tbody id="id_callsContainerBody">
-						</tbody>
-					</table>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2" align="center">
-				<div id="id_subscribersContainer">
-					<p></p>
-					<table>
-						<thead>
-							<tr>
-								<th id="id_ID">ID<span></span></th>
-								<th id="id_Surname">Surname<span></span></th>
-								<th id="id_Name">Name<span></span></th>
-								<th id="id_Email">Email<span></span></th>
-								<th id="id_DegreeCourse">Degree course<span></span></th>
-								<th id="id_Mark">Mark<span></span></th>
-								<th id="id_EvaluationState">Evaluation state<span></span></th>
-							</tr>
-						</thead>
-						<tbody id="id_subscribersContainerBody"> </tbody>
-					</table>
-				</div>
-			</td>
-		</tr>
-	</table>
 
+		<table>
+			<tr>
+				<td>
+					<div id="id_subscribersContainer">
+						<p></p>
+						<table>
+							<thead>
+								<tr>
+									<th id="id_ID">ID<span></span></th>
+									<th id="id_Surname">Surname<span></span></th>
+									<th id="id_Name">Name<span></span></th>
+									<th id="id_Email">Email<span></span></th>
+									<th id="id_DegreeCourse">Degree course<span></span></th>
+									<th id="id_Mark">Mark<span></span></th>
+									<th id="id_EvaluationState">Evaluation state<span></span></th>
+								</tr>
+							</thead>
+							<tbody id="id_subscribersContainerBody">
+							</tbody>
+						</table>
+					</div>
+				</td>
+				<td>
+					<div id="id_modifyContainer">
+						<p> </p>
+						<form id="id_modifyMarkForm" action="#">
+							<p>
+								ID: <span id="id_IDForm"></span>
+							</p>
+							<p>
+								Name: <span id="id_nameForm"></span>
+							</p>
+							<p>
+								Surname: <span id="id_surnameForm"></span>
+							</p>
+							<p>
+								Email: <span id="id_emailForm"></span>
+							</p>
+							<p>
+								Degree course: <span id="id_degreeCourseForm"></span>
+							</p>
+							<p>
+								Mark: <select id="id_markForm" name="newMark">
+								</select>
+							</p>
+							<input type="button" name="updateMark" value="Modify">
+							<input type="hidden" name="studentid">
+							<input type="hidden" name="callid">
+						</form>
+					</div>
+				</td>
+			</tr>
+		</table>
+
+	</div>
 	<br>
 	<br>
 

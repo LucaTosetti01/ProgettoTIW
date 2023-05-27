@@ -234,7 +234,7 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 		if (anchorToClick) {
 			anchorToClick.dispatchEvent(e);
 		}
-	}
+	};
 }
 
 function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _closeButton) {

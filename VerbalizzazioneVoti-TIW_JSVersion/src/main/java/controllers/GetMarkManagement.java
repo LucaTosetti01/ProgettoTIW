@@ -3,6 +3,8 @@ package controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -12,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
@@ -23,12 +27,12 @@ import exceptions.GraduationCallDAOException;
 import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
-@WebServlet("/GoToMarkManagement")
-public class GoToMarkManagement extends HttpServlet {
+@WebServlet("/GetMarkManagement")
+public class GetMarkManagement extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
 
-	public GoToMarkManagement() {
+	public GetMarkManagement() {
 		super();
 	}
 
@@ -65,24 +69,29 @@ public class GoToMarkManagement extends HttpServlet {
 
 			evaluation = ceDAO.findEvaluationByCallAndStudentId(callId, studentId);
 		} catch (NumberFormatException | NullPointerException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", "Incorrect param values");
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param values");
 			return;
-		} catch (SQLException | StudentDAOException | GraduationCallDAOException | CallEvaluationDAOException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
+		} catch (SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().print(e.getMessage());
+			return;
+		} catch (StudentDAOException | GraduationCallDAOException | CallEvaluationDAOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print(e.getMessage());
 			return;
 		}
 
-		String path = "WEB-INF/MarkManagement.html";
-		/*ServletContext servletContext = getServletContext();
-		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-		ctx.setVariable("student", student);
-		ctx.setVariable("evaluation", evaluation);
-		ctx.setVariable("errorMessage", error);
-		templateEngine.process(path, ctx, response.getWriter());*/
+		Map<String, Object> mapStringData = new HashMap<>();
+		mapStringData.put("student", student);
+		mapStringData.put("evaluation", evaluation);
+		
+		Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+		String json = gson.toJson(mapStringData);
+		
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(json);
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

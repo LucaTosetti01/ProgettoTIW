@@ -82,15 +82,15 @@ public class GetOutcome extends HttpServlet {
 			return;
 		}
 
-		Map<String, Object> mapStringToData = new HashMap<>();
-		mapStringToData.put("student", student);
-		mapStringToData.put("evaluation", evaluation);
-		mapStringToData.put("call", courseCall);
-		mapStringToData.put("course", studentCourse);
-		mapStringToData.put("lecturer", courseLecturer);
+		Map<String, Object> mapStringData = new HashMap<>();
+		mapStringData.put("student", student);
+		mapStringData.put("evaluation", evaluation);
+		mapStringData.put("call", courseCall);
+		mapStringData.put("course", studentCourse);
+		mapStringData.put("lecturer", courseLecturer);
 		
 		Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-		String json = gson.toJson(mapStringToData);
+		String json = gson.toJson(mapStringData);
 		
 		actualNumber = checkIfActualNumber(evaluation.getMark());
 

@@ -4,7 +4,9 @@ let prevOrderBy;
 function initializeSort() {
 	orderType = true;		//true -> ascending, false -> descending
 	prevOrderBy = "id_ID";
-	resetArrows(document.getElementById("id_subscribersContainerBody").closest("table").querySelectorAll("th"));
+	rowHeaders = document.getElementById("id_subscribersContainerBody").closest("table").querySelectorAll("th");
+	resetArrows(rowHeaders);
+	rowHeaders[0].querySelector("span").innerHTML = " &#x25B2;";
 }
 
 function getCellValue(tr, idx) {
@@ -13,11 +15,10 @@ function getCellValue(tr, idx) {
 
 function resetArrows(rowHeaders){
   for (let j = 0; j < rowHeaders.length; j++ ){
-    var toReset =   rowHeaders[j].querySelectorAll("span");
-    for (let i = 0; i < toReset.length; i++) {
-      toReset[i].innerHTML = "";
-    }
+    var toReset =   rowHeaders[j].querySelector("span");
+    toReset.innerHTML = "";
   }
+  
 }
 
 

@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/UpdateStudentMark")
+@MultipartConfig
 public class UpdateStudentMark extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
@@ -44,6 +46,7 @@ public class UpdateStudentMark extends HttpServlet {
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
 		try {
+			String temp = request.getParameter("studentid");
 			studentId = Integer.parseInt(request.getParameter("studentid"));
 			callId = Integer.parseInt(request.getParameter("callid"));
 			newMark = request.getParameter("newMark");
@@ -58,21 +61,18 @@ public class UpdateStudentMark extends HttpServlet {
 			
 			ceDAO.updateMarkByStudentAndCallId(studentId, callId, newMark);
 		} catch (NumberFormatException | NullPointerException e) {
-			String errorPath = "/GoToMarkManagement";
-			request.setAttribute("errorMessage", "Incorrect param values");
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param values");
 			return;
-		} catch (SQLException | GraduationCallDAOException | StudentDAOException | CallEvaluationDAOException e) {
-			String errorPath = "/GoToMarkManagement";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
+		} catch (SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().print(e.getMessage());
+			return;
+		} catch (GraduationCallDAOException | StudentDAOException | CallEvaluationDAOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print(e.getMessage());
 			return;
 		}
-		
-		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GetSubscriptionToCall?callid=" + callId;
-		response.sendRedirect(path);
-
 	}
 
 	@Override

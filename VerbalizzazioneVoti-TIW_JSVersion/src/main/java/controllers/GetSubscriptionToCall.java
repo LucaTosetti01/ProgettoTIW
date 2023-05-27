@@ -70,6 +70,10 @@ public class GetSubscriptionToCall extends HttpServlet {
 
 			// Splitting the map into 2 different lists but still maintaining the order;
 
+		} catch (NumberFormatException | NullPointerException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
+			return;
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().print(e.getMessage());

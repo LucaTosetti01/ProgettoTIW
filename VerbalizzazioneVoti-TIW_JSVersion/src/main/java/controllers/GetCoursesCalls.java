@@ -64,6 +64,10 @@ public class GetCoursesCalls extends HttpServlet {
 			//Retrieving calls associated to the course that the lecturer chose
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			calls = gcDAO.findAllDegreeCallByCourseId(courseId);
+		} catch (NumberFormatException | NullPointerException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
+			return;
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().print(e.getMessage());
