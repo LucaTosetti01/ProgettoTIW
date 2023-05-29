@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
+<meta charset="UTF-8">
 <title>Lecturer's Home</title>
 <link rel="stylesheet" type="text/css" media="all"
 	href="CSS/mystyle.css" />
@@ -113,19 +113,57 @@
 				<td>
 					<div id="id_buttonContainer">
 						<form id="id_publishForm" action="#">
-							<input type="hidden" name="callid">
-							<input type="button" name="publishButton" value="Publish">
+							<input type="hidden" name="callid"> <input type="button"
+								name="publishButton" value="Publish">
 						</form>
 
 						<form id="id_verbalizeForm" action="#">
-							<input type="hidden" name="callid">
-							<input type="button" name="verbalizeButton" value="Verbalize">
+							<input type="hidden" name="callid"> <input type="button"
+								name="verbalizeButton" value="Verbalize">
 						</form>
+						<input type="button" name="openModalButton" class="btn btn-open"
+							value="Multiple insertion">
 					</div>
 				</td>
 			</tr>
 		</table>
 
+		<div class="center">
+			<section id="id_modalContainer" class="modal hidden">
+				<div class="flex">
+					<button class="btn-close">⨉</button>
+				</div>
+				<form>
+					<div>
+						<p></p>
+						<table id="id_modalTable">
+							<thead>
+								<tr>
+									<th id="checkBoxColumn"></th>
+									<th id="id_ID">ID<span></span></th>
+									<th id="id_Surname">Surname<span></span></th>
+									<th id="id_Name">Name<span></span></th>
+									<th id="id_Email">Email<span></span></th>
+									<th id="id_DegreeCourse">Degree course<span></span></th>
+									<th id="id_Mark">Mark<span></span></th>
+									<th id="id_EvaluationState">Evaluation state<span></span></th>
+								</tr>
+							</thead>
+							<tbody id="id_modalTableBody">
+							</tbody>
+						</table>
+					</div>
+					<p>
+						Mark: <select name="newMark">
+						</select>
+					</p>
+					<input type="button" name="insertMark" value="Insert marks"
+						class="btn">
+				</form>
+			</section>
+			<div id="id_blurryOverlay" class="overlay hidden"></div>
+
+		</div>
 	</div>
 	<br>
 	<br>

@@ -3,6 +3,7 @@ package controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -21,13 +22,13 @@ import exceptions.GraduationCallDAOException;
 import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
-@WebServlet("/UpdateStudentMark")
+@WebServlet("/UpdateMultipleMarks")
 @MultipartConfig
-public class UpdateStudentMark extends HttpServlet {
+public class UpdateMultipleMarks extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
 
-	public UpdateStudentMark() {
+	public UpdateMultipleMarks() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -40,13 +41,14 @@ public class UpdateStudentMark extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		int[] studentIds = null;
 		Integer studentId = null, callId = null;
 		String newMark = null;
 
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
 		try {
-			studentId = Integer.parseInt(request.getParameter("studentid"));
+			studentIds = Stream.of(request.getParameterValues("studentids")).mapToInt(Integer::parseInt).toArray();
 			callId = Integer.parseInt(request.getParameter("callid"));
 			newMark = request.getParameter("newMark");
 			
@@ -77,8 +79,32 @@ public class UpdateStudentMark extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+		String newMark = null;
+		Integer callId = null;
+		
+		HttpSession session = request.getSession();
+		User lecLogged = (User) session.getAttribute("user");
+		
+		newMark = request.getParameter("newMark");
+		callId = Integer.parseInt(request.getParameter("callid"));
+		
+		CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+		GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+		StudentDAO sDAO = new StudentDAO(this.connection);
+		
+		try {
+			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+		} catch (SQLException | GraduationCallDAOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
+		try {
+			ceDAO.checkIfMarkFormatIsCorrect(newMark);
+		} catch (CallEvaluationDAOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -86,5 +112,4 @@ public class UpdateStudentMark extends HttpServlet {
 		// TODO Auto-generated method stub
 		super.destroy();
 	}
-
 }

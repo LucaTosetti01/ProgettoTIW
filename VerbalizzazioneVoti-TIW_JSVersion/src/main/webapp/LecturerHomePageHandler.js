@@ -5,6 +5,7 @@
 let coursesList, callsList, subscribersList;
 let wizardSingleMark;
 let buttonLine;
+let modalBlock;
 let pageOrchestrator = new PageOrchestrator(); 	//Main controller
 
 window.addEventListener("load", function() {
@@ -461,14 +462,16 @@ function ButtonLine(_alert, _buttonsContainer) {
 	this.alert = _alert;
 	this.buttonsContainer = _buttonsContainer;
 
+	let openModalButton = this.buttonsContainer.querySelector("input[name='openModalButton']");
+	openModalButton.addEventListener("click", function(e) {
+		modalBlock.show();
+	});
+	
 	this.reset = function() {
 		this.buttonsContainer.style.visibility = "hidden";
 	}
 
 	this.show = function() {
-		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
-		let verbalizeButton = this.buttonsContainer.querySelector("input[name='verbalizeButton']");
-
 		let self = this;
 		makeCall("GET", "VerbalizeStudentsMarks", null, function(req) {
 			if (req.readyState === 4) {
@@ -507,12 +510,14 @@ function ButtonLine(_alert, _buttonsContainer) {
 		});
 	};
 
-	this.update = function(numberOfVerbalizableMarks,numberOfMarksPublishable) {
+	this.update = function(numberOfVerbalizableMarks, numberOfMarksPublishable) {
 		let verbalizeButton = this.buttonsContainer.querySelector("input[name='verbalizeButton']");
 		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
+		
 
 		verbalizeButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
 		publishButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
+		
 
 		if (numberOfVerbalizableMarks < 1) {
 			verbalizeButton.disabled = true;
@@ -524,7 +529,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 		} else {
 			publishButton.disabled = false;
 		}
-		
+
 		this.buttonsContainer.style.visibility = "visible";
 	}
 
@@ -577,6 +582,154 @@ function ButtonLine(_alert, _buttonsContainer) {
 	};
 }
 
+function ModalBlock(_altert, _modalContainer, _overlay) {
+	this.numberOfBoxChecked = 0;
+	this.alert = _altert;
+	this.modalContainer = _modalContainer;
+	this.overlay = _overlay;
+	
+	this.modalContainer.querySelector("input[name='insertMark']").disabled = true;
+	let self = this;
+	this.modalContainer.querySelector(".btn-close").addEventListener("click", function(e) {
+		self.reset();
+	})
+
+	this.reset = function() {
+		this.modalContainer.classList.add("hidden");
+		this.overlay.classList.add("hidden");
+		this.modalContainer.querySelector("input[name='insertMark']").disabled = true;
+		this.numberOfBoxChecked = 0;
+	};
+
+	this.show = function() {
+		let self = this;
+		let subscribersContainerBodyRows = Array.from(document.getElementById("id_subscribersContainerBody").querySelectorAll("tr"));
+		let subscribersToShow = new Array();
+		subscribersContainerBodyRows.forEach(function(row) {
+			let subscribersData = Array.from(row.querySelectorAll("td"));
+			if (subscribersData[6].textContent === "Non inserito") {
+				let subscriber = {
+					id: subscribersData[0].textContent,
+					surname: subscribersData[1].textContent,
+					name: subscribersData[2].textContent,
+					email: subscribersData[3].textContent,
+					degreeCourseName: subscribersData[4].textContent,
+					mark: subscribersData[5].textContent,
+					evaluationState: subscribersData[6].textContent,
+				};
+				subscribersToShow.push(subscriber);
+			}
+		});
+		this.update(subscribersToShow)
+
+	};
+
+	this.update = function(subscribersList) {
+		let row, checkBoxCell, checkBox, idCell, surnameCell, nameCell, emailCell, degreeCourseCell, markCell, evaluationStateCell;
+		this.modalContainer.querySelector("#id_modalTableBody").innerHTML = "";
+		let self = this;
+
+		subscribersList.forEach(function(student) {
+			row = document.createElement("tr");
+			
+			checkBoxCell = document.createElement("td");
+			checkBox = document.createElement("input");
+			checkBox.setAttribute("type","checkbox");
+			checkBox.setAttribute("value",student.id);
+			checkBox.setAttribute("name","studentids[]");
+			checkBox.addEventListener("change", function(e) {
+				if(e.target.checked == true) {
+					self.numberOfBoxChecked++;
+				} else {
+					self.numberOfBoxChecked--;
+				}
+				
+				let submitButton = self.modalContainer.querySelector("input[name='insertMark']");
+				if(self.numberOfBoxChecked === 0) {
+					submitButton.disabled = true;
+				} else {
+					submitButton.disabled = false;
+				}
+			});
+			checkBoxCell.appendChild(checkBox);
+			row.appendChild(checkBoxCell);
+
+			idCell = document.createElement("td");
+			idCell.textContent = student.id;
+			row.appendChild(idCell);
+
+			surnameCell = document.createElement("td");
+			surnameCell.textContent = student.surname;
+			row.appendChild(surnameCell);
+
+			nameCell = document.createElement("td");
+			nameCell.textContent = student.name;
+			row.appendChild(nameCell);
+
+			emailCell = document.createElement("td");
+			emailCell.textContent = student.email;
+			row.appendChild(emailCell);
+
+			degreeCourseCell = document.createElement("td");
+			degreeCourseCell.textContent = student.degreeCourseName;
+			row.appendChild(degreeCourseCell);
+
+			markCell = document.createElement("td");
+			markCell.textContent = student.mark;
+			row.appendChild(markCell);
+
+			evaluationStateCell = document.createElement("td");
+			evaluationStateCell.textContent = student.evaluationState;
+			row.appendChild(evaluationStateCell);
+
+			self.modalContainer.querySelector("#id_modalTableBody").appendChild(row);
+		});
+		
+		let markSelect = this.modalContainer.querySelector("p > select");
+		let possibleMarkValues = ["", "Assente", "Rimandato", "Riprovato", "18", "19",
+			"20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "30L"];
+
+		markSelect.innerHTML = "";
+		possibleMarkValues.forEach(function(value) {
+			let optionTag = document.createElement("option");
+			optionTag.textContent = value;
+			markSelect.appendChild(optionTag);
+		});
+		
+		this.modalContainer.classList.remove("hidden");
+		this.overlay.classList.remove("hidden");
+	};
+	
+	this.registerEvent = function(orchestrator) {
+		let self = this;
+		this.modalContainer.querySelector("input[type='insertMark']").addEventListener("click", function(e) {
+			let form = e.target.closest("form");
+			let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
+			let currentCall = form.querySelector("input[name='callid']").value;
+
+			if (form.checkValidity()) {
+				makeCall("POST", "UpdateMultipleMarks", form, function(req) {
+					if (req.readyState === 4) {
+						var message = req.responseText;
+						if (req.status === 200) {
+							orchestrator.refresh(currentCourse, currentCall, currentStudent)
+						} else if (req.status == 403) {
+							window.location.href = req.getResponseHeader("Location");
+							window.sessionStorage.removeItem('username');
+						}
+					} else {
+						self.alert.textContent = message;
+						self.reset();
+					}
+				});
+			} else {
+				self.wizard.reportValidity();
+			}
+
+		});
+	};
+}
+
 function PageOrchestrator() {
 	var alertContainer = document.getElementById("id_alert");
 
@@ -615,6 +768,12 @@ function PageOrchestrator() {
 		);
 		wizardSingleMark.registerEvent(this);
 
+		modalBlock = new ModalBlock(
+			alertContainer,
+			document.getElementById("id_modalContainer"),
+			document.getElementById("id_blurryOverlay")
+		);
+
 
 		document.querySelector("a[href='Logout']").addEventListener("click", function() {
 			window.sessionStorage.removeItem("username");
@@ -629,6 +788,7 @@ function PageOrchestrator() {
 		callsList.reset();
 		subscribersList.reset();
 		wizardSingleMark.reset();
+		modalBlock.reset();
 
 		//Refresh page
 		coursesList.show(function() {
