@@ -192,7 +192,8 @@ public class CallEvaluationDAO {
 		PreparedStatement pstatement3 = null;
 		ResultSet result = null;
 		List<User> students = new ArrayList<>();
-		int code = 0;
+
+		int verbalKey;
 
 		try {
 			pstatement3 = connection.prepareStatement(query3);
@@ -207,14 +208,14 @@ public class CallEvaluationDAO {
 			
 			pstatement = connection.prepareStatement(query);
 			pstatement.setInt(1, call_id);
-			code = pstatement.executeUpdate();
+			pstatement.executeUpdate();
 
 			pstatement2 = connection.prepareStatement(query2);
 			pstatement2.setInt(1, call_id);
-			code = pstatement2.executeUpdate();
+			pstatement2.executeUpdate();
 
 			VerbalDAO vDAO = new VerbalDAO(this.connection);
-			vDAO.createVerbal(verbalDate, verbalTime, call_id);
+			verbalKey = vDAO.createVerbal(verbalDate, verbalTime, call_id);
 			vDAO.saveStudentsWithinVerbal(call_id, students);
 
 			connection.commit();
@@ -231,7 +232,7 @@ public class CallEvaluationDAO {
 				throw new SQLException(e1);
 			}
 		}
-		return code;
+		return verbalKey;
 	}
 	
 	public int publishAllMarksByCallId(int call_id) throws SQLException {
@@ -284,6 +285,36 @@ public class CallEvaluationDAO {
 		}
 		return code;
 	}
+	
+	public int[] updateMultipleMarkByStudentAndCallId(List<Integer> student_ids, int call_id, List<String> newMarks) throws SQLException {
+		String query = "UPDATE registrations_calls SET Mark = ?, EvaluationStatus = 'Inserito' WHERE ID_Call = ? AND ID_Student = ?";
+		int[] code = null;
+
+		PreparedStatement pstatement = null;
+		pstatement = connection.prepareStatement(query);
+		try {
+			for(int i=0;i<student_ids.size();i++) {
+				pstatement.setString(1, newMarks.get(i));
+				pstatement.setInt(2, call_id);
+				pstatement.setInt(3, student_ids.get(i));
+				pstatement.addBatch();
+				
+			}
+			code = pstatement.executeBatch();
+		} catch (SQLException e) {
+			throw new SQLException("Failure in updating student's mark");
+		} finally {
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+		}
+		return code;
+	}
+	
 	
 	public void checkIfAnyMarkIsVerbalizable() throws SQLException, CallEvaluationDAOException {
 		if (this.getNumberOfVerbalizableMarks() == 0) {

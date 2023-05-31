@@ -3,7 +3,9 @@ package controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -13,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import DAO.CourseDAO;
 import DAO.GraduationCallDAO;
@@ -26,12 +30,12 @@ import beans.Verbal;
 import exceptions.GraduationCallDAOException;
 import utils.ConnectionHandler;
 
-@WebServlet("/GoToVerbalRecap")
-public class GoToVerbalRecap extends HttpServlet{
+@WebServlet("/GetVerbalData")
+public class GetVerbalData extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
 	
-	public GoToVerbalRecap() {
+	public GetVerbalData() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -62,40 +66,42 @@ public class GoToVerbalRecap extends HttpServlet{
 			LecturerDAO lDAO = new LecturerDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
 			
-			System.out.println(request.getParameter("callid"));
 			verbalId = Integer.parseInt(request.getParameter("verbalid"));
-			callId = Integer.parseInt(request.getParameter("callid"));
 			verbal = vDAO.findVerbalById(verbalId);
 			
+			callId = verbal.getCallId();
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
 			
-			call = gcDAO.findGraduationCallById(verbal.getCallId());
+			call = gcDAO.findGraduationCallById(callId);
 			course = cDAO.findCourseById(call.getCourseId());
 			lecturer = lDAO.findLecturerById(course.getTaughtById());
 			students = sDAO.findAllStudentsInVerbalById(verbal.getId());
-		
 		} catch (NumberFormatException | NullPointerException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", "Incorrect param values");
-			request.getRequestDispatcher(errorPath).forward(request, response);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
 			return;
-		} catch (SQLException | GraduationCallDAOException e) {
-			String errorPath = "/GetSubscriptionToCall";
-			request.setAttribute("errorMessage", e.getMessage());
-			request.getRequestDispatcher(errorPath).forward(request, response);
+		} catch (SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().print(e.getMessage());
+			return;
+		} catch (GraduationCallDAOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print(e.getMessage());
 			return;
 		}
+		Map<String, Object> mapStringData = new HashMap<>();
+		mapStringData.put("students", students);
+		mapStringData.put("verbal", verbal);
+		mapStringData.put("call", call);
+		mapStringData.put("course", course);
+		mapStringData.put("lecturer", lecturer);
 		
-		
-		String path = "/WEB-INF/Verbal.html";
-		/*ServletContext servletContext = getServletContext();
-		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-		ctx.setVariable("verbal", verbal);
-		ctx.setVariable("call", call);
-		ctx.setVariable("course", course);
-		ctx.setVariable("lecturer", lecturer);
-		ctx.setVariable("students", students);
-		templateEngine.process(path, ctx, response.getWriter());*/
+		Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+		String json = gson.toJson(mapStringData);
+
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(json);
 	}
 
 	@Override

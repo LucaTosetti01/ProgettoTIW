@@ -3,6 +3,10 @@ package controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.ServletException;
@@ -24,7 +28,7 @@ import utils.ConnectionHandler;
 
 @WebServlet("/UpdateMultipleMarks")
 @MultipartConfig
-public class UpdateMultipleMarks extends HttpServlet{
+public class UpdateMultipleMarks extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
 
@@ -41,26 +45,44 @@ public class UpdateMultipleMarks extends HttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		int[] studentIds = null;
-		Integer studentId = null, callId = null;
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		String newMark = null;
+		Integer callId = null;
+		Map<String, String[]> nameValueParametersMap = null;
 
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
+
 		try {
-			studentIds = Stream.of(request.getParameterValues("studentids")).mapToInt(Integer::parseInt).toArray();
-			callId = Integer.parseInt(request.getParameter("callid"));
-			newMark = request.getParameter("newMark");
-			
+			nameValueParametersMap = new HashMap<>(request.getParameterMap());
+			callId = Integer.parseInt(nameValueParametersMap.remove("callid")[0]);
+
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
-			
+
+			nameValueParametersMap = nameValueParametersMap.entrySet().stream().filter(entry->!entry.getValue()[0].equals("")).collect(Collectors.toMap(entry->entry.getKey(), entry->entry.getValue()));
+			List<Integer> studentIds = nameValueParametersMap.entrySet().stream()
+					.map(entry -> Integer.parseInt(entry.getKey())).toList();
+			List<String> studentMarks = nameValueParametersMap.entrySet().stream().map(entry -> entry.getValue()[0])
+					.toList();
+
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
-			ceDAO.checkIfMarkFormatIsCorrect(newMark);
+
+			for (String mark : studentMarks) {
+				ceDAO.checkIfMarkFormatIsCorrect(mark);
+			}
+
+			for (Integer id : studentIds) {
+				sDAO.checkIfStudentIsSubscribedToCall(id, callId);
+			}
 			
-			ceDAO.updateMarkByStudentAndCallId(studentId, callId, newMark);
+			ceDAO.updateMultipleMarkByStudentAndCallId(studentIds, callId, studentMarks);
+
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print("Incorrect param values");
@@ -69,41 +91,10 @@ public class UpdateMultipleMarks extends HttpServlet{
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().print(e.getMessage());
 			return;
-		} catch (GraduationCallDAOException | StudentDAOException | CallEvaluationDAOException e) {
+		} catch (GraduationCallDAOException | CallEvaluationDAOException | StudentDAOException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print(e.getMessage());
 			return;
-		}
-	}
-
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		String newMark = null;
-		Integer callId = null;
-		
-		HttpSession session = request.getSession();
-		User lecLogged = (User) session.getAttribute("user");
-		
-		newMark = request.getParameter("newMark");
-		callId = Integer.parseInt(request.getParameter("callid"));
-		
-		CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
-		GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-		StudentDAO sDAO = new StudentDAO(this.connection);
-		
-		try {
-			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-		} catch (SQLException | GraduationCallDAOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		//sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
-		try {
-			ceDAO.checkIfMarkFormatIsCorrect(newMark);
-		} catch (CallEvaluationDAOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

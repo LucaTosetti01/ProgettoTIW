@@ -1,4 +1,4 @@
-.boxed {
+/*.boxed {
 	border: 1px solid black;
 }
 
@@ -10,13 +10,7 @@ th.sortable {
 	color: red;
 }
 
-.selectedCourse {
-	background-color: lightgreen;
-}
 
-.selectedCall {
-	background-color: lightgreen;
-}
 
 .outcomeTable {
 	border-spacing: 5px;
@@ -34,7 +28,7 @@ th.sortable {
 	flex-direction: column;
 	justify-content: center;
 	gap: 0.4rem;
-	width: 800px;
+	width: 900px;
 	padding: 1.3rem;
 	min-height: 250px;
 	position: absolute;
@@ -127,4 +121,69 @@ input[name=insertMark] {
 	border: none;
 	font-weight: 600;
 	width: 100%;
+}*/
+#id_modalMultipleMarkContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 20%;
+	
 }
+
+.modal-dialog {
+	display: table;
+}
+
+.table-striped>tbody>tr.selectedCourse:nth-child(odd)>td,
+.table-striped>tbody>tr.selectedCourse:nth-child(even)>td {
+	background-color: lightgreen !important;
+}
+
+.table-striped>tbody>tr.selectedCall:nth-child(odd)>td,
+.table-striped>tbody>tr.selectedCall:nth-child(even)>td {
+	background-color: lightgreen !important;
+}
+
+th {
+	white-space: nowrap;
+	text-align: center;
+}
+
+.bg-blurred {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(3px);
+	z-index: 1;
+}
+
+.hidden {
+	display: none;
+}
+
+.max-width {
+	width: 100%;
+}
+
+.descriptionText {
+	font-size: 12px;
+	width: 70%;
+}
+
+.div-lg {
+	width:80%;
+}
+
+#id_callsContainerBody>tr>td {
+	white-space: nowrap;
+}
+
+.fixed-width {
+	width:50%;
+}
+

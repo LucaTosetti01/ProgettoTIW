@@ -5,7 +5,8 @@
 let coursesList, callsList, subscribersList;
 let wizardSingleMark;
 let buttonLine;
-let modalBlock;
+let modalMultipleMarks, modalVerbalRecap;
+let alertHandler;
 let pageOrchestrator = new PageOrchestrator(); 	//Main controller
 
 window.addEventListener("load", function() {
@@ -27,16 +28,38 @@ function WelcomeMessage(_username, messageContainer) {
 	}
 }
 
+function AlertHandler(_alertContainer) {
+	this.alertContainer = _alertContainer;
+
+	//I register the listener on the creation and not with a registerEvent function
+	//because the closure of the alert doesn't require the refresh of all the page
+	let self = this;
+	this.alertContainer.querySelector("a").addEventListener("click", function(e) {
+		e.preventDefault();
+		self.reset();
+	})
+
+	this.reset = function() {
+		this.alertContainer.classList.add("hidden");
+	}
+
+	this.update = function(message) {
+		this.alertContainer.classList.remove("hidden");
+		this.alertContainer.querySelector("label").textContent = message;
+	}
+}
+
 function CoursesList(_alert, _listContainer, _listContainerBody) {
 	this.alert = _alert;
 	this.listContainer = _listContainer;
 	this.listContainerBody = _listContainerBody;
 
 	this.reset = function() {
-		this.listContainer.style.visibility = "hidden";
+		this.listContainer.classList.add("hidden");
 	}
 
 	this.show = function(showDefaultFunction, currentCall) {
+		document.getElementById("id_subscribersModifyContainer").classList.add("hidden");
 		let self = this;
 		makeCall("GET", "GetLecturersCourses", null, function(req) {
 			if (req.readyState === XMLHttpRequest.DONE) {
@@ -44,7 +67,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 				if (req.status === 200) {
 					var coursesToShow = JSON.parse(req.responseText);
 					if (coursesToShow.length == 0) {
-						self.alert.textContent = "No courses found";
+						self.alert.update("No courses found");
 						return;
 					}
 					self.update(coursesToShow, currentCall);
@@ -54,7 +77,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem("username");
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 				}
 			}
 		});
@@ -81,6 +104,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 
 			descriptionCell = document.createElement("td");
 			descriptionCell.textContent = course.description;
+			descriptionCell.classList.add("descriptionText");
 			row.appendChild(descriptionCell);
 
 			linkCell = document.createElement("td");
@@ -119,7 +143,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 			*/
 
 		});
-		this.listContainer.style.visibility = "visible";
+		this.listContainer.classList.remove("hidden");
 	};
 
 	this.autoClick = function(courseId) {
@@ -140,7 +164,7 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 	this.listContainerBody = _listContainerBody;
 
 	this.reset = function() {
-		this.listContainer.style.visibility = "hidden";
+		this.listContainer.classList.add("hidden");
 	};
 
 	this.show = function(courseId, showDefaultFunction) {
@@ -154,7 +178,7 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 				if (req.status === 200) {
 					let callsToShow = JSON.parse(req.responseText);
 					if (callsToShow.length === 0) {
-						self.alert.textContent = "No calls found for the course: " + courseId;
+						self.alert.update("No calls found for the course: " + courseId);
 						//Since I didn't found calls i must reset the content of the 
 						//subscribers component otherwhise i would have a error message
 						//with the subiscribers of another course (if precedently I've selected
@@ -162,15 +186,15 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 						//subscribersList.reset();
 						return;
 					}
-					//self.alert.textContent = "";
+					self.alert.reset();
 					self.update(callsToShow);
 					if (showDefaultFunction) showDefaultFunction();
-					self.listContainer.style.visibility = "visible";
+					self.listContainer.classList.remove("hidden");
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 				}
 			}
 		});
@@ -256,7 +280,7 @@ function SubscribersList(_alert, _listContainer, _listContainerBody, _buttonLine
 	headers[0].querySelector("span").innerHTML = " &#x25B2;";
 
 	this.reset = function() {
-		this.listContainer.style.visibility = "hidden";
+		this.listContainer.classList.add("hidden");
 		this.buttonLine.reset();
 		wizardSingleMark.reset();
 		//Needed for restarting the sort algoritm always from ID column
@@ -274,19 +298,20 @@ function SubscribersList(_alert, _listContainer, _listContainerBody, _buttonLine
 				if (req.status === 200) {
 					let subscribersToShow = JSON.parse(req.responseText);
 					if (subscribersToShow.length === 0 || subscribersToShow.length == undefined) {
-						self.alert.textContent = "No subscribers found for the call: " + callId;
+						self.alert.update("No subscribers found for the call: " + callId);
 						self.reset();
 						return;
 					}
-					self.alert.textContent = "";
+					self.alert.reset();
+					document.getElementById("id_subscribersModifyContainer").classList.remove("hidden");
 					self.buttonLine.show();
 					self.update(subscribersToShow);
-					self.listContainer.style.visibility = "visible";
+					self.listContainer.classList.remove("hidden");
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 				}
 			}
 		});
@@ -379,18 +404,18 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 				if (req.status === 200) {
 					let studentDataToShow = JSON.parse(req.responseText);
 					if (studentDataToShow === "{}") {
-						self.alert.textContent = message;
+						self.alert.update(message);
 						self.reset();
 						return;
 					}
-					self.alert.textContent = "";
+					self.alert.reset();
 					self.update(studentDataToShow);
 					self.wizard.style.visibility = "visible";
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 					self.reset();
 				}
 			}
@@ -404,13 +429,13 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 		let studentEmail = studentDataMap["student"].email;
 		let studentDegreeCourse = studentDataMap["student"].degreeCourse.name;
 		let evaluationMark = studentDataMap["evaluation"].mark;
-		this.wizard.querySelector("p > #id_IDForm").textContent = studentId;
-		this.wizard.querySelector("p > #id_nameForm").textContent = studentName;
-		this.wizard.querySelector("p > #id_surnameForm").textContent = studentSurname;
-		this.wizard.querySelector("p > #id_emailForm").textContent = studentEmail;
-		this.wizard.querySelector("p > #id_degreeCourseForm").textContent = studentDegreeCourse;
+		this.wizard.querySelector("#id_IDForm").textContent = studentId;
+		this.wizard.querySelector("label > #id_nameForm").textContent = studentName;
+		this.wizard.querySelector("label > #id_surnameForm").textContent = studentSurname;
+		this.wizard.querySelector("label > #id_emailForm").textContent = studentEmail;
+		this.wizard.querySelector("label > #id_degreeCourseForm").textContent = studentDegreeCourse;
 
-		let markSelect = this.wizard.querySelector("p > #id_markForm");
+		let markSelect = this.wizard.querySelector("label > #id_markForm");
 		let possibleMarkValues = ["", "Assente", "Rimandato", "Riprovato", "18", "19",
 			"20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "30L"];
 
@@ -464,9 +489,9 @@ function ButtonLine(_alert, _buttonsContainer) {
 
 	let openModalButton = this.buttonsContainer.querySelector("input[name='openModalButton']");
 	openModalButton.addEventListener("click", function(e) {
-		modalBlock.show();
+		modalMultipleMarks.show();
 	});
-	
+
 	this.reset = function() {
 		this.buttonsContainer.style.visibility = "hidden";
 	}
@@ -488,7 +513,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 							if (req.status === 200) {
 								let numberOfMarksPublishable = JSON.parse(req.responseText);
 								if (isNaN(numberOfMarksPublishable)) {
-									self.alert.textContent = "The value of verbalizable marks retrieved, is not a number";
+									self.alert.update("The value of verbalizable marks retrieved, is not a number");
 									return;
 								}
 								self.update(numberOfMarksVerbalizable, numberOfMarksPublishable);
@@ -496,7 +521,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 								window.location.href = req.getResponseHeader("Location");
 								window.sessionStorage.removeItem('username');
 							} else {
-								self.alert.textContent = message;
+								self.alert.update(message);
 							}
 						}
 					});
@@ -504,7 +529,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 				}
 			}
 		});
@@ -513,21 +538,21 @@ function ButtonLine(_alert, _buttonsContainer) {
 	this.update = function(numberOfVerbalizableMarks, numberOfMarksPublishable) {
 		let verbalizeButton = this.buttonsContainer.querySelector("input[name='verbalizeButton']");
 		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
-		
+
 
 		verbalizeButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
 		publishButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
-		
+
 
 		if (numberOfVerbalizableMarks < 1) {
-			verbalizeButton.disabled = true;
+			verbalizeButton.classList.add("disabled");
 		} else {
-			verbalizeButton.disabled = false;
+			verbalizeButton.classList.remove("disabled");
 		}
 		if (numberOfMarksPublishable < 1) {
-			publishButton.disabled = true;
+			publishButton.classList.add("disabled");
 		} else {
-			publishButton.disabled = false;
+			publishButton.classList.remove("disabled");
 		}
 
 		this.buttonsContainer.style.visibility = "visible";
@@ -551,7 +576,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 						window.location.href = req.getResponseHeader("Location");
 						window.sessionStorage.removeItem('username');
 					} else {
-						self.alert.textContent = message;
+						self.alert.update(message);
 					}
 				}
 			});
@@ -568,13 +593,15 @@ function ButtonLine(_alert, _buttonsContainer) {
 				if (req.readyState === 4) {
 					var message = req.responseText;
 					if (req.status === 200) {
+						let verbalId = JSON.parse(req.responseText);
+						modalVerbalRecap.show(verbalId);
 						orchestrator.refresh(currentCourse, currentCall);
 					} else if (req.status == 403) {
 						window.location.href = req.getResponseHeader("Location");
 						window.sessionStorage.removeItem('username');
 
 					} else {
-						self.alert.textContent = message;
+						self.alert.update(message);
 					}
 				}
 			});
@@ -582,27 +609,32 @@ function ButtonLine(_alert, _buttonsContainer) {
 	};
 }
 
-function ModalBlock(_altert, _modalContainer, _overlay) {
-	this.numberOfBoxChecked = 0;
-	this.alert = _altert;
+function ModalMultipleMarks(_alert, _modalContainer, _modalHeader, _modalBody, _backgroundBlurred) {
+	this.numberOfMarkInserted = 0;
+	this.alert = _alert;
 	this.modalContainer = _modalContainer;
-	this.overlay = _overlay;
-	
-	this.modalContainer.querySelector("input[name='insertMark']").disabled = true;
+	this.modalHeader = _modalHeader;
+	this.modalBody = _modalBody;
+	this.backgroundBlur = _backgroundBlurred;
+
 	let self = this;
-	this.modalContainer.querySelector(".btn-close").addEventListener("click", function(e) {
+	this.modalHeader.querySelector("button[type='button']").addEventListener("click", function(e) {
 		self.reset();
 	})
 
 	this.reset = function() {
-		this.modalContainer.classList.add("hidden");
-		this.overlay.classList.add("hidden");
-		this.modalContainer.querySelector("input[name='insertMark']").disabled = true;
+		this.modalContainer.style.display = "none";
+		this.modalContainer.classList.remove("show");
+		this.modalContainer.querySelector("input[name='insertMark']").classList.add("disabled");
+		this.backgroundBlur.classList.add("hidden");
 		this.numberOfBoxChecked = 0;
 	};
 
 	this.show = function() {
 		let self = this;
+
+		this.modalBody.querySelector("form").callid.value = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
+
 		let subscribersContainerBodyRows = Array.from(document.getElementById("id_subscribersContainerBody").querySelectorAll("tr"));
 		let subscribersToShow = new Array();
 		subscribersContainerBodyRows.forEach(function(row) {
@@ -625,34 +657,15 @@ function ModalBlock(_altert, _modalContainer, _overlay) {
 	};
 
 	this.update = function(subscribersList) {
-		let row, checkBoxCell, checkBox, idCell, surnameCell, nameCell, emailCell, degreeCourseCell, markCell, evaluationStateCell;
-		this.modalContainer.querySelector("#id_modalTableBody").innerHTML = "";
+		let row, selectCell, selectTag, idCell, surnameCell, nameCell, emailCell, degreeCourseCell, evaluationStateCell;
+		this.modalContainer.querySelector(".modalTableBody").innerHTML = "";
 		let self = this;
+
+		let possibleMarkValues = ["", "Assente", "Rimandato", "Riprovato", "18", "19",
+			"20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "30L"];
 
 		subscribersList.forEach(function(student) {
 			row = document.createElement("tr");
-			
-			checkBoxCell = document.createElement("td");
-			checkBox = document.createElement("input");
-			checkBox.setAttribute("type","checkbox");
-			checkBox.setAttribute("value",student.id);
-			checkBox.setAttribute("name","studentids[]");
-			checkBox.addEventListener("change", function(e) {
-				if(e.target.checked == true) {
-					self.numberOfBoxChecked++;
-				} else {
-					self.numberOfBoxChecked--;
-				}
-				
-				let submitButton = self.modalContainer.querySelector("input[name='insertMark']");
-				if(self.numberOfBoxChecked === 0) {
-					submitButton.disabled = true;
-				} else {
-					submitButton.disabled = false;
-				}
-			});
-			checkBoxCell.appendChild(checkBox);
-			row.appendChild(checkBoxCell);
 
 			idCell = document.createElement("td");
 			idCell.textContent = student.id;
@@ -674,35 +687,57 @@ function ModalBlock(_altert, _modalContainer, _overlay) {
 			degreeCourseCell.textContent = student.degreeCourseName;
 			row.appendChild(degreeCourseCell);
 
-			markCell = document.createElement("td");
-			markCell.textContent = student.mark;
-			row.appendChild(markCell);
-
 			evaluationStateCell = document.createElement("td");
 			evaluationStateCell.textContent = student.evaluationState;
 			row.appendChild(evaluationStateCell);
 
-			self.modalContainer.querySelector("#id_modalTableBody").appendChild(row);
-		});
-		
-		let markSelect = this.modalContainer.querySelector("p > select");
-		let possibleMarkValues = ["", "Assente", "Rimandato", "Riprovato", "18", "19",
-			"20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "30L"];
 
-		markSelect.innerHTML = "";
-		possibleMarkValues.forEach(function(value) {
-			let optionTag = document.createElement("option");
-			optionTag.textContent = value;
-			markSelect.appendChild(optionTag);
+			selectCell = document.createElement("td");
+			selectTag = document.createElement("select");
+
+			possibleMarkValues.forEach(function(value) {
+				let optionTag = document.createElement("option");
+				optionTag.textContent = value;
+				selectTag.appendChild(optionTag);
+			});
+
+			selectTag.setAttribute("name", student.id);
+			selectTag.addEventListener("focus", function(e) {
+				e.target.setAttribute("oldValue", e.target.options[e.target.selectedIndex].textContent);
+			})
+			selectTag.addEventListener("change", function(e) {
+				let selectedValue = e.target.options[e.target.selectedIndex].textContent;
+				if (selectedValue !== "") {
+					if (e.target.getAttribute("oldValue") === "") {
+						self.numberOfMarkInserted++;
+					}
+				} else {
+					self.numberOfMarkInserted--;
+				}
+
+				let submitButton = self.modalContainer.querySelector("input[name='insertMark']");
+				if (self.numberOfMarkInserted === 0) {
+					submitButton.classList.add("disabled");
+				} else {
+					submitButton.classList.remove("disabled");
+				}
+			});
+			selectCell.appendChild(selectTag);
+			row.appendChild(selectCell);
+
+			self.modalContainer.querySelector(".modalTableBody").appendChild(row);
 		});
-		
-		this.modalContainer.classList.remove("hidden");
-		this.overlay.classList.remove("hidden");
+
+
+
+		this.modalContainer.style.display = "block";
+		this.modalContainer.classList.add("show");
+		this.backgroundBlur.classList.remove("hidden");
 	};
-	
+
 	this.registerEvent = function(orchestrator) {
 		let self = this;
-		this.modalContainer.querySelector("input[type='insertMark']").addEventListener("click", function(e) {
+		this.modalContainer.querySelector("input[name='insertMark']").addEventListener("click", function(e) {
 			let form = e.target.closest("form");
 			let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
 			let currentCall = form.querySelector("input[name='callid']").value;
@@ -712,13 +747,13 @@ function ModalBlock(_altert, _modalContainer, _overlay) {
 					if (req.readyState === 4) {
 						var message = req.responseText;
 						if (req.status === 200) {
-							orchestrator.refresh(currentCourse, currentCall, currentStudent)
+							orchestrator.refresh(currentCourse, currentCall)
 						} else if (req.status == 403) {
 							window.location.href = req.getResponseHeader("Location");
 							window.sessionStorage.removeItem('username');
 						}
 					} else {
-						self.alert.textContent = message;
+						self.alert.update(message);
 						self.reset();
 					}
 				});
@@ -730,50 +765,262 @@ function ModalBlock(_altert, _modalContainer, _overlay) {
 	};
 }
 
-function PageOrchestrator() {
-	var alertContainer = document.getElementById("id_alert");
+function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _backgroundBlurred) {
+	this.alert = _alert;
+	this.modalContainer = _modalContainer;
+	this.modalHeader = _modalHeader;
+	this.modalBody = _modalBody;
+	this.backgroundBlur = _backgroundBlurred;
 
+	let self = this;
+	this.modalHeader.querySelector("button[type='button']").addEventListener("click", function(e) {
+		self.reset();
+	})
+
+	this.reset = function() {
+		this.modalContainer.style.display = "none";
+		this.modalContainer.classList.remove("show");
+		this.backgroundBlur.classList.add("hidden");
+	};
+
+	this.show = function(verbalId) {
+		let self = this;
+
+		makeCall("GET", "GetVerbalData?verbalid=" + verbalId, null, function(req) {
+			if (req.readyState === 4) {
+				var message = req.responseText;
+				if (req.status === 200) {
+					let verbalData = JSON.parse(req.responseText);
+					self.alert.reset();
+					self.update(verbalData);
+				} else if (req.status == 403) {
+					window.location.href = req.getResponseHeader("Location");
+					window.sessionStorage.removeItem('username');
+				} else {
+					self.alert.update(message);
+					self.reset();
+				}
+			}
+		});
+	};
+
+	this.update = function(verbalDataMap) {
+		let row, self = this;
+		let idVerbalCell, idCourseCell, idCallCell;
+		let CrationDateVerbalCell, nameCourseCell, dateCallCell;
+		let CreationTimeVerbalCell, descriptionCourseCell, timeCallCell;
+		let lecturerCourseCell;
+		
+		let idStudentCell, surnameStudentCell, nameStudentCell, degreeCourseCell;
+
+		let dataRecapTableBody = this.modalBody.querySelector("table:nth-of-type(1)>tbody");
+		let verbalSubscribersBody = this.modalBody.querySelector("table:nth-of-type(2)>tbody");
+		
+		dataRecapTableBody.innerHTML = "";
+		verbalSubscribersBody.innerHTML = "";
+
+		var temp = this.modalHeader.querySelector("button[type='button']").addEventListener("click", function(e) {
+			self.reset();
+		})
+
+
+		this.modalBody.querySelector("p").textContent = "Verbal's data:";
+		row = document.createElement("tr");
+
+
+
+		
+		//First row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "ID";
+		row.appendChild(temp);
+		idVerbalCell = document.createElement("td");
+		idVerbalCell.textContent = verbalDataMap["verbal"].id;
+		row.appendChild(idVerbalCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "ID";
+		row.appendChild(temp);
+		idCourseCell = document.createElement("td");
+		idCourseCell.textContent = verbalDataMap["course"].id;
+		row.appendChild(idCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "ID";
+		row.appendChild(temp);
+		idCallCell = document.createElement("td");
+		idCallCell.textContent = verbalDataMap["call"].id;
+		row.appendChild(idCallCell);
+
+		dataRecapTableBody.appendChild(row);
+		//Second row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "Creation date";
+		row.appendChild(temp);
+		CrationDateVerbalCell = document.createElement("td");
+		CrationDateVerbalCell.textContent = verbalDataMap["verbal"].creationDate;
+		row.appendChild(CrationDateVerbalCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Name";
+		row.appendChild(temp);
+		nameCourseCell = document.createElement("td");
+		nameCourseCell.textContent = verbalDataMap["course"].name;
+		row.appendChild(nameCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Date";
+		row.appendChild(temp);
+		dateCallCell = document.createElement("td");
+		dateCallCell.textContent = verbalDataMap["call"].date;
+		row.appendChild(dateCallCell);
+
+		dataRecapTableBody.appendChild(row);
+		//Third row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		temp.textContent = "Creation time";
+		row.appendChild(temp);
+		CreationTimeVerbalCell = document.createElement("td");
+		CreationTimeVerbalCell.textContent = verbalDataMap["verbal"].creationTime;
+		row.appendChild(CreationTimeVerbalCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Description";
+		row.appendChild(temp);
+		descriptionCourseCell = document.createElement("td");
+		descriptionCourseCell.textContent = verbalDataMap["course"].description;
+		row.appendChild(descriptionCourseCell);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Time";
+		row.appendChild(temp);
+		timeCallCell = document.createElement("td");
+		timeCallCell.textContent = verbalDataMap["call"].time;
+		row.appendChild(timeCallCell);
+
+		dataRecapTableBody.appendChild(row);
+		//Forth row
+		row = document.createElement("tr");
+
+		var temp = document.createElement("td");
+		row.appendChild(temp);
+		var temp = document.createElement("td");
+		row.appendChild(temp);
+
+		var temp = document.createElement("td");
+		temp.textContent = "Lecturer";
+		row.appendChild(temp);
+		lecturerCourseCell = document.createElement("td");
+		lecturerCourseCell.textContent = verbalDataMap["lecturer"].surname + " " + verbalDataMap["lecturer"].name;
+		row.appendChild(lecturerCourseCell);
+
+		var temp = document.createElement("td");
+		row.appendChild(temp);
+		var temp = document.createElement("td");
+		row.appendChild(temp);
+
+		dataRecapTableBody.appendChild(row);
+		
+
+
+		let studentsData = verbalDataMap["students"];
+		studentsData.forEach(function(student) {
+			row = document.createElement("tr");
+			
+			idStudentCell = document.createElement("td");
+			idStudentCell.textContent = student.id;
+			row.appendChild(idStudentCell);
+
+			surnameStudentCell = document.createElement("td");
+			surnameStudentCell.textContent = student.surname;
+			row.appendChild(surnameStudentCell);
+
+			nameStudentCell = document.createElement("td");
+			nameStudentCell.textContent = student.name;
+			row.appendChild(nameStudentCell);
+
+			emailStudentCell = document.createElement("td");
+			emailStudentCell.textContent = student.email;
+			row.appendChild(emailStudentCell);
+
+			degreeCourseCell = document.createElement("td");
+			degreeCourseCell.textContent = student.degreeCourse.name;
+			row.appendChild(degreeCourseCell);
+			
+			verbalSubscribersBody.appendChild(row);
+		});
+
+		this.modalContainer.style.display = "block";
+		this.modalContainer.classList.add("show");
+		this.backgroundBlur.classList.remove("hidden");
+	}
+
+};
+
+
+function PageOrchestrator() {
 	this.start = function() {
 		personalMessage = new WelcomeMessage(sessionStorage.getItem("username"), document.getElementById("id_username"));
 		personalMessage.show();
 
+		var alertContainer = document.getElementById("id_alert");
+		alertHandler = new AlertHandler(
+			alertContainer
+		)
+
 		coursesList = new CoursesList(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_coursesContainer"),
 			document.getElementById("id_coursesContainerBody")
 		);
 
 		callsList = new CallsList(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_callsContainer"),
 			document.getElementById("id_callsContainerBody")
 		);
 
 		buttonLine = new ButtonLine(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_buttonContainer")
 		)
 		buttonLine.registerEvent(this);
 		subscribersList = new SubscribersList(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_subscribersContainer"),
 			document.getElementById("id_subscribersContainerBody"),
 			buttonLine
 		);
 
 		wizardSingleMark = new WizardSingleMark(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_modifyContainer"),
 			document.getElementById("id_modifyMarkForm")
 		);
 		wizardSingleMark.registerEvent(this);
 
-		modalBlock = new ModalBlock(
-			alertContainer,
-			document.getElementById("id_modalContainer"),
+		modalMultipleMarks = new ModalMultipleMarks(
+			alertHandler,
+			document.getElementById("id_modalMultipleMarkContainer"),
+			document.getElementById("id_modalMultipleMarkHeader"),
+			document.getElementById("id_modalMultipleMarkBody"),
 			document.getElementById("id_blurryOverlay")
 		);
+		modalMultipleMarks.registerEvent(this);
 
+		modalVerbalRecap = new ModalVerbalRecap(
+			alertHandler,
+			document.getElementById("id_modalVerbalContainer"),
+			document.getElementById("id_modalVerbalHeader"),
+			document.getElementById("id_modalVerbalBody"),
+			document.getElementById("id_blurryOverlay")
+		)
 
 		document.querySelector("a[href='Logout']").addEventListener("click", function() {
 			window.sessionStorage.removeItem("username");
@@ -783,12 +1030,13 @@ function PageOrchestrator() {
 	};
 
 	this.refresh = function(currentCourse, currentCall) {
-		alertContainer.textContent = "";
+		alertHandler.reset();
 		coursesList.reset();
 		callsList.reset();
 		subscribersList.reset();
 		wizardSingleMark.reset();
-		modalBlock.reset();
+		modalMultipleMarks.reset();
+		modalVerbalRecap.reset();
 
 		//Refresh page
 		coursesList.show(function() {

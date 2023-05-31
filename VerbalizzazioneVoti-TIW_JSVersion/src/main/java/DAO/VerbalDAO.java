@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,15 +69,21 @@ public class VerbalDAO {
 
 	public int createVerbal(Date creationDate, Time creationTime, int call_id) throws SQLException {
 		String query = "INSERT INTO verbals (CreationDate, CreationTime, ID_Call) VALUES (?,?,?)";
-		int code = 0;
 
 		PreparedStatement pstatement = null;
 		try {
-			pstatement = connection.prepareStatement(query);
+			pstatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS );
 			pstatement.setDate(1, creationDate);
 			pstatement.setTime(2, creationTime);
 			pstatement.setInt(3, call_id);
-			code = pstatement.executeUpdate();
+			pstatement.executeUpdate();
+			
+			ResultSet generatedKeys = pstatement.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating user failed, no ID obtained.");
+			}
 		} catch (SQLException e) {
 			throw new SQLException("Failure in creating a new verbal");
 		} finally {
@@ -88,7 +95,6 @@ public class VerbalDAO {
 
 			}
 		}
-		return code;
 	}
 
 	public int saveStudentsWithinVerbal(int call_id, List<User> students) throws SQLException {

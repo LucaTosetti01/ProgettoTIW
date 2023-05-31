@@ -85,8 +85,7 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
 			ceDAO.checkIfAnyMarkIsVerbalizable();
 			
-			ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
-			verbalId = vDAO.findVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
+			verbalId = ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print("Incorrect param value");
@@ -100,6 +99,11 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			response.getWriter().print(e.getMessage());
 			return;
 		}
+		
+		String json = new Gson().toJson(verbalId);
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(json);
 	}
 
 	@Override

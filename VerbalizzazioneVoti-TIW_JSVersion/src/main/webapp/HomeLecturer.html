@@ -4,170 +4,239 @@
 <meta charset="UTF-8">
 <title>Lecturer's Home</title>
 <link rel="stylesheet" type="text/css" media="all"
+	href="bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" media="all"
 	href="CSS/mystyle.css" />
 <script src="utils.js" charset="utf-8" defer></script>
 <script src="LecturerHomePageHandler.js" charset="utf-8" defer></script>
 <script src="sort.js" charset="utf-8" defer></script>
 </head>
 <body>
-	<div align="right">
-		<a href="Logout">Logout</a>
-	</div>
-	<h1>Home Page lecturer</h1>
-	<h3>
-		Welcome to your home page: <span id="id_username"></span>
-	</h3>
-
-	<div id="id_generalContainer">
-		<table id="id_coursesCallsContainer">
-			<tr>
-				<td>
-					<div>
-						<p>List of courses taught by you</p>
-						<table id="id_coursesContainer">
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Name</th>
-									<th>Description</th>
-								</tr>
-							</thead>
-							<tbody id="id_coursesContainerBody">
-							</tbody>
-						</table>
-					</div>
-				</td>
-				<td>
-					<div id="id_callsContainer">
-						<p></p>
-						<table>
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Date</th>
-									<th>Time</th>
-								</tr>
-							</thead>
-							<tbody id="id_callsContainerBody">
-							</tbody>
-						</table>
-					</div>
-				</td>
-			</tr>
-		</table>
-
-
-		<table>
-			<tr>
-				<td>
-					<div id="id_subscribersContainer">
-						<p></p>
-						<table>
-							<thead>
-								<tr>
-									<th id="id_ID">ID<span></span></th>
-									<th id="id_Surname">Surname<span></span></th>
-									<th id="id_Name">Name<span></span></th>
-									<th id="id_Email">Email<span></span></th>
-									<th id="id_DegreeCourse">Degree course<span></span></th>
-									<th id="id_Mark">Mark<span></span></th>
-									<th id="id_EvaluationState">Evaluation state<span></span></th>
-								</tr>
-							</thead>
-							<tbody id="id_subscribersContainerBody">
-							</tbody>
-						</table>
-					</div>
-				</td>
-				<td>
-					<div id="id_modifyContainer">
-						<p></p>
-						<form id="id_modifyMarkForm" action="#">
-							<p>
-								ID: <span id="id_IDForm"></span>
-							</p>
-							<p>
-								Name: <span id="id_nameForm"></span>
-							</p>
-							<p>
-								Surname: <span id="id_surnameForm"></span>
-							</p>
-							<p>
-								Email: <span id="id_emailForm"></span>
-							</p>
-							<p>
-								Degree course: <span id="id_degreeCourseForm"></span>
-							</p>
-							<p>
-								Mark: <select id="id_markForm" name="newMark">
-								</select>
-							</p>
-							<input type="button" name="updateMark" value="Modify"> <input
-								type="hidden" name="studentid"> <input type="hidden"
-								name="callid">
-						</form>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<div id="id_buttonContainer">
-						<form id="id_publishForm" action="#">
-							<input type="hidden" name="callid"> <input type="button"
-								name="publishButton" value="Publish">
-						</form>
-
-						<form id="id_verbalizeForm" action="#">
-							<input type="hidden" name="callid"> <input type="button"
-								name="verbalizeButton" value="Verbalize">
-						</form>
-						<input type="button" name="openModalButton" class="btn btn-open"
-							value="Multiple insertion">
-					</div>
-				</td>
-			</tr>
-		</table>
-
-		<div class="center">
-			<section id="id_modalContainer" class="modal hidden">
-				<div class="flex">
-					<button class="btn-close">⨉</button>
-				</div>
-				<form>
-					<div>
-						<p></p>
-						<table id="id_modalTable">
-							<thead>
-								<tr>
-									<th id="checkBoxColumn"></th>
-									<th id="id_ID">ID<span></span></th>
-									<th id="id_Surname">Surname<span></span></th>
-									<th id="id_Name">Name<span></span></th>
-									<th id="id_Email">Email<span></span></th>
-									<th id="id_DegreeCourse">Degree course<span></span></th>
-									<th id="id_Mark">Mark<span></span></th>
-									<th id="id_EvaluationState">Evaluation state<span></span></th>
-								</tr>
-							</thead>
-							<tbody id="id_modalTableBody">
-							</tbody>
-						</table>
-					</div>
-					<p>
-						Mark: <select name="newMark">
-						</select>
-					</p>
-					<input type="button" name="insertMark" value="Insert marks"
-						class="btn">
-				</form>
-			</section>
-			<div id="id_blurryOverlay" class="overlay hidden"></div>
-
+	<div class="container-fluid">
+		<div align="right">
+			<a href="Logout">Logout</a>
 		</div>
-	</div>
-	<br>
-	<br>
+		<h1>Home Page lecturer</h1>
+		<h3>
+			Welcome to your home page: <span id="id_username"></span>
+		</h3>
 
-	<div id="id_alert" class="alertmessage"></div>
+		<div id="id_generalContainer" >
+			<table id="id_coursesCallsContainer" class="div-lg">
+				<tr>
+					<td>
+						<div>
+							<p>List of courses taught by you</p>
+							<table id="id_coursesContainer"
+								class="table table-striped table-hover table-bordered">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Name</th>
+										<th>Description</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="id_coursesContainerBody">
+								</tbody>
+							</table>
+						</div>
+					</td>
+					<td>
+						<div id="id_callsContainer">
+							<p></p>
+							<table class="table table-striped table-hover table-bordered">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th class="td-nowrap">Date</th>
+										<th>Time</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="id_callsContainerBody">
+								</tbody>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>
+
+
+			<table id="id_subscribersModifyContainer" class="hidden">
+				<tr>
+					<td>
+						<div id="id_subscribersContainer">
+							<p></p>
+							<table class="table table-striped table-hover table-bordered">
+								<thead>
+									<tr>
+										<th id="id_ID">ID<span></span></th>
+										<th id="id_Surname">Surname<span></span></th>
+										<th id="id_Name">Name<span></span></th>
+										<th id="id_Email">Email<span></span></th>
+										<th id="id_DegreeCourse">Degree course<span></span></th>
+										<th id="id_Mark">Mark<span></span></th>
+										<th id="id_EvaluationState">Evaluation state<span></span></th>
+									</tr>
+								</thead>
+								<tbody id="id_subscribersContainerBody">
+								</tbody>
+							</table>
+						</div>
+					</td>
+					<td>
+						<div id="id_modifyContainer">
+							<p></p>
+							<form id="id_modifyMarkForm" action="#">
+								<div class="row justify-content-md-center">
+									<label class="col col-sm-2">ID:</label> <label
+										class="col-md-auto" id="id_IDForm"></label>
+								</div>
+
+								<!-- <div class="row form-group">
+									<label class="col-sm-2 col-form-label">ID: </label>
+									<div id="id_IDForm" class="col-sm-10"></div>
+									
+								</div> -->
+								<div class="form-group">
+									<label> Name: <span id="id_nameForm"></span>
+									</label>
+								</div>
+								<div class="form-group">
+									<label> Surname: <span id="id_surnameForm"></span>
+									</label>
+								</div>
+								<div class="form-group">
+									<label> Email: <span id="id_emailForm"></span>
+									</label>
+								</div>
+								<div class="form-group">
+									<label> Degree course: <span id="id_degreeCourseForm"></span>
+									</label>
+								</div>
+								<div class="form-group">
+									<label> Mark: <select id="id_markForm" name="newMark">
+									</select>
+									</label>
+								</div>
+								<input type="button" name="updateMark" value="Modify"> <input
+									type="hidden" name="studentid"> <input type="hidden"
+									name="callid">
+							</form>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div id="id_buttonContainer" class="btn-group btn-group-justified">
+							<form id="id_publishForm" action="#">
+								<input type="hidden" name="callid" class="btn btn-primary">
+								<input type="button" name="publishButton" value="Publish"
+									class="btn btn-primary">
+							</form>
+
+							<form id="id_verbalizeForm" action="#">
+								<input type="hidden" name="callid"> <input type="button"
+									name="verbalizeButton" value="Verbalize"
+									class="btn btn-primary">
+							</form>
+							<input type="button" name="openModalButton"
+								value="Multiple insertion" class="btn btn-primary">
+						</div>
+					</td>
+				</tr>
+			</table>
+
+			<div id="id_modalMultipleMarkContainer" class="modal fade"
+				role="dialog" style="z-index: 2">
+				<div class="modal-dialog modal-lg">
+
+					<div class="modal-content">
+						<div id="id_modalMultipleMarkHeader" class="modal-header">
+							<button type="button" class="btn-close" aria-label="Close"></button>
+						</div>
+						<div id="id_modalMultipleMarkBody" class="modal-body">
+							<form>
+								<div>
+									<p></p>
+									<table class="table modalTable">
+										<thead>
+											<tr>
+												<th id="id_ID">ID</th>
+												<th id="id_Surname">Surname</th>
+												<th id="id_Name">Name</th>
+												<th id="id_Email">Email</th>
+												<th id="id_DegreeCourse">Degree course</th>
+												<th id="id_EvaluationState">Evaluation state<span></span></th>
+												<th id="id_selectColumn">Mark</th>
+											</tr>
+										</thead>
+										<tbody class="modalTableBody">
+										</tbody>
+									</table>
+								</div>
+								<input type="button" name="insertMark" value="Insert marks"
+									class="btn btn-primary max-width"> <input type="hidden"
+									name="callid">
+							</form>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pagina modale per rappresentare il recap del verbale appena creato -->
+		<div id="id_modalVerbalContainer" class="modal fade" role="dialog"
+			style="z-index: 2">
+			<div class="modal-dialog  modal-lg">
+
+				<div class="modal-content">
+					<div id="id_modalVerbalHeader" class="modal-header">
+						<button type="button" class="btn-close" aria-label="Close"></button>
+					</div>
+					<div id="id_modalVerbalBody" class="modal-body">
+						<p></p>
+						<table
+							class="table table-striped table-hover table-bordered modalTable">
+							<thead>
+								<tr>
+									<th colspan="2">Verbal's data</th>
+									<th colspan="2">Course's data</th>
+									<th colspan="2">Call's data</th>
+								</tr>
+							</thead>
+							<tbody class="modalTableBody">
+							</tbody>
+						</table>
+						<table
+							class="table table-striped table-hover table-bordered modalTable">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Surname</th>
+									<th>Name</th>
+									<th>Email</th>
+									<th>Degree course</th>
+								</tr>
+							</thead>
+							<tbody class="modalTableBody">
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<br> <br>
+
+		<div id="id_alert" class="alert alert-warning alert-dismissible">
+			<a href="#" class="btn btn-close btn-sm" aria-label="close"></a> <label></label>
+		</div>
+
+		<div id="id_blurryOverlay" class="bg-blurred hidden"></div>
+	</div>
 </body>
 </html>
