@@ -11,7 +11,7 @@ let pageOrchestrator = new PageOrchestrator(); 	//Main controller
 
 window.addEventListener("load", function() {
 	//Eventi bottoni
-	if (sessionStorage.getItem("username") == null) {
+	if (JSON.parse(sessionStorage.getItem("user")) == null) {
 		window.location.href = "index.html";
 	} else {
 		pageOrchestrator.start();		//Initialize page components
@@ -183,18 +183,21 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 						//subscribers component otherwhise i would have a error message
 						//with the subiscribers of another course (if precedently I've selected
 						//a course which had some calls)
-						//subscribersList.reset();
+						subscribersList.reset();
+						self.reset();
 						return;
 					}
 					self.alert.reset();
+					subscribersList.reset();
 					self.update(callsToShow);
 					if (showDefaultFunction) showDefaultFunction();
 					self.listContainer.classList.remove("hidden");
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
-					window.sessionStorage.removeItem('username');
+					window.sessionStorage.removeItem('user');
 				} else {
 					self.alert.update(message);
+					self.reset();
 				}
 			}
 		});
@@ -288,6 +291,7 @@ function SubscribersList(_alert, _listContainer, _listContainerBody, _buttonLine
 	};
 
 	this.show = function(callId) {
+		wizardSingleMark.reset();
 		let self = this;
 		this.listContainer.querySelector("p").textContent = "List of students subscribed to the call: " + callId;
 		let urlToCall = "GetSubscriptionToCall?callid=" + callId;
@@ -386,13 +390,14 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 	this.alert = _alert;
 
 	this.reset = function() {
-		this.wizardContainer.style.visibility = "hidden";
-		this.wizard.style.visibility = "hidden";
+		this.wizardContainer.classList.add("hidden");
+		//this.wizard.style.visibility = "hidden";
 	}
 
 	this.show = function(studentId, callId) {
 		let self = this;
-		this.wizard.parentNode.querySelector("p").textContent = "Modify mark of student: " + studentId + ", call: " + callId;
+		this.wizard.parentNode.querySelector("h4").textContent = "Modify mark";
+		this.wizard.parentNode.querySelector("p").textContent = "Student: " + studentId + "\u2003-\u2003Call: " + callId;
 		this.wizard.studentid.value = studentId;
 		this.wizard.callid.value = callId;
 
@@ -410,7 +415,6 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 					}
 					self.alert.reset();
 					self.update(studentDataToShow);
-					self.wizard.style.visibility = "visible";
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
@@ -430,12 +434,12 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 		let studentDegreeCourse = studentDataMap["student"].degreeCourse.name;
 		let evaluationMark = studentDataMap["evaluation"].mark;
 		this.wizard.querySelector("#id_IDForm").textContent = studentId;
-		this.wizard.querySelector("label > #id_nameForm").textContent = studentName;
-		this.wizard.querySelector("label > #id_surnameForm").textContent = studentSurname;
-		this.wizard.querySelector("label > #id_emailForm").textContent = studentEmail;
-		this.wizard.querySelector("label > #id_degreeCourseForm").textContent = studentDegreeCourse;
+		this.wizard.querySelector("#id_nameForm").textContent = studentName;
+		this.wizard.querySelector("#id_surnameForm").textContent = studentSurname;
+		this.wizard.querySelector("#id_emailForm").textContent = studentEmail;
+		this.wizard.querySelector("#id_degreeCourseForm").textContent = studentDegreeCourse;
 
-		let markSelect = this.wizard.querySelector("label > #id_markForm");
+		let markSelect = this.wizard.querySelector("#id_markForm");
 		let possibleMarkValues = ["", "Assente", "Rimandato", "Riprovato", "18", "19",
 			"20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "30L"];
 
@@ -449,7 +453,7 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 			markSelect.appendChild(optionTag);
 		});
 
-
+		this.wizardContainer.classList.remove("hidden");
 	}
 
 	this.registerEvent = function(orchestrator) {
@@ -540,9 +544,8 @@ function ButtonLine(_alert, _buttonsContainer) {
 		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
 
 
-		verbalizeButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
-		publishButton.parentNode.querySelector("input[name='callid']").value = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
-
+		document.getElementById("id_buttonContainer").querySelector("input[name='callid']").value = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
+	
 
 		if (numberOfVerbalizableMarks < 1) {
 			verbalizeButton.classList.add("disabled");
@@ -560,7 +563,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 
 	this.registerEvent = function(orchestrator) {
 		let self = this;
-		let publishButton = document.getElementById("id_publishForm").querySelector("input[name='publishButton']");
+		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
 
 		publishButton.addEventListener('click', function(e) {
 			let form = e.target.closest("form");
@@ -582,7 +585,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 			});
 		});
 
-		let verbalizeButton = document.getElementById("id_verbalizeForm").querySelector("input[name='verbalizeButton']");
+		let verbalizeButton = this.buttonsContainer.querySelector("input[name='verbalizeButton']");
 
 		verbalizeButton.addEventListener('click', function(e) {
 			let form = e.target.closest("form");
@@ -966,7 +969,7 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 
 function PageOrchestrator() {
 	this.start = function() {
-		personalMessage = new WelcomeMessage(sessionStorage.getItem("username"), document.getElementById("id_username"));
+		personalMessage = new WelcomeMessage(JSON.parse(sessionStorage.getItem("user")).username, document.getElementById("id_username"));
 		personalMessage.show();
 
 		var alertContainer = document.getElementById("id_alert");
@@ -991,6 +994,7 @@ function PageOrchestrator() {
 			document.getElementById("id_buttonContainer")
 		)
 		buttonLine.registerEvent(this);
+		
 		subscribersList = new SubscribersList(
 			alertHandler,
 			document.getElementById("id_subscribersContainer"),

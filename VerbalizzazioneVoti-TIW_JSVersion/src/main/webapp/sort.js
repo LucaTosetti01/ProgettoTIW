@@ -16,7 +16,9 @@ function getCellValue(tr, idx) {
 function resetArrows(rowHeaders){
   for (let j = 0; j < rowHeaders.length; j++ ){
     var toReset =   rowHeaders[j].querySelector("span");
-    toReset.innerHTML = "";
+    if(toReset !== null) {
+		toReset.innerHTML = "";
+	}
   }
   
 }

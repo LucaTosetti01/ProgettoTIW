@@ -13,15 +13,17 @@
 </head>
 <body>
 	<div class="container-fluid">
-		<div align="right">
-			<a href="Logout">Logout</a>
-		</div>
-		<h1>Home Page lecturer</h1>
-		<h3>
-			Welcome to your home page: <span id="id_username"></span>
-		</h3>
+		<div class="page-header">
+			<div>
+				<h1>Home Page lecturer</h1>
+				<h3>
+					Welcome to your home page: <span id="id_username"></span>
+				</h3>
+			</div>
+			<a class="btn btn-info" href="Logout">Logout</a>
 
-		<div id="id_generalContainer" >
+		</div>
+		<div id="id_generalContainer">
 			<table id="id_coursesCallsContainer" class="div-lg">
 				<tr>
 					<td>
@@ -78,6 +80,7 @@
 										<th id="id_DegreeCourse">Degree course<span></span></th>
 										<th id="id_Mark">Mark<span></span></th>
 										<th id="id_EvaluationState">Evaluation state<span></span></th>
+										<th></th>
 									</tr>
 								</thead>
 								<tbody id="id_subscribersContainerBody">
@@ -86,12 +89,15 @@
 						</div>
 					</td>
 					<td>
-						<div id="id_modifyContainer">
-							<p></p>
+						<div id="id_modifyContainer" class="form">
+							<div class="modify-title">
+								<h4></h4>
+								<p>PROVA</p>
+							</div>
 							<form id="id_modifyMarkForm" action="#">
-								<div class="row justify-content-md-center">
-									<label class="col col-sm-2">ID:</label> <label
-										class="col-md-auto" id="id_IDForm"></label>
+								<div class="row justify-content-around">
+									<label class="col">ID:</label> <label class="col"
+										id="id_IDForm"></label>
 								</div>
 
 								<!-- <div class="row form-group">
@@ -99,62 +105,73 @@
 									<div id="id_IDForm" class="col-sm-10"></div>
 									
 								</div> -->
-								<div class="form-group">
-									<label> Name: <span id="id_nameForm"></span>
-									</label>
+
+								<div class="row justify-content-around">
+									<label class="col justify-content-around"> Name: </label> <label
+										class="col justify-content-around" id="id_nameForm"></label>
 								</div>
-								<div class="form-group">
-									<label> Surname: <span id="id_surnameForm"></span>
-									</label>
+								<div class="row justify-content-around">
+									<label class="col"> Surname: </label> <label class="col"
+										id="id_surnameForm"></label>
 								</div>
-								<div class="form-group">
-									<label> Email: <span id="id_emailForm"></span>
-									</label>
+								<div class="row justify-content-around">
+									<label class="col"> Email: </label> <label class="col"
+										id="id_emailForm"></label>
 								</div>
-								<div class="form-group">
-									<label> Degree course: <span id="id_degreeCourseForm"></span>
-									</label>
+								<div class="row justify-content-around">
+									<label class="col"> Degree course: </label> <label class="col"
+										id="id_degreeCourseForm"></label>
 								</div>
-								<div class="form-group">
-									<label> Mark: <select id="id_markForm" name="newMark">
-									</select>
-									</label>
+								<div class="row align-items-center justify-content-around">
+									<label class="col"> Mark: </label>
+									<div class="col">
+										<select id="id_markForm" name="newMark"></select>
+									</div>
+
 								</div>
-								<input type="button" name="updateMark" value="Modify"> <input
-									type="hidden" name="studentid"> <input type="hidden"
-									name="callid">
+								<input type="button" name="updateMark" value="Modify"
+									class="btn btn-primary max-width"> <input type="hidden"
+									name="studentid"> <input type="hidden" name="callid">
 							</form>
 						</div>
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<div id="id_buttonContainer" class="btn-group btn-group-justified">
+						<div id="id_buttonContainer">
 							<form id="id_publishForm" action="#">
-								<input type="hidden" name="callid" class="btn btn-primary">
-								<input type="button" name="publishButton" value="Publish"
-									class="btn btn-primary">
+								<div class="btn-group btn-group-justified max-width">
+									<div class="btn-group input-group">
+										<input type="button" name="publishButton" value="Publish"
+											class="btn btn-primary">
+									</div>
+									<div class="btn-group input-group">
+										<input type="button" name="verbalizeButton" value="Verbalize"
+											class="btn btn-primary">
+									</div>
+									<div class="btn-group input-group">
+										<input type="button" name="openModalButton"
+											value="Multiple insertion" class="btn btn-primary">
+									</div>
+								</div>
+								<input type="hidden" name="callid">
 							</form>
-
-							<form id="id_verbalizeForm" action="#">
-								<input type="hidden" name="callid"> <input type="button"
-									name="verbalizeButton" value="Verbalize"
-									class="btn btn-primary">
-							</form>
-							<input type="button" name="openModalButton"
-								value="Multiple insertion" class="btn btn-primary">
+							<div class="btn-group"></div>
 						</div>
 					</td>
 				</tr>
 			</table>
 
 			<div id="id_modalMultipleMarkContainer" class="modal fade"
-				role="dialog" style="z-index: 2">
+				role="dialog">
 				<div class="modal-dialog modal-lg">
 
 					<div class="modal-content">
-						<div id="id_modalMultipleMarkHeader" class="modal-header">
-							<button type="button" class="btn-close" aria-label="Close"></button>
+						<div class="modal-header-bg">
+							<div id="id_modalMultipleMarkHeader" class="modal-header">
+								<h3>MULTIPLE MARK INSERTION</h3>
+								<button type="button" class="btn-close" aria-label="Close"></button>
+							</div>
 						</div>
 						<div id="id_modalMultipleMarkBody" class="modal-body">
 							<form>
@@ -170,6 +187,7 @@
 												<th id="id_DegreeCourse">Degree course</th>
 												<th id="id_EvaluationState">Evaluation state<span></span></th>
 												<th id="id_selectColumn">Mark</th>
+
 											</tr>
 										</thead>
 										<tbody class="modalTableBody">
@@ -193,8 +211,11 @@
 			<div class="modal-dialog  modal-lg">
 
 				<div class="modal-content">
-					<div id="id_modalVerbalHeader" class="modal-header">
-						<button type="button" class="btn-close" aria-label="Close"></button>
+					<div class="modal-header-bg">
+						<div id="id_modalVerbalHeader" class="modal-header">
+							<h3>VERBAL'S DATA</h3>
+							<button type="button" class="btn-close" aria-label="Close"></button>
+						</div>
 					</div>
 					<div id="id_modalVerbalBody" class="modal-body">
 						<p></p>
@@ -228,7 +249,6 @@
 				</div>
 			</div>
 		</div>
-
 
 		<br> <br>
 

@@ -58,7 +58,9 @@ public class UpdateStudentMark extends HttpServlet {
 			sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
 			ceDAO.checkIfMarkFormatIsCorrect(newMark);
 			
-			ceDAO.updateMarkByStudentAndCallId(studentId, callId, newMark);
+			if(!newMark.equals("")) {
+				ceDAO.updateMarkByStudentAndCallId(studentId, callId, newMark);
+			}
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print("Incorrect param values");

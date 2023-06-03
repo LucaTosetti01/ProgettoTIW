@@ -73,7 +73,7 @@ public class CheckLogin extends HttpServlet {
 			RequestDispatcher ds = request.getRequestDispatcher(redirectionPath);
 			ds.forward(request, response);*/
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Username or Password are incorrect, please retry");
+			response.getWriter().print("Username or Password are incorrect, please retry");
 			
 		} else {
 			String json = new Gson().toJson(user);
@@ -81,7 +81,7 @@ public class CheckLogin extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			response.getWriter().println(json);
+			response.getWriter().print(json);
 		}
 
 	}
