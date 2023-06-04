@@ -49,8 +49,7 @@ public class GetMarkManagement extends HttpServlet {
 
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
-		
-		String error = (String) request.getAttribute("errorMessage");
+
 		try {
 			studentId = Integer.parseInt(request.getParameter("studentid"));
 			callId = Integer.parseInt(request.getParameter("callid"));

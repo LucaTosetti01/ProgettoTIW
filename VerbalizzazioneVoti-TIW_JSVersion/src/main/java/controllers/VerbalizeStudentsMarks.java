@@ -48,12 +48,27 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int numberOfVerbalizableMarks;
+		Integer callId = null;
 		
-		CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+		HttpSession session = request.getSession();
+		User lecLogged = (User) session.getAttribute("user");
 		try {
-			numberOfVerbalizableMarks = ceDAO.getNumberOfVerbalizableMarks();
+			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+			
+			callId = Integer.parseInt(request.getParameter("callid"));
+			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			numberOfVerbalizableMarks = ceDAO.getNumberOfVerbalizableMarks(callId);
+		} catch (NumberFormatException | NullPointerException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
+			return;
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().print(e.getMessage());
+			return;
+		} catch (GraduationCallDAOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print(e.getMessage());
 			return;
 		}
@@ -79,11 +94,10 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			callId = Integer.parseInt(request.getParameter("callid"));
 		
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
-			VerbalDAO vDAO = new VerbalDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			ceDAO.checkIfAnyMarkIsVerbalizable();
+			ceDAO.checkIfAnyMarkIsVerbalizable(callId);
 			
 			verbalId = ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
 		} catch (NumberFormatException | NullPointerException e) {

@@ -47,8 +47,6 @@ public class GetSubscriptionToCall extends HttpServlet {
 		// Local variables initializations
 		Integer callId = null;
 		Map<User, CallEvaluation> studentsWithEvaluations = null;
-		GraduationCall call = null;
-		// I initialize this var at 1, so that if an error occur
 
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
@@ -66,9 +64,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 			// Retrieving a map of students and their respective evaluations ordered using
 			// "orderBy" and "orderType"
 			studentsWithEvaluations = sDAO.findAllRegistrationsAndEvaluationToCallOrdered(callId, "ID", "ASC");
-			call = gcDAO.findGraduationCallById(callId);
 
-			// Splitting the map into 2 different lists but still maintaining the order;
 
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

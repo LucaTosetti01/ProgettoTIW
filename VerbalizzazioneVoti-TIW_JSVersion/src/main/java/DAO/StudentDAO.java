@@ -444,7 +444,7 @@ public class StudentDAO {
 			
 			//If the result has no rows, i throw an exception
 			if (!result.isBeforeFirst()) {
-				throw new StudentDAOException("The chosen student is not subscribed to the call which is being considered");
+				throw new StudentDAOException("You are not subscribed to the chosen call");
 			}
 			result.next();
 			//numberOfRows = result.getInt("Counter");

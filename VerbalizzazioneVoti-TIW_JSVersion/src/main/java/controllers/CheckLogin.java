@@ -65,13 +65,7 @@ public class CheckLogin extends HttpServlet {
 			response.getWriter().println("Failure in db credentials checking");
 		}
 
-		String redirectionPath = getServletContext().getContextPath();
 		if (user == null) {
-			redirectionPath = "/index.html";
-			//request.setAttribute("errorMessage", "Username or Password are incorrect, please retry!");
-			/*System.out.print(request.getAttribute("errorMessage"));
-			RequestDispatcher ds = request.getRequestDispatcher(redirectionPath);
-			ds.forward(request, response);*/
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().print("Username or Password are incorrect, please retry");
 			

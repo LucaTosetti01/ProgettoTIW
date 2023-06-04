@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import DAO.CallEvaluationDAO;
 import DAO.StudentDAO;
 import beans.User;
+import exceptions.CallEvaluationDAOException;
 import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
@@ -43,8 +44,13 @@ public class RefuseMark extends HttpServlet {
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
 			
+			//Check if the student is effectively subscribed to the call sent
 			sDAO.checkIfStudentIsSubscribedToCall(studLogged.getId(), callId);;
 			
+			//Check if the mark of the call, is "PUBBLICATO", if it's not i can't refuse the mark because it's not published yet
+			ceDAO.checkIfStudentMarkIsRefusable(studLogged.getId(), callId);
+			
+			//I refuse the student mark
 			ceDAO.updateEvaluationStateByStudentAndCallId(studLogged.getId(), callId, "Rifiutato");
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -54,7 +60,7 @@ public class RefuseMark extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().print(e.getMessage());
 			return;
-		} catch(StudentDAOException e) {
+		} catch(StudentDAOException | CallEvaluationDAOException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print(e.getMessage());
 			return;

@@ -40,16 +40,31 @@ public class PublishStudentsMarks extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int numberOfPublishableMarks;
-		
-		CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+		Integer callId = null;
+
+		HttpSession session = request.getSession();
+		User lecLogged = (User) session.getAttribute("user");
 		try {
-			numberOfPublishableMarks = ceDAO.getNumberOfPublishableMarks();
+			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
+			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+			
+			callId = Integer.parseInt(request.getParameter("callid"));
+			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			numberOfPublishableMarks = ceDAO.getNumberOfPublishableMarks(callId);
+		} catch (NumberFormatException | NullPointerException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print("Incorrect param value");
+			return;
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().print(e.getMessage());
 			return;
+		} catch (GraduationCallDAOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().print(e.getMessage());
+			return;
 		}
-		
+
 		String json = new Gson().toJson(numberOfPublishableMarks);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
@@ -71,8 +86,8 @@ public class PublishStudentsMarks extends HttpServlet {
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			ceDAO.checkIfAnyMarkIsPublishable();
-			
+			ceDAO.checkIfAnyMarkIsPublishable(callId);
+
 			ceDAO.publishAllMarksByCallId(callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

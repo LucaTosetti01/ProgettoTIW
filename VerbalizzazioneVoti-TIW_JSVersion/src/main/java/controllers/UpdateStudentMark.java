@@ -58,6 +58,7 @@ public class UpdateStudentMark extends HttpServlet {
 			sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
 			ceDAO.checkIfMarkFormatIsCorrect(newMark);
 			
+			//I ignore the update if the mark sent is equals to ""
 			if(!newMark.equals("")) {
 				ceDAO.updateMarkByStudentAndCallId(studentId, callId, newMark);
 			}

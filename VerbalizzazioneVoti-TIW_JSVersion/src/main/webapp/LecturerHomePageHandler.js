@@ -10,8 +10,8 @@ let alertHandler;
 let pageOrchestrator = new PageOrchestrator(); 	//Main controller
 
 window.addEventListener("load", function() {
-	//Eventi bottoni
-	if (JSON.parse(sessionStorage.getItem("user")) == null) {
+	let userLogged = JSON.parse(sessionStorage.getItem("user"));
+	if (userLogged == null || userLogged.role !== "Lecturer") {
 		window.location.href = "index.html";
 	} else {
 		pageOrchestrator.start();		//Initialize page components
@@ -308,7 +308,7 @@ function SubscribersList(_alert, _listContainer, _listContainerBody, _buttonLine
 					}
 					self.alert.reset();
 					document.getElementById("id_subscribersModifyContainer").classList.remove("hidden");
-					self.buttonLine.show();
+					self.buttonLine.show(callId);
 					self.update(subscribersToShow);
 					self.listContainer.classList.remove("hidden");
 				} else if (req.status == 403) {
@@ -389,6 +389,10 @@ function WizardSingleMark(_alert, _wizardContainer, _wizard) {
 	this.wizard = _wizard;
 	this.alert = _alert;
 
+	let self = this;
+	this.wizardContainer.querySelector("div > button").addEventListener("click", function(e) {
+		self.reset();
+	})
 	this.reset = function() {
 		this.wizardContainer.classList.add("hidden");
 		//this.wizard.style.visibility = "hidden";
@@ -500,9 +504,9 @@ function ButtonLine(_alert, _buttonsContainer) {
 		this.buttonsContainer.style.visibility = "hidden";
 	}
 
-	this.show = function() {
+	this.show = function(callId) {
 		let self = this;
-		makeCall("GET", "VerbalizeStudentsMarks", null, function(req) {
+		makeCall("GET", "VerbalizeStudentsMarks?callid="+callId, null, function(req) {
 			if (req.readyState === 4) {
 				var message = req.responseText;
 				if (req.status === 200) {
@@ -511,7 +515,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 						self.alert.textContent = "The value of verbalizable marks retrieved, is not a number";
 						return;
 					}
-					makeCall("GET", "PublishStudentsMarks", null, function(req) {
+					makeCall("GET", "PublishStudentsMarks?callid="+callId, null, function(req) {
 						if (req.readyState === 4) {
 							var message = req.responseText;
 							if (req.status === 200) {
@@ -781,8 +785,10 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 	})
 
 	this.reset = function() {
+		//Used to hide the modal on the page
 		this.modalContainer.style.display = "none";
 		this.modalContainer.classList.remove("show");
+		
 		this.backgroundBlur.classList.add("hidden");
 	};
 
@@ -817,7 +823,7 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 		let idStudentCell, surnameStudentCell, nameStudentCell, degreeCourseCell;
 
 		let dataRecapTableBody = this.modalBody.querySelector("table:nth-of-type(1)>tbody");
-		let verbalSubscribersBody = this.modalBody.querySelector("table:nth-of-type(2)>tbody");
+		let verbalSubscribersBody = this.modalBody.querySelector(".scroll-div-modal>table>tbody");
 		
 		dataRecapTableBody.innerHTML = "";
 		verbalSubscribersBody.innerHTML = "";
@@ -826,31 +832,25 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 			self.reset();
 		})
 
-
-		this.modalBody.querySelector("p").textContent = "Verbal's data:";
-		row = document.createElement("tr");
-
-
-
 		
 		//First row
 		row = document.createElement("tr");
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "ID";
 		row.appendChild(temp);
 		idVerbalCell = document.createElement("td");
 		idVerbalCell.textContent = verbalDataMap["verbal"].id;
 		row.appendChild(idVerbalCell);
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "ID";
 		row.appendChild(temp);
 		idCourseCell = document.createElement("td");
 		idCourseCell.textContent = verbalDataMap["course"].id;
 		row.appendChild(idCourseCell);
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "ID";
 		row.appendChild(temp);
 		idCallCell = document.createElement("td");
@@ -861,21 +861,21 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 		//Second row
 		row = document.createElement("tr");
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "Creation date";
 		row.appendChild(temp);
 		CrationDateVerbalCell = document.createElement("td");
 		CrationDateVerbalCell.textContent = verbalDataMap["verbal"].creationDate;
 		row.appendChild(CrationDateVerbalCell);
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "Name";
 		row.appendChild(temp);
 		nameCourseCell = document.createElement("td");
 		nameCourseCell.textContent = verbalDataMap["course"].name;
 		row.appendChild(nameCourseCell);
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "Date";
 		row.appendChild(temp);
 		dateCallCell = document.createElement("td");
@@ -886,21 +886,21 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 		//Third row
 		row = document.createElement("tr");
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "Creation time";
 		row.appendChild(temp);
 		CreationTimeVerbalCell = document.createElement("td");
 		CreationTimeVerbalCell.textContent = verbalDataMap["verbal"].creationTime;
 		row.appendChild(CreationTimeVerbalCell);
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "Description";
 		row.appendChild(temp);
 		descriptionCourseCell = document.createElement("td");
 		descriptionCourseCell.textContent = verbalDataMap["course"].description;
 		row.appendChild(descriptionCourseCell);
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "Time";
 		row.appendChild(temp);
 		timeCallCell = document.createElement("td");
@@ -916,7 +916,7 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 		var temp = document.createElement("td");
 		row.appendChild(temp);
 
-		var temp = document.createElement("td");
+		var temp = document.createElement("th");
 		temp.textContent = "Lecturer";
 		row.appendChild(temp);
 		lecturerCourseCell = document.createElement("td");
@@ -1027,7 +1027,7 @@ function PageOrchestrator() {
 		)
 
 		document.querySelector("a[href='Logout']").addEventListener("click", function() {
-			window.sessionStorage.removeItem("username");
+			window.sessionStorage.removeItem("user");
 		})
 
 

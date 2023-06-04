@@ -4,11 +4,12 @@
 
 let coursesList, callsList, outcome;
 let wizard = null;
+let alertHandler;
 let pageOrchestrator = new PageOrchestrator(); 	//Main controller
 
 window.addEventListener("load", function() {
-	//Eventi bottoni
-	if (sessionStorage.getItem("username") == null) {
+	let userLogged = JSON.parse(sessionStorage.getItem("user"));
+	if (userLogged == null || userLogged.role !== "Student") {
 		window.location.href = "index.html";
 	} else {
 		pageOrchestrator.start();		//Initialize page components
@@ -25,13 +26,34 @@ function WelcomeMessage(_username, messageContainer) {
 	}
 }
 
+function AlertHandler(_alertContainer) {
+	this.alertContainer = _alertContainer;
+
+	//I register the listener on the creation and not with a registerEvent function
+	//because the closure of the alert doesn't require the refresh of all the page
+	let self = this;
+	this.alertContainer.querySelector("a").addEventListener("click", function(e) {
+		e.preventDefault();
+		self.reset();
+	})
+
+	this.reset = function() {
+		this.alertContainer.classList.add("hidden");
+	}
+
+	this.update = function(message) {
+		this.alertContainer.classList.remove("hidden");
+		this.alertContainer.querySelector("label").textContent = message;
+	}
+}
+
 function CoursesList(_alert, _listContainer, _listContainerBody) {
 	this.alert = _alert;
 	this.listContainer = _listContainer;
 	this.listContainerBody = _listContainerBody;
 
 	this.reset = function() {
-		this.listContainer.style.visibility = "hidden";
+		this.listContainer.classList.add("hidden");
 	}
 
 	this.show = function(showDefaultFunction) {
@@ -42,9 +64,10 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 				if (req.status === 200) {
 					var coursesToShow = JSON.parse(req.responseText);
 					if (coursesToShow.length == 0) {
-						self.alert.textContent = "No courses found";
+						self.alert.update("No courses found");
 						return;
 					}
+					self.alert.reset();
 					self.update(coursesToShow);
 					if (showDefaultFunction) showDefaultFunction();
 
@@ -52,7 +75,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem("username");
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 				}
 			}
 		});
@@ -79,6 +102,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 
 			descriptionCell = document.createElement("td");
 			descriptionCell.textContent = course.description;
+			descriptionCell.classList.add("descriptionText");
 			row.appendChild(descriptionCell);
 
 			linkCell = document.createElement("td");
@@ -98,7 +122,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 				//With target = <a> tag, first parentNode = <td> tag, second parentNode = <tr> tag
 				e.target.parentNode.parentNode.classList.add("selectedCourse");
 
-				self.alert.textContent = "";
+				self.alert.reset();
 				outcome.reset();
 				//Actual effect of the listener -> showing calls of the chosen course
 				callsList.show(e.target.getAttribute("courseid"));
@@ -117,7 +141,7 @@ function CoursesList(_alert, _listContainer, _listContainerBody) {
 			*/
 
 		});
-		this.listContainer.style.visibility = "visible";
+		this.listContainer.classList.remove("hidden");
 	};
 
 	this.autoClick = function(courseId) {
@@ -138,7 +162,7 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 	this.listContainerBody = _listContainerBody;
 
 	this.reset = function() {
-		this.listContainer.style.visibility = "hidden";
+		this.listContainer.classList.add("hidden");
 	};
 
 	this.show = function(courseId) {
@@ -152,7 +176,7 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 				if (req.status === 200) {
 					let callsToShow = JSON.parse(req.responseText);
 					if (callsToShow.length === 0) {
-						self.alert.textContent = "No calls found for the course: " + courseId;
+						self.alert.update("No calls found for the course: " + courseId);
 						//Since I didn't found calls i must reset the content of the 
 						//subscribers component otherwhise i would have a error message
 						//with the subiscribers of another course (if precedently I've selected
@@ -163,12 +187,13 @@ function CallsList(_alert, _listContainer, _listContainerBody) {
 					}
 					//self.alert.textContent = "";
 					self.update(callsToShow);
-					self.listContainer.style.visibility = "visible";
+					self.alert.reset();
+					self.listContainer.classList.remove("hidden");
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 					callsList.reset();
 					outcome.reset();
 				}
@@ -244,13 +269,16 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 	this.refuseForm = _refuseForm;
 	this.closeButton = _closeButton;
 
+	let self = this;
+	this.dataContainer.querySelector("input[name='closeWindowOutcome']").addEventListener("click", function(e) {
+		self.reset();
+	})
+
 	this.reset = function() {
-		this.dataContainer.style.visibility = "hidden";
-		this.dataContainerBody.style.visibility = "hidden";
-		this.refuseForm.style.visibility = "hidden";
-		this.refuseForm.querySelector("input[type='button']").style.visibility = "hidden";
-		this.closeButton.style.visibility = "hidden";
-		this.dataContainer.querySelector("p").style.visibility = "hidden";
+		this.dataContainer.classList.add("hidden");
+		
+		//I reset the <p> tag that shows up if a mark is not definied for a call to which the student is subscribed
+		this.dataContainer.parentNode.querySelector("p").classList.add("hidden");
 	}
 
 	this.registerEvent = function(orchestrator) {
@@ -268,7 +296,7 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 						window.location.href = req.getResponseHeader("Location");
 						window.sessionStorage.removeItem('username');
 					} else {
-						self.alert.textContent = message;
+						self.alert.update(message);
 					}
 				}
 			});
@@ -278,6 +306,7 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 	this.show = function(callId) {
 		let self = this;
 		let urlToCall = "GetOutcome?callid=" + callId;
+		this.dataContainer.querySelector("h4").textContent = "Your outcome";
 
 		makeCall("GET", urlToCall, null, function(req) {
 			if (req.readyState === 4) {
@@ -285,21 +314,21 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 				if (req.status === 200) {
 					let outcomeToShow = JSON.parse(req.responseText);
 					if (outcomeToShow.length === 0) {
-						self.alert.textContent = "No calls found for the course: " + courseId;
+						self.alert.update("No calls found for the course: " + courseId);
 						//Since I didn't found calls i must reset the content of the 
 						//subscribers component otherwhise i would have a error message
 						//with the subiscribers of another course (if precedently I've selected
 						//a course which had some calls)
-						this.reset();
+						self.reset();
 						return;
 					}
-					self.alert.textContent = "";
+					self.alert.reset();
 					self.update(outcomeToShow);
 				} else if (req.status == 403) {
 					window.location.href = req.getResponseHeader("Location");
 					window.sessionStorage.removeItem('username');
 				} else {
-					self.alert.textContent = message;
+					self.alert.update(message);
 					outcome.reset();
 				}
 			}
@@ -320,46 +349,40 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 		let state = outcomeMap["evaluation"].state;
 
 		if ((state === "Non inserito" || state === "Inserito")) {
-			this.dataContainer.querySelector("p").textContent = "Mark not definined yet!";
+			this.dataContainer.parentNode.querySelector("p").textContent = "Mark not definined yet!";
 			this.reset();
-			this.dataContainer.querySelector("p").style.visibility = "visible";
+			this.dataContainer.parentNode.querySelector("p").classList.remove("hidden");
 		} else {
+			this.dataContainer.parentNode.querySelector("p").classList.add("hidden");
 			this.refuseForm.querySelector("input[type = 'hidden']").value = outcomeMap["call"].id;
 
 			let refuseButton = this.refuseForm.querySelector("input[type = 'button']");
 			//Check if mark is between 18 and 30L, in that case set visible the refuse button
 			if (((mark > 17 && mark < 31) || mark === "30L") && (state !== "Rifiutato" && state !== "Verbalizzato")) {
-				refuseButton.style.visibility = "visible";
+				refuseButton.classList.remove("hidden");
 			} else {
-				refuseButton.style.visibility = "hidden";
+				refuseButton.classList.add("hidden");
 			}
 
-			var temp = this.dataContainer.querySelector("input[name='closeWindowOutcome']").addEventListener("click", function(e) {
-				outcome.reset();
-			})
-
-
-			this.dataContainer.querySelector("p").textContent = "This is your outcome of the selected call";
-			row = document.createElement("tr");
 
 			//First row
 			row = document.createElement("tr");
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "ID";
 			row.appendChild(temp);
 			idStudentCell = document.createElement("td");
 			idStudentCell.textContent = outcomeMap["student"].id;
 			row.appendChild(idStudentCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "ID";
 			row.appendChild(temp);
 			idCourseCell = document.createElement("td");
 			idCourseCell.textContent = outcomeMap["course"].id;
 			row.appendChild(idCourseCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "ID";
 			row.appendChild(temp);
 			idCallCell = document.createElement("td");
@@ -370,21 +393,21 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 			//Second row
 			row = document.createElement("tr");
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Surname";
 			row.appendChild(temp);
 			surnameStudentCell = document.createElement("td");
 			surnameStudentCell.textContent = outcomeMap["student"].surname;
 			row.appendChild(surnameStudentCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Name";
 			row.appendChild(temp);
 			nameCourseCell = document.createElement("td");
 			nameCourseCell.textContent = outcomeMap["course"].name;
 			row.appendChild(nameCourseCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Date";
 			row.appendChild(temp);
 			dateCallCell = document.createElement("td");
@@ -395,21 +418,21 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 			//Third row
 			row = document.createElement("tr");
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Name";
 			row.appendChild(temp);
 			nameStudentCell = document.createElement("td");
 			nameStudentCell.textContent = outcomeMap["student"].id;
 			row.appendChild(nameStudentCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Description";
 			row.appendChild(temp);
 			descriptionCourseCell = document.createElement("td");
 			descriptionCourseCell.textContent = outcomeMap["course"].description;
 			row.appendChild(descriptionCourseCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Time";
 			row.appendChild(temp);
 			timeCallCell = document.createElement("td");
@@ -420,21 +443,21 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 			//Forth row
 			row = document.createElement("tr");
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Email";
 			row.appendChild(temp);
 			emailStudentCell = document.createElement("td");
 			emailStudentCell.textContent = outcomeMap["student"].email;
 			row.appendChild(emailStudentCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Lecturer";
 			row.appendChild(temp);
 			lecturerCourseCell = document.createElement("td");
 			lecturerCourseCell.textContent = outcomeMap["lecturer"].surname + " " + outcomeMap["lecturer"].name;
 			row.appendChild(lecturerCourseCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Mark";
 			row.appendChild(temp);
 			markCallCell = document.createElement("td");
@@ -445,7 +468,7 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 			//Fifth row
 			row = document.createElement("tr");
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Degree course";
 			row.appendChild(temp);
 			degreeCourseCell = document.createElement("td");
@@ -459,7 +482,7 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 			idStudentCell.textContent = "";
 			row.appendChild(idStudentCell);
 
-			var temp = document.createElement("td");
+			var temp = document.createElement("th");
 			temp.textContent = "Evaluation state";
 			row.appendChild(temp);
 			evaluationStateCell = document.createElement("td");
@@ -468,36 +491,36 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 
 			self.dataContainerBody.appendChild(row);
 
-			self.dataContainer.style.visibility = "visible";
-			self.dataContainerBody.style.visibility = "visible";
-			self.refuseForm.style.visibility = "visible";
-			self.closeButton.style.visibility = "visible";
+			self.dataContainer.classList.remove("hidden");
 		}
 
 	}
 }
 
 function PageOrchestrator() {
-	var alertContainer = document.getElementById("id_alert");
-
 	this.start = function() {
-		personalMessage = new WelcomeMessage(sessionStorage.getItem("username"), document.getElementById("id_username"));
+		personalMessage = new WelcomeMessage(JSON.parse(sessionStorage.getItem("user")).username, document.getElementById("id_username"));
 		personalMessage.show();
+		
+		var alertContainer = document.getElementById("id_alert");
+		alertHandler = new AlertHandler(
+			alertContainer
+		)
 
 		coursesList = new CoursesList(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_coursesContainer"),
 			document.getElementById("id_coursesContainerBody")
 		);
 
 		callsList = new CallsList(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_callsContainer"),
 			document.getElementById("id_callsContainerBody")
 		);
 
 		outcome = new Outcome(
-			alertContainer,
+			alertHandler,
 			document.getElementById("id_outcomeContainer"),
 			document.getElementById("id_outcomeContainerBody"),
 			document.getElementById("id_refuseForm"),
@@ -507,12 +530,12 @@ function PageOrchestrator() {
 
 
 		document.querySelector("a[href='Logout']").addEventListener("click", function() {
-			window.sessionStorage.removeItem("username");
+			window.sessionStorage.removeItem("user");
 		})
 	};
 
 	this.refresh = function(currentCourse, currentCall) {
-		alertContainer.textContent = "";
+		alertHandler.reset();
 		coursesList.reset();
 		callsList.reset();
 		outcome.reset();

@@ -64,7 +64,10 @@ public class GetOutcome extends HttpServlet {
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			LecturerDAO lDAO = new LecturerDAO(this.connection);
 			
+			//I check if the student is subscribed to the call of which he has requested the outcome
 			sDAO.checkIfStudentIsSubscribedToCall(studLogged.getId(), callId);
+			
+			//TODO: I check if the outcome could be effectively requested by the user
 			
 			student = sDAO.findStudentById(studLogged.getId());
 			evaluation = ceDAO.findEvaluationByCallAndStudentId(callId, studLogged.getId());

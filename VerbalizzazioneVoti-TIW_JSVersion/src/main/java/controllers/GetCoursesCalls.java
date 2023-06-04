@@ -48,21 +48,26 @@ public class GetCoursesCalls extends HttpServlet {
 
 		calls = new ArrayList<>();
 		try {
-			//Retrieving courses taught by the lecturer
+			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			CourseDAO courseDAO = new CourseDAO(connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
-			//Retrieving query string parameter "courseid"
+			
 			courseId = Integer.parseInt(request.getParameter("courseid"));
-			//Checking if the query string parameter is correct
+			//If user role is "Lecturer", I check if the course, whose id was retrieved as request parameter, is taught by the lecturer
+			//If user role is "Student", I check if student is subscribed to the course, whose id was retrieved as request parameter
+			//If user role is different from "Lecturer" or "Student", then something went wrong and I disconnect the current user redirecting the request to /Logout servlet
 			if(user.getRole().equals("Lecturer")) {
 				courseDAO.checkIfCourseIsTaughtByLecturer(courseId, user.getId());
-			} else {
+				//calls = gcDAO.findAllDegreeCallWhichStudentSubscribedToByCourseId(user.getId(), courseId);
+			} else if(user.getRole().equals("Student")){
 				sDAO.checkIfStudentIsSubscribedToCourse(user.getId(),courseId);
+			} else {
+				String loginpath = request.getServletContext().getContextPath() + "/Logout";
+				response.sendRedirect(loginpath);
 			}
 			
 			
-			//Retrieving calls associated to the course that the lecturer chose
-			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+			//Retrieving calls associated to the course whose id was sent as request parameter
 			calls = gcDAO.findAllDegreeCallByCourseId(courseId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -78,7 +83,7 @@ public class GetCoursesCalls extends HttpServlet {
 			return;
 		}
 
-		
+		//Sending back to the client, in the form of a json object, the calls associated to the course with |courseId| as ID
 		String json = new Gson().toJson(calls);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");

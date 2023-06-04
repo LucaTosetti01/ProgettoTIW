@@ -45,6 +45,7 @@ public class UpdateMultipleMarks extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		doPost(request,response);
 	}
 
 	@Override
@@ -65,6 +66,7 @@ public class UpdateMultipleMarks extends HttpServlet {
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
 
+			//Remove via filter all the pair "Studentid" and "mark" in which "mark" is equals to -> ""
 			nameValueParametersMap = nameValueParametersMap.entrySet().stream().filter(entry->!entry.getValue()[0].equals("")).collect(Collectors.toMap(entry->entry.getKey(), entry->entry.getValue()));
 			List<Integer> studentIds = nameValueParametersMap.entrySet().stream()
 					.map(entry -> Integer.parseInt(entry.getKey())).toList();

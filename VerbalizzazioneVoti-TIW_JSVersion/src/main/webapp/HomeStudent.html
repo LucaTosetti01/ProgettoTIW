@@ -4,83 +4,112 @@
 <meta charset="ISO-8859-1">
 <title>Lecturer's Home</title>
 <link rel="stylesheet" type="text/css" media="all"
+	href="bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" media="all"
 	href="CSS/mystyle.css" />
 <script src="utils.js" charset="utf-8" defer></script>
 <script src="StudentHomePageHandler.js" charset="utf-8" defer></script>
 </head>
 <body>
-	<div align="right">
-		<a href="Logout">Logout</a>
-	</div>
-	<h1>Home Page student</h1>
-	<h3>
-		Welcome to your home page: <span id="id_username"></span>
-	</h3>
-	<div id="id_generalContainer">
-		<table id="id_coursesCallsContainer">
-			<tr>
-				<td>
-					<div>
-						<p>List of courses you are subscribed to</p>
-						<table id="id_coursesContainer">
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Name</th>
-									<th>Description</th>
-								</tr>
-							</thead>
-							<tbody id="id_coursesContainerBody">
-							</tbody>
-						</table>
-					</div>
-				</td>
-				<td>
-					<div id="id_callsContainer">
-						<p></p>
-						<table>
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Date</th>
-									<th>Time</th>
-								</tr>
-							</thead>
-							<tbody id="id_callsContainerBody">
-							</tbody>
-						</table>
-					</div>
-				</td>
-			</tr>
-		</table>
+	<div class="container-fluid">
+		<div class="page-header">
+			<div>
+				<h1>Home Page student</h1>
+				<h3>
+					Welcome to your home page: <span id="id_username"></span>
+				</h3>
+			</div>
+			<a class="btn btn-info" href="Logout">Logout</a>
+		</div>
 
-		<table>
-			<tr>
-				<td>
-					<div id="id_outcomeContainer">
-						<p></p>
-						<table class="outcomeTable">
-							<thead>
-								<tr>
-									<th colspan="2">Student's data</th>
-									<th colspan="2">Course's data</th>
-									<th colspan="2">Call's data</th>
-									<th><input type="button" name="closeWindowOutcome" id="closeWindowOutcome" value = "X"></th>
-								</tr>
-							</thead>
-							<tbody id="id_outcomeContainerBody">
-							</tbody>
-						</table>
-						<form id="id_refuseForm" action="#">
-							<input type="hidden" name="callid">
-							<input type="button" name="refuseButton" value="Refuse mark"> 
-						</form>
-					</div>
-				</td>
-			</tr>
-		</table>
-	</div>
+		<div id="id_generalContainer">
+			<table id="id_coursesCallsContainer" class="div-lg">
+				<tr>
+					<td>
+						<div>
+							<p>List of courses you are subscribed to</p>
+							<div class="scroll-div">
+								<table id="id_coursesContainer"
+									class="table table-striped table-hover table-bordered">
+									<thead>
+										<tr>
+											<th>ID</th>
+											<th>Name</th>
+											<th>Description</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody id="id_coursesContainerBody">
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div id="id_callsContainer">
+							<p></p>
+							<table class="table table-striped table-hover table-bordered">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Date</th>
+										<th>Time</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="id_callsContainerBody">
+								</tbody>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>
 
-	<div id="id_alert" class="alertmessage"></div>
+			<table>
+				<tr>
+					<td>
+						<p></p>
+						<div id="id_outcomeContainer">
+							
+							<div class="outcome-title">
+								<div class="col">
+									<h4></h4>
+								</div>
+								<div class="col-0">
+									<input type="button" name="closeWindowOutcome"
+										id="closeWindowOutcome" class="btn btn-close"
+										aria-label="Close">
+								</div>
+							</div>
+							<div class="outcomeTable">
+								<div>
+									<table class="table table-striped table-hover table-bordered">
+										<thead>
+											<tr>
+												<th colspan="2">Student's data</th>
+												<th colspan="2">Course's data</th>
+												<th colspan="2">Call's data</th>
+											</tr>
+										</thead>
+										<tbody id="id_outcomeContainerBody">
+										</tbody>
+									</table>
+									<form id="id_refuseForm" action="#">
+										<input type="hidden" name="callid"> <input
+											type="button" name="refuseButton" value="Refuse mark"
+											class="btn btn-primary max-width">
+									</form>
+								</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="id_alert" class="alert alert-warning alert-dismissible">
+			<a href="#" class="btn btn-close btn-sm" aria-label="close"></a> <label></label>
+		</div>
+	</div>
 </body>
 </html>
