@@ -60,8 +60,8 @@ public class GetSubscriptionToCall extends HttpServlet {
 		List<CallEvaluation> callEvaluations = new ArrayList<>();
 		String orderBy = null;
 		boolean orderType;
-		//I initialize this var at 1, so that if an error occur
-		int numberOfVerbalizableMarks;
+
+		int numberOfVerbalizableMarks,numberOfPublishableMarks;
 
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
@@ -69,18 +69,18 @@ public class GetSubscriptionToCall extends HttpServlet {
 		String error = (String) request.getAttribute("errorMessage");
 		try {
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
-			numberOfVerbalizableMarks = ceDAO.getNumberOfVerbalizableMarks();
+			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
+			StudentDAO sDAO = new StudentDAO(this.connection);
 			//Retrieving query string parameters "callId", "orderBy" and "orderType"
 			callId = Integer.parseInt(request.getParameter("callid"));
+			
+			numberOfVerbalizableMarks = ceDAO.getNumberOfVerbalizableMarks(callId);
+			numberOfPublishableMarks = ceDAO.getNumberOfPublishableMarks(callId);
 			String tempOrderBy = request.getParameter("orderBy");
 			orderBy = tempOrderBy != null && Arrays
 					.asList("ID", "Surname", "Name", "Email", "Username", "DegreeName", "Mark", "EvaluationStatus")
 					.contains(tempOrderBy) ? tempOrderBy : "ID";
 			orderType = (request.getParameter("orderType") != null) ? Boolean.parseBoolean(request.getParameter("orderType")) : true;
-
-			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			StudentDAO sDAO = new StudentDAO(this.connection);
-			
 
 			//Checking if the query string parameter ("callid") is correct
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
@@ -96,7 +96,6 @@ public class GetSubscriptionToCall extends HttpServlet {
 			
 			
 		} catch (NumberFormatException | NullPointerException e) {
-			
 			String errorPath = "/GoToHomeLecturer";
 			request.setAttribute("errorMessage", "Incorrect param values");
 			request.getRequestDispatcher(errorPath).forward(request, response);
@@ -123,6 +122,7 @@ public class GetSubscriptionToCall extends HttpServlet {
 		ctx.setVariable("orderType", orderType);
 		ctx.setVariable("errorMessage", error);
 		ctx.setVariable("numberOfVerbalizableMarks", numberOfVerbalizableMarks);
+		ctx.setVariable("numberOfPublishableMarks", numberOfPublishableMarks);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 

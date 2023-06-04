@@ -3,73 +3,94 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Lecturer's Home</title>
+<link rel="stylesheet" type="text/css" media="all"
+	href="bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" media="all"
+	href="CSS/mystyle.css" />
 </head>
 <body>
-	<div align="right">
-		<a th:href="@{/Logout}">Logout</a>
+	<div class="container-fluid">
+		<div class="page-header">
+			<div>
+				<h1>Home Page lecturer</h1>
+				<h3>
+					Welcome to your home page: <span th:text="${session.user.username}"></span>
+				</h3>
+			</div>
+			<a class="btn btn-info" th:href="@{/Logout}">Logout</a>
+		</div>
+
+		<div th:if="${courses.size() >0}">
+			<p>List of courses taught by you</p>
+			<div class="scroll-div div-lg">
+				<table class="table table-striped table-hover table-bordered">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Name</th>
+							<th>Description</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="c : ${courses}">
+							<td th:text="${c.id}"></td>
+							<td th:text="${c.name}"></td>
+							<td th:utext="${c.description}"></td>
+							<td>
+								<form th:action="@{/GoToHomeLecturer(courseid=${c.id})}"
+									method="POST">
+									<input type="submit" name="Choose" value="Choose">
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div th:if="${courses.size() == 0 and errorMessage==null}">No
+			courses found</div>
+		<br> <br>
+
+		<div th:if="${calls.size() >0}">
+			<p>List of calls associated with the course you chose</p>
+			<div class="scroll-div" style="width: 600px">
+				<table class="table table-striped table-hover table-bordered">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Date</th>
+							<th>Time</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="c : ${calls}">
+							<td th:text="${c.id}"></td>
+							<td th:text="${c.date}"></td>
+							<td th:utext="${c.time}"></td>
+							<td style="width: 1px; white-space: nowrap;">
+								<form th:action="@{/GetSubscriptionToCall}" method="POST">
+									<input type="hidden" name="callid" th:value="${c.id}">
+									<input type="submit" value="Choose">
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div
+			th:if="${courses.size() > 0 and calls.size()==0 and errorMessage==null and !firstTime}">No
+			calls found</div>
+
+		<div
+			style="text-align: center; position: relative; left: 50%; transform: translate(-50%, 0);">
+			<label style="color: red; font-weight: bold"
+				th:text="${errorMessage}"></label>
+		</div>
 	</div>
-	<h1>Home Page lecturer</h1>
-	<h3 th:text="'Welcome to you home page:' + ${session.user.name} + ' ' + ${session.user.surname}">Lecturer</h3>
-
-	<div th:if="${courses.size() >0}">
-		<p>List of courses taught by you</p>
-		<table border="1">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Name</th>
-					<th>Description</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="c : ${courses}">
-					<td th:text="${c.id}"></td>
-					<td th:text="${c.name}"></td>
-					<td th:utext="${c.description}"></td>
-					<td>
-						<form th:action="@{/GoToHomeLecturer(courseid=${c.id})}"
-							method="POST">
-							<input type="submit" name="Choose" value="Choose">
-						</form>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-
-	<div th:if="${courses.size() == 0 and errorMessage==null}">No courses found</div>
-	<br>
-	<br>
-
-	<div th:if="${calls.size() >0}">
-		<p>List of calls associated with the course you chose</p>
-		<table border="1">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Date</th>
-					<th>Time</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="c : ${calls}">
-					<td th:text="${c.id}"></td>
-					<td th:text="${c.date}"></td>
-					<td th:utext="${c.time}"></td>
-					<td>
-						<form th:action="@{/GetSubscriptionToCall}"
-							method="POST">
-							<input type="hidden" name="callid" th:value="${c.id}">
-							<input type="submit" value="Choose">
-						</form>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-
-	<div th:if="${courses.size() > 0 and calls.size()==0 and errorMessage==null and !firstTime}">No calls found</div>
-	
-	<p style="color:red;" th:text="${errorMessage}"></p>
 </body>
 </html>

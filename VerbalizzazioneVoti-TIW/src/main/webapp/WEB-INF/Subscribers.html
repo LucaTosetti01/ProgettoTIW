@@ -3,147 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <title>Subscribers Page</title>
+<link rel="stylesheet" type="text/css" media="all"
+	href="bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" media="all"
+	href="CSS/mystyle.css" />
 </head>
 <body>
-	<div align="right">
-		<a th:href="@{/Logout}">Logout</a>
-	</div>
-	<h1>Call recap page</h1>
-	<h3>
-		Call details: <span
-			th:text="${call.id} + ', ' + ${call.date} + ', ' + ${call.time} + ', ' + ${call.courseId}"></span>
-	</h3>
-	<div th:if="${students.size()>0}">
-		<p>List of all students that subscribed to the call</p>
-		<table border="1">
-			<thead>
-				<tr>
-					<th:block th:if="${orderBy == 'ID' or orderBy == null}">
-						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=(${orderBy}!='ID' and ${orderBy}!=null) ? 'true' : ${!orderType})}">ID &#x25B2;</a></th>
-						</th:block>
-						<th:block th:unless="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=${orderBy}!='ID' ? 'true' : ${!orderType})}">ID &#x25BC;</a></th>
-						</th:block>
-					</th:block>
-					<th:block th:unless="${orderBy == 'ID' or orderBy == null}">
-						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType='true')}">ID</a></th>
-					</th:block>
+	<div class="container-fluid">
+		<div class="page-header">
+			<div>
+				<h1>Subscribers recap page</h1>
+				<h3>
+					Call details: <span
+						th:text="${call.id} + ', ' + ${call.date} + ', ' + ${call.time} + ', ' + ${call.courseId}"></span>
+				</h3>
+			</div>
+			<a class="btn btn-info" href="Logout">Logout</a>
+		</div>
 
-					<th:block th:if="${orderBy == 'Surname'}">
-						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType=${orderBy}!='Surname' ? 'true' : ${!orderType})}">Surname &#x25B2;</a></th>
+		<div th:if="${students.size()>0}" class="div-lg">
+			<p>List of all students that subscribed to the call</p>
+			<table class="table table-striped table-hover table-bordered">
+				<thead>
+					<tr>
+						<th:block th:if="${orderBy == 'ID' or orderBy == null}">
+							<th:block th:if="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=(${orderBy}!='ID' and ${orderBy}!=null) ? 'true' : ${!orderType})}">ID
+										&#x25B2;</a></th>
+							</th:block>
+							<th:block th:unless="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType=${orderBy}!='ID' ? 'true' : ${!orderType})}">ID
+										&#x25BC;</a></th>
+							</th:block>
 						</th:block>
-						<th:block th:unless="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType=${orderBy}!='Surname' ? 'true' : ${!orderType})}">Surname &#x25BC;</a></th>
+						<th:block th:unless="${orderBy == 'ID' or orderBy == null}">
+							<th><a
+								th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='ID',orderType='true')}">ID</a></th>
 						</th:block>
-					</th:block>
-					<th:block
-						th:unless="${orderBy == 'Surname'}">
-						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType='true')}">Surname</a></th>
-					</th:block>
 
-					<th:block th:if="${orderBy == 'Name'}">
-						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType=${orderBy}!='Name' ? 'true' : ${!orderType})}">Name &#x25B2;</a></th>
+						<th:block th:if="${orderBy == 'Surname'}">
+							<th:block th:if="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType=${orderBy}!='Surname' ? 'true' : ${!orderType})}">Surname
+										&#x25B2;</a></th>
+							</th:block>
+							<th:block th:unless="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType=${orderBy}!='Surname' ? 'true' : ${!orderType})}">Surname
+										&#x25BC;</a></th>
+							</th:block>
 						</th:block>
-						<th:block th:unless="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType=${orderBy}!='Name' ? 'true' : ${!orderType})}">Name &#x25BC;</a></th>
+						<th:block th:unless="${orderBy == 'Surname'}">
+							<th><a
+								th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Surname',orderType='true')}">Surname</a></th>
 						</th:block>
-					</th:block>
-					<th:block
-						th:unless="${orderBy == 'Name'}">
-						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType='true')}">Name</a></th>
-					</th:block>
 
-					<th:block th:if="${orderBy == 'Email'}">
-						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType=${orderBy}!='Email' ? 'true' : ${!orderType})}">Email &#x25B2;</a></th>
+						<th:block th:if="${orderBy == 'Name'}">
+							<th:block th:if="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType=${orderBy}!='Name' ? 'true' : ${!orderType})}">Name
+										&#x25B2;</a></th>
+							</th:block>
+							<th:block th:unless="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType=${orderBy}!='Name' ? 'true' : ${!orderType})}">Name
+										&#x25BC;</a></th>
+							</th:block>
 						</th:block>
-						<th:block th:unless="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType=${orderBy}!='Email' ? 'true' : ${!orderType})}">Email &#x25BC;</a></th>
+						<th:block th:unless="${orderBy == 'Name'}">
+							<th><a
+								th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Name',orderType='true')}">Name</a></th>
 						</th:block>
-					</th:block>
-					<th:block
-						th:unless="${orderBy == 'Email'}">
-						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType='true')}">Email</a></th>
-					</th:block>
 
-					<th:block th:if="${orderBy == 'DegreeName'}">
-						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType=${orderBy)}!='DegreeName' ? 'true' : ${!orderType})}">Degree course &#x25B2;</a></th>
+						<th:block th:if="${orderBy == 'Email'}">
+							<th:block th:if="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType=${orderBy}!='Email' ? 'true' : ${!orderType})}">Email
+										&#x25B2;</a></th>
+							</th:block>
+							<th:block th:unless="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType=${orderBy}!='Email' ? 'true' : ${!orderType})}">Email
+										&#x25BC;</a></th>
+							</th:block>
 						</th:block>
-						<th:block th:unless="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType=${orderBy}!='DegreeName' ? 'true' : ${!orderType})}">Degree course &#x25BC;</a></th>
+						<th:block th:unless="${orderBy == 'Email'}">
+							<th><a
+								th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Email',orderType='true')}">Email</a></th>
 						</th:block>
-					</th:block>
-					<th:block
-						th:unless="${orderBy == 'DegreeName'}">
-						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType='true')}">Degree course</a></th>
-					</th:block>
 
-					<th:block th:if="${orderBy == 'Mark'}">
-						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType=${orderBy}!='Mark' ? 'true' : ${!orderType})}">Mark &#x25B2;</a></th>
+						<th:block th:if="${orderBy == 'DegreeName'}">
+							<th:block th:if="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType=${orderBy}!='DegreeName' ? 'true' : ${!orderType})}">Degree
+										course &#x25B2;</a></th>
+							</th:block>
+							<th:block th:unless="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType=${orderBy}!='DegreeName' ? 'true' : ${!orderType})}">Degree
+										course &#x25BC;</a></th>
+							</th:block>
 						</th:block>
-						<th:block th:unless="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType=${orderBy}!='Mark' ? 'true' : ${!orderType})}">Mark &#x25BC;</a></th>
+						<th:block th:unless="${orderBy == 'DegreeName'}">
+							<th><a
+								th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='DegreeName',orderType='true')}">Degree
+									course</a></th>
 						</th:block>
-					</th:block>
-					<th:block
-						th:unless="${orderBy == 'Mark'}">
-						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType='true')}">Mark</a></th>
-					</th:block>
 
-					<th:block th:if="${orderBy == 'EvaluationStatus'}">
-						<th:block th:if="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType=${orderBy}!='EvaluationStatus' ? 'true' : ${!orderType})}">Evaluation state &#x25B2;</a></th>
+						<th:block th:if="${orderBy == 'Mark'}">
+							<th:block th:if="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType=${orderBy}!='Mark' ? 'true' : ${!orderType})}">Mark
+										&#x25B2;</a></th>
+							</th:block>
+							<th:block th:unless="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType=${orderBy}!='Mark' ? 'true' : ${!orderType})}">Mark
+										&#x25BC;</a></th>
+							</th:block>
 						</th:block>
-						<th:block th:unless="${orderType}">
-							<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType=${orderBy}!='EvaluationStatus' ? 'true' : ${!orderType})}">Evaluation state &#x25BC;</a></th>
+						<th:block th:unless="${orderBy == 'Mark'}">
+							<th><a
+								th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='Mark',orderType='true')}">Mark</a></th>
 						</th:block>
-					</th:block>
-					<th:block
-						th:unless="${orderBy == 'EvaluationStatus'}">
-						<th><a th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType='true')}">Evaluation state</a></th>
-					</th:block>
 
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="stud : ${students}">
-					<td th:text="${stud.id}"></td>
-					<td th:text="${stud.surname}"></td>
-					<td th:text="${stud.name}"></td>
-					<td th:text="${stud.email}"></td>
-					<td th:text="${stud.degreeCourse.name}"></td>
-					<td th:text="${evaluations[studStat.index].mark}"></td>
-					<td th:text="${evaluations[studStat.index].state}"></td>
-					<td>
-						<form
-							th:action="@{/GoToMarkManagement(studentid=${stud.id},callid=${call.id})}"
-							method="POST">
-							<input type="submit" value="Modify" th:disabled="${evaluations[studStat.index].state == 'Verbalizzato' or evaluations[studStat.index].state == 'Rifiutato' or evaluations[studStat.index].state == 'Pubblicato'}">
+						<th:block th:if="${orderBy == 'EvaluationStatus'}">
+							<th:block th:if="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType=${orderBy}!='EvaluationStatus' ? 'true' : ${!orderType})}">Evaluation
+										state &#x25B2;</a></th>
+							</th:block>
+							<th:block th:unless="${orderType}">
+								<th><a
+									th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType=${orderBy}!='EvaluationStatus' ? 'true' : ${!orderType})}">Evaluation
+										state &#x25BC;</a></th>
+							</th:block>
+						</th:block>
+						<th:block th:unless="${orderBy == 'EvaluationStatus'}">
+							<th><a
+								th:href="@{/GetSubscriptionToCall(callid=${call.id},orderBy='EvaluationStatus',orderType='true')}">Evaluation
+									state</a></th>
+						</th:block>
+
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="stud : ${students}">
+						<td th:text="${stud.id}"></td>
+						<td th:text="${stud.surname}"></td>
+						<td th:text="${stud.name}"></td>
+						<td th:text="${stud.email}"></td>
+						<td th:text="${stud.degreeCourse.name}"></td>
+						<td th:text="${evaluations[studStat.index].mark}"></td>
+						<td th:text="${evaluations[studStat.index].state}"></td>
+						<td style="width: 1px; white-space: nowrap;">
+							<form
+								th:action="@{/GoToMarkManagement(studentid=${stud.id},callid=${call.id})}"
+								method="POST">
+								<input type="submit" value="Modify"
+									th:disabled="${evaluations[studStat.index].state == 'Verbalizzato' or evaluations[studStat.index].state == 'Rifiutato' or evaluations[studStat.index].state == 'Pubblicato'}">
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div>
+				<div class="btn-group btn-group-justified max-width">
+					<div class="btn-group input-group">
+						<form th:action="@{/PublishStudentsMarks}" class="max-width">
+							<input type="hidden" name="callid" th:value="${call.id}">
+							<input type="submit" value="Publish"
+								class="btn btn-primary max-width"
+								th:disabled="${numberOfVerbalizableMarks < 1}">
 						</form>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+					</div>
+					<div class="btn-group input-group">
+						<form th:action="@{/VerbalizeStudentsMarks}" class="max-width">
+							<input type="hidden" name="callid" th:value="${call.id}">
+							<input type="submit" value="Verbalize"
+								class="btn btn-primary max-width"
+								th:disabled="${numberOfVerbalizableMarks < 1}">
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
 
-		<div>
-			<form th:action="@{/PublishStudentsMarks}">
-				<input type="hidden" name="callid" th:value="${call.id}"> <input
-					type="submit" value="Publish">
-			</form>
-			
-			<form th:action="@{/VerbalizeStudentsMarks}">
-				<input type="hidden" name="callid" th:value="${call.id}"> <input
-					type="submit" value="Verbalize" th:disabled="${numberOfVerbalizableMarks < 1}">
-			</form>
+		<div
+			style="text-align: center; position: relative; left: 50%; transform: translate(-50%, 0);">
+			<label style="color: red; font-weight: bold"
+				th:text="${errorMessage}"></label>
 		</div>
 	</div>
-	
-	<p style="color:red;" th:text="${errorMessage}"></p>
 </body>
 </html>

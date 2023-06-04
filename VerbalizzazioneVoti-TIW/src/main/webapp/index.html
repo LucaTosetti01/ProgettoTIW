@@ -3,14 +3,30 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Login page</title>
+<link rel="stylesheet" type="text/css" media="all"
+	href="bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" media="all"
+	href="CSS/loginStyle.css" />
 </head>
 <body>
-	<h1>APP LOGIN</h1>
-	<form action="CheckLogin"
-		method="POST">
-		Username: <input type="text" name="username"> <br>
-		Password: <input type="password" name="pwd"><br> <input type="submit" value="login">
-	</form>
-	<p style="color:red;" th:text="${errorMessage}"></p>
+	<div class="background">
+		<div class="container">
+			<div class="wrapper">
+				<form action="CheckLogin" method="POST">
+					<h1>APP LOGIN</h1>
+					<input type="text" name="username" class="form-control"
+						placeholder="username"> <input type="password" name="pwd"
+						class="form-control" placeholder="password"> <br> <br>
+					<button id="loginButton" type="submit" class="btn btn-primary">login</button>
+				</form>
+
+			</div>
+			<br> <br>
+			<div style="text-align: center; position: relative; left: 50%; transform: translate(-50%, 0);">
+				<label style="color: red; font-weight: bold"
+					th:text="${errorMessage}"></label>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

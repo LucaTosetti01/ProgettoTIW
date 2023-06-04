@@ -192,7 +192,8 @@ public class CallEvaluationDAO {
 		PreparedStatement pstatement3 = null;
 		ResultSet result = null;
 		List<User> students = new ArrayList<>();
-		int code = 0;
+
+		int verbalKey;
 
 		try {
 			pstatement3 = connection.prepareStatement(query3);
@@ -207,14 +208,14 @@ public class CallEvaluationDAO {
 			
 			pstatement = connection.prepareStatement(query);
 			pstatement.setInt(1, call_id);
-			code = pstatement.executeUpdate();
+			pstatement.executeUpdate();
 
 			pstatement2 = connection.prepareStatement(query2);
 			pstatement2.setInt(1, call_id);
-			code = pstatement2.executeUpdate();
+			pstatement2.executeUpdate();
 
 			VerbalDAO vDAO = new VerbalDAO(this.connection);
-			vDAO.createVerbal(verbalDate, verbalTime, call_id);
+			verbalKey = vDAO.createVerbal(verbalDate, verbalTime, call_id);
 			vDAO.saveStudentsWithinVerbal(call_id, students);
 
 			connection.commit();
@@ -231,7 +232,7 @@ public class CallEvaluationDAO {
 				throw new SQLException(e1);
 			}
 		}
-		return code;
+		return verbalKey;
 	}
 	
 	public int publishAllMarksByCallId(int call_id) throws SQLException {
@@ -285,19 +286,46 @@ public class CallEvaluationDAO {
 		return code;
 	}
 	
-	public void checkIfAnyMarkIsVerbalizable() throws SQLException, CallEvaluationDAOException {
-		String query = "SELECT COUNT(*) AS Counter FROM registrations_calls WHERE EvaluationStatus = 'Pubblicato' OR EvaluationStatus = 'Rifiutato'";
+	public void checkIfAnyMarkIsVerbalizable(int call_id) throws SQLException, CallEvaluationDAOException {
+		if (this.getNumberOfVerbalizableMarks(call_id) == 0) {
+			throw new CallEvaluationDAOException("There aren't verbalizable marks");
+		}
+	}
+	
+	public void checkIfAnyMarkIsPublishable(int call_id) throws SQLException, CallEvaluationDAOException {
+		if (this.getNumberOfPublishableMarks(call_id) == 0) {
+			throw new CallEvaluationDAOException("There aren't publishable marks");
+		}
+	}
+	
+	
+	public void checkIfMarkFormatIsCorrect(String mark) throws CallEvaluationDAOException {
+		try {
+			int markIntConversion = Integer.parseInt(mark);
+			if(markIntConversion <18 || markIntConversion > 30) {
+				throw new CallEvaluationDAOException("Mark value inserted is not acceptable");
+			}
+		} catch (NumberFormatException | NullPointerException e) {
+			if(!Arrays.asList("","Assente","Rimandato","Riprovato","30L").contains(mark)) {
+				throw new CallEvaluationDAOException("Mark value inserted is not acceptable");
+			}
+		}
+	}
+	
+	public int getNumberOfVerbalizableMarks(int call_id) throws SQLException {
+		String query = "SELECT COUNT(*) AS Counter FROM registrations_calls WHERE (EvaluationStatus = 'Pubblicato' OR EvaluationStatus = 'Rifiutato') AND ID_Call = ?";
 		
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		int numberOfRows;
 		try {
 			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
 			result = pstatement.executeQuery();
 			result.next();
 			numberOfRows = result.getInt("Counter");
 		} catch (SQLException e) {
-			throw new SQLException("Failure in students and evaluations' data extraction");
+			throw new SQLException("Failure in evaluations' data extraction");
 		} finally {
 			try {
 				if (result != null) {
@@ -314,32 +342,18 @@ public class CallEvaluationDAO {
 				throw new SQLException(e2);
 			}
 		}
-		if (numberOfRows == 0) {
-			throw new CallEvaluationDAOException("There aren't verbalizable marks");
-		}
+		return numberOfRows;
 	}
 	
-	public void checkIfMarkFormatIsCorrect(String mark) throws CallEvaluationDAOException {
-		try {
-			int markIntConversion = Integer.parseInt(mark);
-			if(markIntConversion <18 || markIntConversion > 30) {
-				throw new CallEvaluationDAOException("Mark value inserted is not acceptable");
-			}
-		} catch (NumberFormatException | NullPointerException e) {
-			if(!Arrays.asList("","Assente","Rimandato","Riprovato","30L").contains(mark)) {
-				throw new CallEvaluationDAOException("Mark value inserted is not acceptable");
-			}
-		}
-	}
-	
-	public int getNumberOfVerbalizableMarks() throws SQLException {
-		String query = "SELECT COUNT(*) AS Counter FROM registrations_calls WHERE EvaluationStatus = 'Pubblicato' OR EvaluationStatus = 'Rifiutato'";
+	public int getNumberOfPublishableMarks(int call_id) throws SQLException {
+		String query = "SELECT COUNT(*) AS Counter FROM registrations_calls WHERE EvaluationStatus = 'Inserito' AND ID_Call = ?";
 		
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
 		int numberOfRows;
 		try {
 			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, call_id);
 			result = pstatement.executeQuery();
 			result.next();
 			numberOfRows = result.getInt("Counter");

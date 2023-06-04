@@ -59,7 +59,7 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			ceDAO.checkIfAnyMarkIsVerbalizable();
+			ceDAO.checkIfAnyMarkIsVerbalizable(callId);
 			
 			ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
 			verbalId = vDAO.findVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();

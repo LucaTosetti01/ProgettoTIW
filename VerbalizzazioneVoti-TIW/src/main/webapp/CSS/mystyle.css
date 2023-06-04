@@ -1,0 +1,231 @@
+#id_modalMultipleMarkContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 20%;
+	z-index: 3;
+}
+
+#id_modalVerbalContainer {
+	z-index: 3;
+}
+
+#id_modalVerbalBody>table>tbody th {
+	white-space: normal;
+}
+
+.modal-dialog {
+	display: table;
+}
+
+.table-striped>tbody>tr.selectedCourse:nth-child(odd)>td, .table-striped>tbody>tr.selectedCourse:nth-child(even)>td
+	{
+	background-color: lightgreen !important;
+}
+
+.table-striped>tbody>tr.selectedCall:nth-child(odd)>td, .table-striped>tbody>tr.selectedCall:nth-child(even)>td
+	{
+	background-color: lightgreen !important;
+}
+
+th {
+	white-space: nowrap;
+	text-align: center;
+}
+
+.bg-blurred {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(3px);
+	z-index: 2;
+}
+
+.hidden {
+	display: none !important;
+}
+
+.max-width {
+	width: 100%;
+}
+
+.descriptionText {
+	font-size: 12px;
+	width: 70%;
+}
+
+td {
+	font-size: 16px;
+}
+
+.div-lg {
+	width: 80%;
+}
+
+#id_callsContainerBody>tr>td {
+	white-space: nowrap;
+}
+
+.fixed-width {
+	width: 50%;
+}
+
+.modal-header-bg::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 75px;
+	background-image: linear-gradient(to top, #429ce9 0, #1375b0 100%);
+	clip-path: polygon(0 0%, 100% 0%, 100% 20%, 28% 20%, 5% 100%, 0 100%);
+}
+
+.modal-header>h3 {
+	position: relative;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.modal-header {
+	position: relative;
+	top: 10px;
+}
+
+.page-header {
+	display: flex;
+	align-items: space-between;
+	justify-content: space-between;
+}
+
+.page-header>a {
+	display: flex;
+	align-self: flex-start;
+	flex-direction: column;
+	margin: 10px;
+	width: 100px;
+}
+
+.form {
+	border: 3px solid;
+	border-color: #0d6efd;
+	border-radius: 10px;
+	width: 500px;
+	background-color: white;
+}
+
+.form form {
+	margin-top: -20px;
+}
+/* #dee2e6*/
+.form label {
+	text-align: center;
+	padding: 5px;
+}
+
+.modify-title h4 {
+	text-transform: uppercase;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.modify-title p {
+	text-align: center;
+	text-transform: uppercase;
+	white-space: nowrap;
+	font-weight: bold;
+	color: #4682B4;
+}
+
+.modify-title button {
+	position: relative;
+	left: 92%;
+	top: -65px;
+}
+
+.form select {
+	width: 100%;
+	align-self: center;
+	width: 98%;
+}
+
+.alert {
+	text-align: center;
+}
+
+/*.background::before {
+	content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+	background-image: linear-gradient(to right, #00b09b, #96c93d);
+	clip-path: polygon(0 0%, 100% 0%, 100% 65%, 65% 100%, 0 100%);
+	z-index:-1;
+	background-size: 100%;
+}*/
+.scroll-div {
+	overflow: auto;
+	height: 350px;
+	/*width: 1000px;*/
+}
+
+.scroll-div thead th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	/*box-shadow: inset 1px 1px #dee2e6, 0 1px #dee2e6;*/
+}
+
+.scroll-div-modal {
+	overflow: auto;
+	height: 288px;
+	/*width: 1000px;*/
+}
+
+.scroll-div-modal thead th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	/*box-shadow: inset 1px 1px #dee2e6, 0 1px #dee2e6;*/
+}
+
+.alert {
+	position: relative;
+	left: 50%;
+	transform: translate(-50%, 0);
+	width: 50%;
+}
+
+#id_outcomeContainer {
+	display: flex;
+	flex-direction: column;
+	border: 3px solid;
+	border-color: #0d6efd;
+	border-radius: 10px;
+	width: 1200px;
+	background-color: white;
+}
+
+.outcome-title h4 {
+	text-transform: uppercase;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.outcome-title {
+	display: flex;
+	flex-direction: row;
+	padding: 5px;
+	align-items: center;
+}
+
+input[name=refuseButton] {
+	border-radius: 2px;
+}

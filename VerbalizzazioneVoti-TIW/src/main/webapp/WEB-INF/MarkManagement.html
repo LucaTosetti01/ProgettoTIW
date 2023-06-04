@@ -3,54 +3,69 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Mark Management</title>
+<link rel="stylesheet" type="text/css" media="all"
+	href="bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" media="all"
+	href="CSS/mystyle.css" />
 </head>
 <body>
-	<div align="right">
-		<a th:href="@{/Logout}">Logout</a>
+	<div class="container-fluid">
+		<div class="page-header">
+			<div>
+				<h1>Modify student's evaluation</h1>
+				<h3>
+					Student: <span th:text="${student.id}"></span> - Call: <span th:text="${evaluation.call_id}"></span>
+				</h3>
+			</div>
+			<a class="btn btn-info" th:href="@{/Logout}">Logout</a>
+		</div>
+		
+		<form class="form"
+			th:action="@{/UpdateStudentMark(studentid=${student.id},callid=${evaluation.call_id})}"
+			method="POST">
+			<table class="table table-striped table-hover table-bordered" style="margin-top: 5px">
+				<thead>
+					<tr>
+						<th>Student data</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th style="text-align: left">ID</th>
+						<td th:text="${student.id}">0</td>
+					</tr>
+					<tr>
+						<th style="text-align: left">Surname</th>
+						<td th:text="${student.surname}">None</td>
+					</tr>
+					<tr>
+						<th style="text-align: left">Name</th>
+						<td th:text="${student.name}">None</td>
+					</tr>
+					<tr>
+						<th style="text-align: left">Email</th>
+						<td th:text="${student.email}">None</td>
+					</tr>
+					<tr>
+						<th style="text-align: left">Degree course</th>
+						<td th:text="${student.degreeCourse.name}">None</td>
+					</tr>
+					<tr>
+						<th style="text-align: left">Mark</th>
+						<td><input type="text" name="newMark"
+							th:value="${evaluation.mark}"></td>
+					</tr>
+				</tbody>
+			</table>
+			<input type="submit" value="Update" class="btn btn-primary max-width">
+		</form>
+
+		<div
+			style="text-align: center; position: relative; left: 50%; transform: translate(-50%, 0);">
+			<label style="color: red; font-weight: bold"
+				th:text="${errorMessage}"></label>
+		</div>
 	</div>
-	<h1>Modify student's evaluation</h1>
-	<form
-		th:action="@{/UpdateStudentMark(studentid=${student.id},callid=${evaluation.call_id})}"
-		method="POST">
-		<table cellpadding="10">
-			<thead>
-				<tr>
-					<th>Data</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>ID</td>
-					<td th:text="${student.id}">0</td>
-				</tr>
-				<tr>
-					<td>Surname</td>
-					<td th:text="${student.surname}">None</td>
-				</tr>
-				<tr>
-					<td>Name</td>
-					<td th:text="${student.name}">None</td>
-				</tr>
-				<tr>
-					<td>Email</td>
-					<td th:text="${student.email}">None</td>
-				</tr>
-				<tr>
-					<td>Degree course</td>
-					<td th:text="${student.degreeCourse.name}">None</td>
-				</tr>
-				<tr>
-					<td>Mark</td>
-					<td><input type="text" name="newMark"
-						th:value="${evaluation.mark}"></td>
-				</tr>
-			</tbody>
-		</table>
-		<input type="submit" value="Update">
-	</form>
-
-	<p style="color:red;" th:text="${errorMessage}"></p>
-
 </body>
 </html>
