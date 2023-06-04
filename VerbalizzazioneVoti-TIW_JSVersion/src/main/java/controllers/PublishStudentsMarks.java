@@ -47,9 +47,13 @@ public class PublishStudentsMarks extends HttpServlet {
 		try {
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			
+
 			callId = Integer.parseInt(request.getParameter("callid"));
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			// Retrieve from the DB the number of publishable marks (used later to
+			// eventually disable the publish button if 0)
 			numberOfPublishableMarks = ceDAO.getNumberOfPublishableMarks(callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -65,6 +69,8 @@ public class PublishStudentsMarks extends HttpServlet {
 			return;
 		}
 
+		// Sending back to the client, in the form of a json object, the number of
+		// publishable marks
 		String json = new Gson().toJson(numberOfPublishableMarks);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
@@ -80,14 +86,18 @@ public class PublishStudentsMarks extends HttpServlet {
 		User lecLogged = (User) session.getAttribute("user");
 
 		try {
-			callId = Integer.parseInt(request.getParameter("callid"));
-
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 
-			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			ceDAO.checkIfAnyMarkIsPublishable(callId);
+			callId = Integer.parseInt(request.getParameter("callid"));
 
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
+			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			// Checking if really exists any mark publishable
+			ceDAO.checkIfAnyMarkIsPublishable(callId);
+			// Proceeding to publish of publishable marks (that are the ones with the state
+			// "Inserito")
 			ceDAO.publishAllMarksByCallId(callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -106,8 +116,13 @@ public class PublishStudentsMarks extends HttpServlet {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		super.destroy();
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
+		}
 	}
 
 }

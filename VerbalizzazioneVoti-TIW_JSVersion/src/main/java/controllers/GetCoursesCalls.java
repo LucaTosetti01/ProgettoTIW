@@ -18,7 +18,6 @@ import com.google.gson.Gson;
 import DAO.CourseDAO;
 import DAO.GraduationCallDAO;
 import DAO.StudentDAO;
-import beans.Course;
 import beans.GraduationCall;
 import beans.User;
 import exceptions.CourseDAOException;
@@ -28,7 +27,7 @@ import utils.ConnectionHandler;
 @WebServlet("/GetCoursesCalls")
 public class GetCoursesCalls extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	//private TemplateEngine templateEngine;
+	// private TemplateEngine templateEngine;
 	private Connection connection;
 
 	public GetCoursesCalls() {
@@ -42,7 +41,7 @@ public class GetCoursesCalls extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Integer courseId = null;
 		List<GraduationCall> calls = null;
-		
+
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
 
@@ -51,23 +50,29 @@ public class GetCoursesCalls extends HttpServlet {
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			CourseDAO courseDAO = new CourseDAO(connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
-			
+
 			courseId = Integer.parseInt(request.getParameter("courseid"));
-			//If user role is "Lecturer", I check if the course, whose id was retrieved as request parameter, is taught by the lecturer
-			//If user role is "Student", I check if student is subscribed to the course, whose id was retrieved as request parameter
-			//If user role is different from "Lecturer" or "Student", then something went wrong and I disconnect the current user redirecting the request to /Logout servlet
-			if(user.getRole().equals("Lecturer")) {
+			// If user role is "Lecturer", I check if the course, whose id was retrieved as
+			// request parameter, is taught by the lecturer
+			// If user role is "Student", I check if student is subscribed to the course,
+			// whose id was retrieved as request parameter
+			// If user role is different from "Lecturer" or "Student", then something went
+			// wrong and I disconnect the current user redirecting the request to /Logout
+			// servlet
+			if (user.getRole().equals("Lecturer")) {
 				courseDAO.checkIfCourseIsTaughtByLecturer(courseId, user.getId());
-				//calls = gcDAO.findAllDegreeCallWhichStudentSubscribedToByCourseId(user.getId(), courseId);
-			} else if(user.getRole().equals("Student")){
-				sDAO.checkIfStudentIsSubscribedToCourse(user.getId(),courseId);
+				// calls =
+				// gcDAO.findAllDegreeCallWhichStudentSubscribedToByCourseId(user.getId(),
+				// courseId);
+			} else if (user.getRole().equals("Student")) {
+				sDAO.checkIfStudentIsSubscribedToCourse(user.getId(), courseId);
 			} else {
 				String loginpath = request.getServletContext().getContextPath() + "/Logout";
 				response.sendRedirect(loginpath);
 			}
-			
-			
-			//Retrieving calls associated to the course whose id was sent as request parameter
+
+			// Retrieving calls associated to the course whose id was sent as request
+			// parameter
 			calls = gcDAO.findAllDegreeCallByCourseId(courseId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -83,7 +88,8 @@ public class GetCoursesCalls extends HttpServlet {
 			return;
 		}
 
-		//Sending back to the client, in the form of a json object, the calls associated to the course with |courseId| as ID
+		// Sending back to the client, in the form of a json object, the calls
+		// associated to the course with |courseId| as ID
 		String json = new Gson().toJson(calls);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
@@ -100,9 +106,8 @@ public class GetCoursesCalls extends HttpServlet {
 				connection.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Can't close db connection");
 		}
 	}
-	
+
 }

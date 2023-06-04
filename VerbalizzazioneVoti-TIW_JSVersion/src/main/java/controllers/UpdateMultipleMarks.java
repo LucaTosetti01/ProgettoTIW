@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -34,7 +33,6 @@ public class UpdateMultipleMarks extends HttpServlet {
 
 	public UpdateMultipleMarks() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -45,7 +43,7 @@ public class UpdateMultipleMarks extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		doPost(request,response);
+		doPost(request, response);
 	}
 
 	@Override
@@ -59,32 +57,40 @@ public class UpdateMultipleMarks extends HttpServlet {
 		User lecLogged = (User) session.getAttribute("user");
 
 		try {
-			nameValueParametersMap = new HashMap<>(request.getParameterMap());
-			callId = Integer.parseInt(nameValueParametersMap.remove("callid")[0]);
-
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
 
-			//Remove via filter all the pair "Studentid" and "mark" in which "mark" is equals to -> ""
-			nameValueParametersMap = nameValueParametersMap.entrySet().stream().filter(entry->!entry.getValue()[0].equals("")).collect(Collectors.toMap(entry->entry.getKey(), entry->entry.getValue()));
+			nameValueParametersMap = new HashMap<>(request.getParameterMap());
+			callId = Integer.parseInt(nameValueParametersMap.remove("callid")[0]);
+
+			// Remove via filter all the pair "Studentid" and "mark" in which "mark" is
+			// equals to -> ""
+			nameValueParametersMap = nameValueParametersMap.entrySet().stream()
+					.filter(entry -> !entry.getValue()[0].equals(""))
+					.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+			// Collect all the student's ids in the map in a list
 			List<Integer> studentIds = nameValueParametersMap.entrySet().stream()
 					.map(entry -> Integer.parseInt(entry.getKey())).toList();
+			// Collect all the student's marks in the map in a list
 			List<String> studentMarks = nameValueParametersMap.entrySet().stream().map(entry -> entry.getValue()[0])
 					.toList();
 
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
 
+			// Checking if the format of each mark retrieved from the request is correct
 			for (String mark : studentMarks) {
 				ceDAO.checkIfMarkFormatIsCorrect(mark);
 			}
-
+			// Checking if all students retrieved from the request are subscribed to the
+			// call chosen by the lecturer
 			for (Integer id : studentIds) {
 				sDAO.checkIfStudentIsSubscribedToCall(id, callId);
 			}
-			
+			// Proceeding to update all student's marks with their new values
 			ceDAO.updateMultipleMarkByStudentAndCallId(studentIds, callId, studentMarks);
-
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print("Incorrect param values");
@@ -102,7 +108,12 @@ public class UpdateMultipleMarks extends HttpServlet {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		super.destroy();
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
+		}
 	}
 }

@@ -46,20 +46,26 @@ public class UpdateStudentMark extends HttpServlet {
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
 		try {
-			studentId = Integer.parseInt(request.getParameter("studentid"));
-			callId = Integer.parseInt(request.getParameter("callid"));
-			newMark = request.getParameter("newMark");
-			
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
-			
+
+			studentId = Integer.parseInt(request.getParameter("studentid"));
+			callId = Integer.parseInt(request.getParameter("callid"));
+			newMark = request.getParameter("newMark");
+
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			// Checking if the student is subscribed to the call associated to the call
+			// with "callId" as ID
 			sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
+			// Checking if the format of the mark retrieved from the request is correct
 			ceDAO.checkIfMarkFormatIsCorrect(newMark);
-			
-			//I ignore the update if the mark sent is equals to ""
-			if(!newMark.equals("")) {
+
+			//Ignoring the update if the sent mark is equals to ""
+			if (!newMark.equals("")) {
+				//Proceeding to update student mark with the new value
 				ceDAO.updateMarkByStudentAndCallId(studentId, callId, newMark);
 			}
 		} catch (NumberFormatException | NullPointerException e) {
@@ -80,14 +86,18 @@ public class UpdateStudentMark extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		super.destroy();
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
+		}
 	}
 
 }

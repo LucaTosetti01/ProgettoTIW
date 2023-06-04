@@ -16,15 +16,12 @@ import beans.User;
 
 public class StudentChecker implements Filter {
 	public StudentChecker() {
-
 	}
 
 	public void destroy() {
-
 	}
 
 	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

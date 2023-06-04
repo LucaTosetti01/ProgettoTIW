@@ -9,7 +9,6 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import beans.User;
 import beans.Verbal;

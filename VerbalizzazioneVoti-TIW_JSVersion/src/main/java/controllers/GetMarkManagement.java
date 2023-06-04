@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -38,8 +37,6 @@ public class GetMarkManagement extends HttpServlet {
 
 	public void init() throws ServletException {
 		this.connection = ConnectionHandler.getConnection(getServletContext());
-
-		
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -51,21 +48,28 @@ public class GetMarkManagement extends HttpServlet {
 		User lecLogged = (User) session.getAttribute("user");
 
 		try {
-			studentId = Integer.parseInt(request.getParameter("studentid"));
-			callId = Integer.parseInt(request.getParameter("callid"));
-
 			StudentDAO sDAO = new StudentDAO(this.connection);
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			// Checking if the student with "studentid" is subscribed to the call with
-			// "callid", if the student is subscribed to the course associated to the call
-			// and finally if the course is taught by the lecturer logged
+
+			studentId = Integer.parseInt(request.getParameter("studentid"));
+			callId = Integer.parseInt(request.getParameter("callid"));
+
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
+			// Checking if the logged student is subscribed to the call with "callId" as ID
+			// and is subscribed to the course associated to the "callId" call
+			// Checking if the student's mark is updatable (if its state is not
+			// "Verbalizzato" || "Rifiutato" || "Pubblicato"
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
 			sDAO.checkIfStudentIsSubscribedToCall(studentId, callId);
 			ceDAO.checkIfStudentMarkIsUpdatable(studentId, callId);
 
+			// Retrieving from the DB the student that has as ID the "studentId" variable's
+			// value
 			student = sDAO.findStudentById(studentId);
-
+			// Retrieving from the DB the evaluation of the chosen student associated to the
+			// chosen call
 			evaluation = ceDAO.findEvaluationByCallAndStudentId(callId, studentId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -81,13 +85,16 @@ public class GetMarkManagement extends HttpServlet {
 			return;
 		}
 
+		// Sending back to the client, in the form of a json object, a <String, Object>
+		// map containing pairs of <"VariableName", variableObject>, in this case of
+		// "student" and "evaluation" objects
 		Map<String, Object> mapStringData = new HashMap<>();
 		mapStringData.put("student", student);
 		mapStringData.put("evaluation", evaluation);
-		
+
 		Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 		String json = gson.toJson(mapStringData);
-		
+
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(json);
@@ -95,5 +102,15 @@ public class GetMarkManagement extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
+	}
+
+	public void destroy() {
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
+		}
 	}
 }

@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -21,9 +20,6 @@ import com.google.gson.Gson;
 
 import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
-import DAO.LecturerDAO;
-import DAO.VerbalDAO;
-import beans.CallEvaluation;
 import beans.User;
 import exceptions.CallEvaluationDAOException;
 import exceptions.GraduationCallDAOException;
@@ -49,15 +45,19 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			throws ServletException, IOException {
 		int numberOfVerbalizableMarks;
 		Integer callId = null;
-		
+
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
 		try {
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			
+
 			callId = Integer.parseInt(request.getParameter("callid"));
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			// Retrieve from the DB the number of verbalizable marks (used later to
+			// eventually disable the verbalize button if 0)
 			numberOfVerbalizableMarks = ceDAO.getNumberOfVerbalizableMarks(callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -72,7 +72,9 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			response.getWriter().print(e.getMessage());
 			return;
 		}
-		
+
+		// Sending back to the client, in the form of a json object, the number of
+		// verbalizable marks
 		String json = new Gson().toJson(numberOfVerbalizableMarks);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
@@ -87,18 +89,23 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 
 		Date currentDate = Date.valueOf(LocalDate.now());
 		Time currentTime = Time.valueOf(LocalTime.now());
-		
+
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
 		try {
-			callId = Integer.parseInt(request.getParameter("callid"));
-		
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			
+
+			callId = Integer.parseInt(request.getParameter("callid"));
+
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			// Checking if really exists any mark verbalizable
 			ceDAO.checkIfAnyMarkIsVerbalizable(callId);
-			
+			// Proceeding to create a new verbal with the current time and date and
+			// associated to the call which has "callId" value as ID, and retrieving the
+			// verbalId of the verbal just created
 			verbalId = ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -113,7 +120,9 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			response.getWriter().print(e.getMessage());
 			return;
 		}
-		
+
+		// Sending back to the client, in the form of a json object, the ID of
+		// the verbal just created
 		String json = new Gson().toJson(verbalId);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
@@ -127,10 +136,8 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 				connection.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Can't close db connection");
 		}
 	}
-
 
 }

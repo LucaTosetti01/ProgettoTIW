@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,10 +30,10 @@ import exceptions.GraduationCallDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/GetVerbalData")
-public class GetVerbalData extends HttpServlet{
+public class GetVerbalData extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
-	
+
 	public GetVerbalData() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -43,35 +42,39 @@ public class GetVerbalData extends HttpServlet{
 	@Override
 	public void init() throws ServletException {
 		connection = ConnectionHandler.getConnection(getServletContext());
-
 	}
-	
-	
+
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		Integer verbalId = null, callId = null;
 		Verbal verbal = null;
 		GraduationCall call = null;
 		Course course = null;
 		User lecturer = null;
 		List<User> students = null;
-		
+
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
-		
+
 		try {
 			VerbalDAO vDAO = new VerbalDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			CourseDAO cDAO = new CourseDAO(this.connection);
 			LecturerDAO lDAO = new LecturerDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
-			
+
 			verbalId = Integer.parseInt(request.getParameter("verbalid"));
+			// Retrieving the verbal with "verbalId" as ID
 			verbal = vDAO.findVerbalById(verbalId);
-			
+
 			callId = verbal.getCallId();
+
+			// Checking if the call associated to the requested verbal is taught by the
+			// logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			
+
+			// Retrieving from the DB all the data associated to the requested verbal
 			call = gcDAO.findGraduationCallById(callId);
 			course = cDAO.findCourseById(call.getCourseId());
 			lecturer = lDAO.findLecturerById(course.getTaughtById());
@@ -89,13 +92,17 @@ public class GetVerbalData extends HttpServlet{
 			response.getWriter().print(e.getMessage());
 			return;
 		}
+
+		// Sending back to the client, in the form of a json object, a <String, Object>
+		// map containing pairs of <"VariableName", variableObject>, in this case of
+		// "student" ,"verbal", "call", "course" and finally "lecturer" objects
 		Map<String, Object> mapStringData = new HashMap<>();
 		mapStringData.put("students", students);
 		mapStringData.put("verbal", verbal);
 		mapStringData.put("call", call);
 		mapStringData.put("course", course);
 		mapStringData.put("lecturer", lecturer);
-		
+
 		Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 		String json = gson.toJson(mapStringData);
 
@@ -105,16 +112,20 @@ public class GetVerbalData extends HttpServlet{
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		doGet(request, response);
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		super.destroy();
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
+		}
 	}
 
-	
 }

@@ -15,15 +15,12 @@ import javax.servlet.http.HttpSession;
 public class CredentialsChecker implements Filter {
 
 	public CredentialsChecker() {
-
 	}
 
 	public void destroy() {
-
 	}
 
 	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
