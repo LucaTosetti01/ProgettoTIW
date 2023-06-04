@@ -508,7 +508,7 @@ public class CallEvaluationDAO {
 				throw new SQLException(e2);
 			}
 		}
-		if(Arrays.asList("Pubblicato","Verbalizzato","Rifiutato").contains(status)) {
+		if(!Arrays.asList("Pubblicato","Verbalizzato","Rifiutato").contains(status)) {
 			throw new CallEvaluationDAOException("The chosen call's outcome cannot be visualized");
 		}
 	}

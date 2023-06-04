@@ -61,19 +61,21 @@ public class GetCoursesCalls extends HttpServlet {
 			// servlet
 			if (user.getRole().equals("Lecturer")) {
 				courseDAO.checkIfCourseIsTaughtByLecturer(courseId, user.getId());
-				// calls =
-				// gcDAO.findAllDegreeCallWhichStudentSubscribedToByCourseId(user.getId(),
-				// courseId);
+				// Retrieving calls associated to the course whose id was sent as request
+				// parameter
+				calls = gcDAO.findAllDegreeCallByCourseId(courseId);
 			} else if (user.getRole().equals("Student")) {
 				sDAO.checkIfStudentIsSubscribedToCourse(user.getId(), courseId);
+				// Retrieving calls associated to the course whose id was sent as request
+				// parameter and to which the logged student is subscribed
+				calls = gcDAO.findAllDegreeCallWhichStudentSubscribedToByCourseId(user.getId(),courseId);
 			} else {
 				String loginpath = request.getServletContext().getContextPath() + "/Logout";
 				response.sendRedirect(loginpath);
+				return;
 			}
 
-			// Retrieving calls associated to the course whose id was sent as request
-			// parameter
-			calls = gcDAO.findAllDegreeCallByCourseId(courseId);
+			
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print("Incorrect param value");

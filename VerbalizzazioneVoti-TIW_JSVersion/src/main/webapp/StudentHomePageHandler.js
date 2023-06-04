@@ -272,6 +272,7 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 	let self = this;
 	this.dataContainer.querySelector("input[name='closeWindowOutcome']").addEventListener("click", function(e) {
 		self.reset();
+		self.alert.reset();
 	})
 
 	this.reset = function() {
@@ -282,9 +283,9 @@ function Outcome(_alert, _dataContainer, _dataContainerBody, _refuseForm, _close
 	}
 
 	this.registerEvent = function(orchestrator) {
+		let self = this;
 		this.refuseForm.querySelector("input[type='button']").addEventListener("click", function(e) {
 			var form = e.target.closest("form");
-			let self = this;
 			let currentCourse = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent
 			let currentCall = form.querySelector("input[type = 'hidden']").value;
 			makeCall("POST", "RefuseMark?callid=" + currentCall, form, function(req) {
