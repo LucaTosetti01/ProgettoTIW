@@ -60,6 +60,11 @@ public class UpdateStudentMark extends HttpServlet {
 			// Checking if the format of the mark retrieved from the request is correct
 			ceDAO.checkIfMarkFormatIsCorrect(newMark);
 
+			/*TODO: Provare ad implementare una logica che permetta comunque di
+			 * 		inserire come voto "", ma in quel caso riportare lo stato del
+			 * 		voto a "Non inserito"
+			 * */
+			 
 			// Ignoring the update if the sent mark is equals to ""
 			if (!newMark.equals("")) {
 				// Proceeding to update student mark with the new value
