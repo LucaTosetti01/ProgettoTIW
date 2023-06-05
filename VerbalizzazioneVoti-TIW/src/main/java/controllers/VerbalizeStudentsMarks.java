@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,9 +17,6 @@ import javax.servlet.http.HttpSession;
 
 import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
-import DAO.LecturerDAO;
-import DAO.VerbalDAO;
-import beans.CallEvaluation;
 import beans.User;
 import exceptions.CallEvaluationDAOException;
 import exceptions.GraduationCallDAOException;
@@ -48,19 +44,23 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 
 		Date currentDate = Date.valueOf(LocalDate.now());
 		Time currentTime = Time.valueOf(LocalTime.now());
-		
+
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
 		try {
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			
-			callId = Integer.parseInt(request.getParameter("callid"));
-		
 
+			callId = Integer.parseInt(request.getParameter("callid"));
+
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
+			// Checking if really exists any mark verbalizable
 			ceDAO.checkIfAnyMarkIsVerbalizable(callId);
-			
+			// Proceeding to create a new verbal with the current time and date and
+			// associated to the call which has "callId" value as ID, and retrieving the
+			// verbalId of the verbal just created
 			verbalId = ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			String errorPath = "/GetSubscriptionToCall";
@@ -84,7 +84,6 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 			return;
 		}
 
-		
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId;
 		response.sendRedirect(path);
@@ -93,7 +92,6 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
@@ -104,10 +102,8 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 				connection.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Can't close db connection");
 		}
 	}
-
 
 }

@@ -14,14 +14,15 @@ import javax.servlet.http.HttpSession;
 import DAO.CallEvaluationDAO;
 import DAO.GraduationCallDAO;
 import beans.User;
+import exceptions.CallEvaluationDAOException;
 import exceptions.GraduationCallDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/PublishStudentsMarks")
-public class PublishStudentsMarks extends HttpServlet{
+public class PublishStudentsMarks extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
-	
+
 	public PublishStudentsMarks() {
 		super();
 	}
@@ -30,54 +31,60 @@ public class PublishStudentsMarks extends HttpServlet{
 	public void init() throws ServletException {
 		this.connection = ConnectionHandler.getConnection(getServletContext());
 	}
-	
+
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		Integer callId = null;
-		
+
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
-		
+
 		try {
-			callId = Integer.parseInt(request.getParameter("callid"));
-			
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
-			
+
+			callId = Integer.parseInt(request.getParameter("callid"));
+			// Checking if the course associated to the call with "callId" as ID is taught
+			// by the logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			
+			// Checking if really exists any mark publishable
+			ceDAO.checkIfAnyMarkIsPublishable(callId);
+			// Proceeding to publish of publishable marks (that are the ones with the state
+			// "Inserito")
 			ceDAO.publishAllMarksByCallId(callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", "Incorrect param values");
 			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
-		} catch (SQLException | GraduationCallDAOException e) {
+		} catch (SQLException | GraduationCallDAOException | CallEvaluationDAOException e) {
 			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", e.getMessage());
 			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
 		}
-		
+
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GetSubscriptionToCall?callid=" + callId;
 		response.sendRedirect(path);
-		
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		doGet(request, response);
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		super.destroy();
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
+		}
 	}
 
-	
-	
-	
 }

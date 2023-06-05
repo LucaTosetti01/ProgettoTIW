@@ -79,7 +79,6 @@ public class GetOutcome extends HttpServlet {
 			courseCall = gcDAO.findGraduationCallById(evaluation.getCall_id());
 			studentCourse = cDAO.findCourseById(courseCall.getCourseId());
 			courseLecturer = lDAO.findLecturerById(studentCourse.getTaughtById());
-
 		} catch (NumberFormatException | NullPointerException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().print("Incorrect param value");

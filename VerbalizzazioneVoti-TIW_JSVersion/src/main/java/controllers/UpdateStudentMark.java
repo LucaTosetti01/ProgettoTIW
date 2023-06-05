@@ -29,7 +29,6 @@ public class UpdateStudentMark extends HttpServlet {
 
 	public UpdateStudentMark() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import beans.CallEvaluation;
 import beans.Course;
 import beans.GraduationCall;
 import beans.User;
+import exceptions.CallEvaluationDAOException;
 import exceptions.StudentDAOException;
 import utils.ConnectionHandler;
 
@@ -51,49 +52,56 @@ public class GoToOutcome extends HttpServlet {
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Integer studentId = null, callId = null;
+		Integer callId = null;
 		User student = null;
 		CallEvaluation evaluation = null;
 		Course studentCourse = null;
 		GraduationCall courseCall = null;
 		User courseLecturer = null;
-		boolean actualNumber = false;
 
 		HttpSession session = request.getSession();
 		User studLogged = (User) session.getAttribute("user");
 		try {
-			callId = Integer.parseInt(request.getParameter("callid"));
-		
 			StudentDAO sDAO = new StudentDAO(this.connection);
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
 			CourseDAO cDAO = new CourseDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			LecturerDAO lDAO = new LecturerDAO(this.connection);
-			
+
+			callId = Integer.parseInt(request.getParameter("callid"));
+
+			// Checking if the student is subscribed to the call of which he has requested
+			// the outcome
 			sDAO.checkIfStudentIsSubscribedToCall(studLogged.getId(), callId);
+
+			// Checking if the student could effectively request the outcome of the call
+			// (this can happen
+			// only if the evaluationState of the mark is "Verbalizzato" || "Rifiutato" ||
+			// "Pubblicato",
+			// which are the same condition to check if the student's mark is updatable by a
+			// lecturer)
+			ceDAO.checkIfOutcomeCanBeRequested(studLogged.getId(), callId);
 			
+			// Retrieving all the data necessary to show the student's outcome of the call
 			student = sDAO.findStudentById(studLogged.getId());
 			evaluation = ceDAO.findEvaluationByCallAndStudentId(callId, studLogged.getId());
 			courseCall = gcDAO.findGraduationCallById(evaluation.getCall_id());
 			studentCourse = cDAO.findCourseById(courseCall.getCourseId());
 			courseLecturer = lDAO.findLecturerById(studentCourse.getTaughtById());
-			
 		} catch (NumberFormatException | NullPointerException e) {
 			String errorPath = "/GoToHomeStudent";
 			request.setAttribute("errorMessage", "Incorrect param values");
 			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
-		} catch (SQLException | StudentDAOException e) {
+		} catch (SQLException | StudentDAOException | CallEvaluationDAOException e) {
 			String errorPath = "/GoToHomeStudent";
 			request.setAttribute("errorMessage", e.getMessage());
 			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
 		}
 
-		
-		
-		actualNumber = checkIfActualNumber(evaluation.getMark());
-
+		// Sending to the template page, in order to use them within the page itself,
+		// student, evaluation, call, course and finally lecturer objects
 		String path = "WEB-INF/Outcome.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
@@ -102,7 +110,6 @@ public class GoToOutcome extends HttpServlet {
 		ctx.setVariable("call", courseCall);
 		ctx.setVariable("course", studentCourse);
 		ctx.setVariable("lecturer", courseLecturer);
-		ctx.setVariable("markActualNumber", actualNumber);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 
@@ -110,17 +117,13 @@ public class GoToOutcome extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	
-	private boolean checkIfActualNumber(String mark) {
+	public void destroy() {
 		try {
-			Integer.parseInt(mark);
-		} catch (NumberFormatException e) {
-			if(mark.equals("30L")) {
-				return true;
-			} else {
-				return false;
+			if (connection != null) {
+				connection.close();
 			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
 		}
-		return true;
 	}
 }

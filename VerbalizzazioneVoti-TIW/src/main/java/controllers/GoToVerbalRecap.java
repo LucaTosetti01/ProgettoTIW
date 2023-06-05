@@ -38,7 +38,6 @@ public class GoToVerbalRecap extends HttpServlet {
 
 	public GoToVerbalRecap() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -88,7 +87,6 @@ public class GoToVerbalRecap extends HttpServlet {
 			course = cDAO.findCourseById(call.getCourseId());
 			lecturer = lDAO.findLecturerById(course.getTaughtById());
 			students = sDAO.findAllStudentsInVerbalById(verbal.getId());
-
 		} catch (NumberFormatException | NullPointerException e) {
 			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", "Incorrect param values");
@@ -101,6 +99,8 @@ public class GoToVerbalRecap extends HttpServlet {
 			return;
 		}
 
+		// Sending to the template page, in order to use them within the page itself,
+		// verbal, call, course, lecturer and finally students objects
 		String path = "/WEB-INF/Verbal.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
@@ -115,14 +115,18 @@ public class GoToVerbalRecap extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		super.destroy();
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("Can't close db connection");
+		}
 	}
 
 }

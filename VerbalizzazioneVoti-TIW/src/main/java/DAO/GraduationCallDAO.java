@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import beans.GraduationCall;
-import exceptions.CourseDAOException;
 import exceptions.GraduationCallDAOException;
 
 public class GraduationCallDAO {

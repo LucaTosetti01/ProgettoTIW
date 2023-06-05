@@ -13,8 +13,6 @@ import java.util.List;
 import beans.CallEvaluation;
 import beans.User;
 import exceptions.CallEvaluationDAOException;
-import exceptions.CourseDAOException;
-import exceptions.StudentDAOException;
 
 public class CallEvaluationDAO {
 	private Connection connection;
@@ -378,6 +376,42 @@ public class CallEvaluationDAO {
 		return numberOfRows;
 	}
 	
+	public void checkIfStudentMarkIsRefusable(int student_id, int call_id) throws SQLException, CallEvaluationDAOException {
+		String query = "SELECT EvaluationStatus FROM registrations_calls WHERE ID_Student = ? AND ID_Call = ?";
+		
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		String status;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, student_id);
+			pstatement.setInt(2, call_id);
+			result = pstatement.executeQuery();
+			result.next();
+			status = result.getString("EvaluationStatus");
+		} catch (SQLException e) {
+			throw new SQLException("Failure in evaluations' data extraction");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		if(!status.equals("Pubblicato")) {
+			throw new CallEvaluationDAOException("The chosen student's mark is not refusable");
+		}
+	}
+	
 	public void checkIfStudentMarkIsUpdatable(int student_id, int call_id) throws SQLException, CallEvaluationDAOException {
 		String query = "SELECT EvaluationStatus FROM registrations_calls WHERE ID_Student = ? AND ID_Call = ?";
 		
@@ -411,6 +445,42 @@ public class CallEvaluationDAO {
 		}
 		if(Arrays.asList("Pubblicato","Verbalizzato","Rifiutato").contains(status)) {
 			throw new CallEvaluationDAOException("The chosen student's mark is not modifiable");
+		}
+	}
+	
+	public void checkIfOutcomeCanBeRequested(int student_id, int call_id) throws SQLException, CallEvaluationDAOException {
+		String query = "SELECT EvaluationStatus FROM registrations_calls WHERE ID_Student = ? AND ID_Call = ?";
+		
+		PreparedStatement pstatement = null;
+		ResultSet result = null;
+		String status;
+		try {
+			pstatement = connection.prepareStatement(query);
+			pstatement.setInt(1, student_id);
+			pstatement.setInt(2, call_id);
+			result = pstatement.executeQuery();
+			result.next();
+			status = result.getString("EvaluationStatus");
+		} catch (SQLException e) {
+			throw new SQLException("Failure in evaluations' data extraction");
+		} finally {
+			try {
+				if (result != null) {
+					result.close();
+				}
+			} catch (Exception e1) {
+				throw new SQLException(e1);
+			}
+			try {
+				if (pstatement != null) {
+					pstatement.close();
+				}
+			} catch (Exception e2) {
+				throw new SQLException(e2);
+			}
+		}
+		if(!Arrays.asList("Pubblicato","Verbalizzato","Rifiutato").contains(status)) {
+			throw new CallEvaluationDAOException("The chosen call's outcome cannot be visualized");
 		}
 	}
 

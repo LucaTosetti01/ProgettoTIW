@@ -36,7 +36,6 @@ public class GetVerbalData extends HttpServlet {
 
 	public GetVerbalData() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

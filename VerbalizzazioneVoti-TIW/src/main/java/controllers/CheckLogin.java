@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -52,17 +51,21 @@ public class CheckLogin extends HttpServlet {
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		User user = null;
+		
+		UserDAO uDAO = new UserDAO(connection);
+		
 		String usern = request.getParameter("username");
 		String passw = request.getParameter("pwd");
-
+		String redirectionPath;
 		if (usern == null || usern.isEmpty() || passw == null || passw.isEmpty()) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			redirectionPath = "/index.html";
+			ServletContext servletContext = getServletContext();
+			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+			ctx.setVariable("errorMessage", "Missing parameters");
+			this.templateEngine.process(redirectionPath, ctx, response.getWriter());
 			return;
 		}
-
-		UserDAO uDAO = new UserDAO(connection);
-
-		User user = null;
 
 		try {
 			user = uDAO.checkCredentials(usern, passw);
@@ -73,15 +76,10 @@ public class CheckLogin extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in db credentials checking");
 		}
 
-		String redirectionPath = getServletContext().getContextPath();
+		redirectionPath = getServletContext().getContextPath();
 		if (user == null) {
 			redirectionPath = "/index.html";
-			//request.setAttribute("errorMessage", "Username or Password are incorrect, please retry!");
-			/*System.out.print(request.getAttribute("errorMessage"));
-			RequestDispatcher ds = request.getRequestDispatcher(redirectionPath);
-			ds.forward(request, response);*/
-			
-			
+
 			ServletContext servletContext = getServletContext();
 			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 			ctx.setVariable("errorMessage", "Username or Password are incorrect, please retry");

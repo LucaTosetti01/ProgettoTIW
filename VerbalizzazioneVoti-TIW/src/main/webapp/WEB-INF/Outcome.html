@@ -85,7 +85,7 @@
 			</table>
 		</div>
 		<div
-			th:if="${actualNumber} and (${evaluation.state} != 'Rifiutato' or ${evaluation.state} != 'Pubblicato')">
+			th:if="${evaluation.state} == 'Pubblicato'">
 			<form th:action="@{/RefuseMark}">
 				<input type="hidden" name="callid" th:value="${call.id}"> <input
 					type="submit" value="Refuse">
