@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,15 +69,21 @@ public class VerbalDAO {
 
 	public int createVerbal(Date creationDate, Time creationTime, int call_id) throws SQLException {
 		String query = "INSERT INTO verbals (CreationDate, CreationTime, ID_Call) VALUES (?,?,?)";
-		int code = 0;
 
 		PreparedStatement pstatement = null;
 		try {
-			pstatement = connection.prepareStatement(query);
+			pstatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			pstatement.setDate(1, creationDate);
 			pstatement.setTime(2, creationTime);
 			pstatement.setInt(3, call_id);
-			code = pstatement.executeUpdate();
+			pstatement.executeUpdate();
+			
+			ResultSet generatedKeys = pstatement.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating user failed, no ID obtained.");
+			}
 		} catch (SQLException e) {
 			throw new SQLException("Failure in creating a new verbal");
 		} finally {
@@ -88,32 +95,21 @@ public class VerbalDAO {
 
 			}
 		}
-		return code;
 	}
 
-	public int saveStudentsWithinVerbal(int call_id, List<User> students) throws SQLException {
+	public int saveStudentsWithinVerbal(int verbal_id, List<User> students) throws SQLException {
 		//this.connection.setAutoCommit(false);
-		
-		String query = "SELECT MAX(ID) AS ID FROM verbals";
-		String query2 = "INSERT INTO students_verbals (ID_Student, ID_Verbal) VALUES (?,?)";
+		String query = "INSERT INTO students_verbals (ID_Student, ID_Verbal) VALUES (?,?)";
 
-		int code = 0, maxIdInserted = -1;
+		int code = 0;
 
 		PreparedStatement pstatement = null;
-		PreparedStatement pstatement2 = null;
-		ResultSet result = null;
 		try {
 			pstatement = connection.prepareStatement(query);
-			result = pstatement.executeQuery();
-			result.next();
-			maxIdInserted = result.getInt("ID");
-
-			pstatement2 = connection.prepareStatement(query2);
-
 			for (User student : students) {
-				pstatement2.setInt(1, student.getId());
-				pstatement2.setInt(2, maxIdInserted);
-				code = pstatement2.executeUpdate();
+				pstatement.setInt(1, student.getId());
+				pstatement.setInt(2, verbal_id);
+				code = pstatement.executeUpdate();
 			}
 			//connection.commit();
 		} catch (SQLException e) {

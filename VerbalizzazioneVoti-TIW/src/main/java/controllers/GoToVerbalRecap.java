@@ -31,11 +31,11 @@ import exceptions.GraduationCallDAOException;
 import utils.ConnectionHandler;
 
 @WebServlet("/GoToVerbalRecap")
-public class GoToVerbalRecap extends HttpServlet{
+public class GoToVerbalRecap extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
 	private TemplateEngine templateEngine;
-	
+
 	public GoToVerbalRecap() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -44,7 +44,7 @@ public class GoToVerbalRecap extends HttpServlet{
 	@Override
 	public void init() throws ServletException {
 		connection = ConnectionHandler.getConnection(getServletContext());
-		
+
 		ServletContext servletContext = getServletContext();
 		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
 		templateResolver.setTemplateMode(TemplateMode.HTML);
@@ -52,39 +52,43 @@ public class GoToVerbalRecap extends HttpServlet{
 		this.templateEngine.setTemplateResolver(templateResolver);
 		templateResolver.setSuffix(".html");
 	}
-	
-	
+
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		Integer verbalId = null, callId = null;
 		Verbal verbal = null;
 		GraduationCall call = null;
 		Course course = null;
 		User lecturer = null;
 		List<User> students = null;
-		
+
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
-		
+
 		try {
 			VerbalDAO vDAO = new VerbalDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			CourseDAO cDAO = new CourseDAO(this.connection);
 			LecturerDAO lDAO = new LecturerDAO(this.connection);
 			StudentDAO sDAO = new StudentDAO(this.connection);
-			
-			System.out.println(request.getParameter("callid"));
+
 			verbalId = Integer.parseInt(request.getParameter("verbalid"));
-			callId = Integer.parseInt(request.getParameter("callid"));
+			// Retrieving the verbal with "verbalId" as ID
 			verbal = vDAO.findVerbalById(verbalId);
-			
+
+			callId = verbal.getCallId();
+
+			// Checking if the call associated to the requested verbal is taught by the
+			// logged lecturer
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
-			
+
+			// Retrieving from the DB all the data associated to the requested verbal
 			call = gcDAO.findGraduationCallById(verbal.getCallId());
 			course = cDAO.findCourseById(call.getCourseId());
 			lecturer = lDAO.findLecturerById(course.getTaughtById());
 			students = sDAO.findAllStudentsInVerbalById(verbal.getId());
-		
+
 		} catch (NumberFormatException | NullPointerException e) {
 			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", "Incorrect param values");
@@ -96,8 +100,7 @@ public class GoToVerbalRecap extends HttpServlet{
 			request.getRequestDispatcher(errorPath).forward(request, response);
 			return;
 		}
-		
-		
+
 		String path = "/WEB-INF/Verbal.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
@@ -110,7 +113,8 @@ public class GoToVerbalRecap extends HttpServlet{
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
@@ -121,5 +125,4 @@ public class GoToVerbalRecap extends HttpServlet{
 		super.destroy();
 	}
 
-	
 }

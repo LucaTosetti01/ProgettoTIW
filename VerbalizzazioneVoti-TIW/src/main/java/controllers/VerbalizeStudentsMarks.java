@@ -52,17 +52,16 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 		HttpSession session = request.getSession();
 		User lecLogged = (User) session.getAttribute("user");
 		try {
-			callId = Integer.parseInt(request.getParameter("callid"));
-		
 			CallEvaluationDAO ceDAO = new CallEvaluationDAO(this.connection);
-			VerbalDAO vDAO = new VerbalDAO(this.connection);
 			GraduationCallDAO gcDAO = new GraduationCallDAO(this.connection);
 			
+			callId = Integer.parseInt(request.getParameter("callid"));
+		
+
 			gcDAO.checkIfCourseOfCallIsTaughtByLecturer(callId, lecLogged.getId());
 			ceDAO.checkIfAnyMarkIsVerbalizable(callId);
 			
-			ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
-			verbalId = vDAO.findVerbalByCallIdDateTime(currentDate, currentTime, callId).getId();
+			verbalId = ceDAO.verbalizeAllMarksByCallId(currentDate, currentTime, callId);
 		} catch (NumberFormatException | NullPointerException e) {
 			String errorPath = "/GetSubscriptionToCall";
 			request.setAttribute("errorMessage", "Incorrect param values");
@@ -87,7 +86,7 @@ public class VerbalizeStudentsMarks extends HttpServlet {
 
 		
 		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId +"&callid=" + callId;
+		String path = ctxpath + "/GoToVerbalRecap?verbalid=" + verbalId;
 		response.sendRedirect(path);
 	}
 

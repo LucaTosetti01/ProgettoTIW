@@ -214,7 +214,7 @@ public class CallEvaluationDAO {
 
 			VerbalDAO vDAO = new VerbalDAO(this.connection);
 			verbalKey = vDAO.createVerbal(verbalDate, verbalTime, call_id);
-			vDAO.saveStudentsWithinVerbal(call_id, students);
+			vDAO.saveStudentsWithinVerbal(verbalKey, students);
 
 			connection.commit();
 		} catch (SQLException e) {
