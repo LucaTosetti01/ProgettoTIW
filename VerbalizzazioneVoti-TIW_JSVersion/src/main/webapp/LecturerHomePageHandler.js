@@ -495,18 +495,20 @@ function ButtonLine(_alert, _buttonsContainer) {
 	this.alert = _alert;
 	this.buttonsContainer = _buttonsContainer;
 
+	//I put this addEventListener here, because i need to add it only once, when i create
+	//the ButtonLine object
 	let openModalButton = this.buttonsContainer.querySelector("input[name='openModalButton']");
 	openModalButton.addEventListener("click", function(e) {
 		modalMultipleMarks.show();
 	});
-
+	
 	this.reset = function() {
 		this.buttonsContainer.style.visibility = "hidden";
 	}
 
 	this.show = function(callId) {
 		let self = this;
-		makeCall("GET", "VerbalizeStudentsMarks?callid="+callId, null, function(req) {
+		makeCall("GET", "VerbalizeStudentsMarks?callid=" + callId, null, function(req) {
 			if (req.readyState === 4) {
 				var message = req.responseText;
 				if (req.status === 200) {
@@ -515,7 +517,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 						self.alert.textContent = "The value of verbalizable marks retrieved, is not a number";
 						return;
 					}
-					makeCall("GET", "PublishStudentsMarks?callid="+callId, null, function(req) {
+					makeCall("GET", "PublishStudentsMarks?callid=" + callId, null, function(req) {
 						if (req.readyState === 4) {
 							var message = req.responseText;
 							if (req.status === 200) {
@@ -549,7 +551,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 
 
 		document.getElementById("id_buttonContainer").querySelector("input[name='callid']").value = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
-	
+
 
 		if (numberOfVerbalizableMarks < 1) {
 			verbalizeButton.classList.add("disabled");
@@ -561,6 +563,8 @@ function ButtonLine(_alert, _buttonsContainer) {
 		} else {
 			publishButton.classList.remove("disabled");
 		}
+
+
 
 		this.buttonsContainer.style.visibility = "visible";
 	}
@@ -788,7 +792,7 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 		//Used to hide the modal on the page
 		this.modalContainer.style.display = "none";
 		this.modalContainer.classList.remove("show");
-		
+
 		this.backgroundBlur.classList.add("hidden");
 	};
 
@@ -819,12 +823,12 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 		let CrationDateVerbalCell, nameCourseCell, dateCallCell;
 		let CreationTimeVerbalCell, descriptionCourseCell, timeCallCell;
 		let lecturerCourseCell;
-		
+
 		let idStudentCell, surnameStudentCell, nameStudentCell, degreeCourseCell;
 
 		let dataRecapTableBody = this.modalBody.querySelector("table:nth-of-type(1)>tbody");
 		let verbalSubscribersBody = this.modalBody.querySelector(".scroll-div-modal>table>tbody");
-		
+
 		dataRecapTableBody.innerHTML = "";
 		verbalSubscribersBody.innerHTML = "";
 
@@ -832,7 +836,7 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 			self.reset();
 		})
 
-		
+
 		//First row
 		row = document.createElement("tr");
 
@@ -929,13 +933,13 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 		row.appendChild(temp);
 
 		dataRecapTableBody.appendChild(row);
-		
+
 
 
 		let studentsData = verbalDataMap["students"];
 		studentsData.forEach(function(student) {
 			row = document.createElement("tr");
-			
+
 			idStudentCell = document.createElement("td");
 			idStudentCell.textContent = student.id;
 			row.appendChild(idStudentCell);
@@ -955,7 +959,7 @@ function ModalVerbalRecap(_alert, _modalContainer, _modalHeader, _modalBody, _ba
 			degreeCourseCell = document.createElement("td");
 			degreeCourseCell.textContent = student.degreeCourse.name;
 			row.appendChild(degreeCourseCell);
-			
+
 			verbalSubscribersBody.appendChild(row);
 		});
 
@@ -994,7 +998,7 @@ function PageOrchestrator() {
 			document.getElementById("id_buttonContainer")
 		)
 		buttonLine.registerEvent(this);
-		
+
 		subscribersList = new SubscribersList(
 			alertHandler,
 			document.getElementById("id_subscribersContainer"),
