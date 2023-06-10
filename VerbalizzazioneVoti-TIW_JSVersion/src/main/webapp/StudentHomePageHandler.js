@@ -3,7 +3,6 @@
  */
 
 let coursesList, callsList, outcome;
-let wizard = null;
 let alertHandler;
 let pageOrchestrator = new PageOrchestrator(); 	//Main controller
 
