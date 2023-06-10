@@ -266,7 +266,7 @@ public class CallEvaluationDAO {
 		try {
 			pstatement = connection.prepareStatement(query);
 			pstatement.setString(1, newMark);
-			pstatement.setString(2, "Inserito");
+			pstatement.setString(2, !newMark.equals("") ? "Inserito" : "Non inserito");
 			pstatement.setInt(3, call_id);
 			pstatement.setInt(4, student_id);
 			code = pstatement.executeUpdate();
