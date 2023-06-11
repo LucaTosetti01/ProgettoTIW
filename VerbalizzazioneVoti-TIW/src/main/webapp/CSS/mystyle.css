@@ -158,18 +158,6 @@ td {
 	text-align: center;
 }
 
-/*.background::before {
-	content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-	background-image: linear-gradient(to right, #00b09b, #96c93d);
-	clip-path: polygon(0 0%, 100% 0%, 100% 65%, 65% 100%, 0 100%);
-	z-index:-1;
-	background-size: 100%;
-}*/
 .scroll-div {
 	overflow: auto;
 	height: 350px;
@@ -184,16 +172,15 @@ td {
 }
 
 .scroll-div-modal {
-	overflow: auto;
+	overflow-y: auto;
 	height: 288px;
-	/*width: 1000px;*/
+	width: 800px;
 }
 
 .scroll-div-modal thead th {
 	position: sticky;
 	top: 0;
 	z-index: 1;
-	/*box-shadow: inset 1px 1px #dee2e6, 0 1px #dee2e6;*/
 }
 
 .alert {
@@ -209,7 +196,7 @@ td {
 	border: 3px solid;
 	border-color: #0d6efd;
 	border-radius: 10px;
-	width: 1200px;
+	width: 1500px;
 	background-color: white;
 }
 
