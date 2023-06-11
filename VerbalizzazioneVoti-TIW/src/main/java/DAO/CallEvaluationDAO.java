@@ -377,11 +377,11 @@ public class CallEvaluationDAO {
 	}
 	
 	public void checkIfStudentMarkIsRefusable(int student_id, int call_id) throws SQLException, CallEvaluationDAOException {
-		String query = "SELECT EvaluationStatus FROM registrations_calls WHERE ID_Student = ? AND ID_Call = ?";
+		String query = "SELECT EvaluationStatus,Mark FROM registrations_calls WHERE ID_Student = ? AND ID_Call = ?";
 		
 		PreparedStatement pstatement = null;
 		ResultSet result = null;
-		String status;
+		String status, mark;
 		try {
 			pstatement = connection.prepareStatement(query);
 			pstatement.setInt(1, student_id);
@@ -389,6 +389,7 @@ public class CallEvaluationDAO {
 			result = pstatement.executeQuery();
 			result.next();
 			status = result.getString("EvaluationStatus");
+			mark = result.getString("Mark");
 		} catch (SQLException e) {
 			throw new SQLException("Failure in evaluations' data extraction");
 		} finally {
@@ -407,7 +408,7 @@ public class CallEvaluationDAO {
 				throw new SQLException(e2);
 			}
 		}
-		if(!status.equals("Pubblicato")) {
+		if(!status.equals("Pubblicato") || Arrays.asList("","Assente", "Rimandato", "Riprovato").contains(mark)) {
 			throw new CallEvaluationDAOException("The chosen student's mark is not refusable");
 		}
 	}
