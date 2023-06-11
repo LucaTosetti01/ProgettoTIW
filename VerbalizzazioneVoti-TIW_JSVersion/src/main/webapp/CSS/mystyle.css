@@ -184,9 +184,9 @@ td {
 }
 
 .scroll-div-modal {
-	overflow: auto;
+	overflow-y: auto;
 	height: 288px;
-	/*width: 1000px;*/
+	width: 800px;
 }
 
 .scroll-div-modal thead th {
