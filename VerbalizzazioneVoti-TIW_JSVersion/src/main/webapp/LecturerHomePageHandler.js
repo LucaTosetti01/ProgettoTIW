@@ -550,7 +550,7 @@ function ButtonLine(_alert, _buttonsContainer) {
 		let publishButton = this.buttonsContainer.querySelector("input[name='publishButton']");
 
 
-		document.getElementById("id_buttonContainer").querySelector("input[name='callid']").value = document.getElementById("id_coursesContainerBody").querySelector("tr.selectedCourse > td").textContent;
+		document.getElementById("id_buttonContainer").querySelector("input[name='callid']").value = document.getElementById("id_callsContainerBody").querySelector("tr.selectedCall > td").textContent;
 
 
 		if (numberOfVerbalizableMarks < 1) {

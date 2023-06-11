@@ -509,7 +509,7 @@ public class CallEvaluationDAO {
 			}
 		}
 		if(!Arrays.asList("Pubblicato","Verbalizzato","Rifiutato").contains(status)) {
-			throw new CallEvaluationDAOException("The chosen call's outcome cannot be visualized");
+			throw new CallEvaluationDAOException("Mark not defined yet");
 		}
 	}
 
