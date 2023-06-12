@@ -16,12 +16,13 @@
 			</div>
 			<a class="btn btn-info" href="Logout">Logout</a>
 		</div>
-		
+
 		<div
 			th:if="${evaluation.state} == 'Non inserito' or ${evaluation.state} == 'Inserito'">Voto
 			non ancora definito</div>
 		<div
-			th:if="${evaluation.state} != 'Non inserito' and ${evaluation.state} != 'Inserito'" class="div-lg">
+			th:if="${evaluation.state} != 'Non inserito' and ${evaluation.state} != 'Inserito'"
+			class="div-lg">
 			<table class="table table-striped table-hover table-bordered">
 				<thead>
 					<tr>
@@ -85,7 +86,7 @@
 			</table>
 		</div>
 		<div
-			th:if="${evaluation.state} == 'Pubblicato'">
+			th:if="${evaluation.state} == 'Pubblicato' and (${evaluation.mark} != '' and ${evaluation.mark} != 'Assente' and ${evaluation.mark} != 'Rimandato' and ${evaluation.mark} != 'Riprovato')">
 			<form th:action="@{/RefuseMark}">
 				<input type="hidden" name="callid" th:value="${call.id}"> <input
 					type="submit" value="Refuse">
