@@ -33,7 +33,8 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="c : ${courses}">
+						<tr th:each="c : ${courses}"
+							th:class="${selectedCourse == c.id} ? selectedCourse : ''">
 							<td th:text="${c.id}"></td>
 							<td th:text="${c.name}"></td>
 							<td th:utext="${c.description}"></td>

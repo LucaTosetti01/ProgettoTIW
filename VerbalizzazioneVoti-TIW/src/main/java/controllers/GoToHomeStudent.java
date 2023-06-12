@@ -109,6 +109,7 @@ public class GoToHomeStudent extends HttpServlet {
 		ctx.setVariable("courses", coursesStudentSubscribedTo);
 		ctx.setVariable("errorMessage", error);
 		ctx.setVariable("firstTime", firstTime);
+		ctx.setVariable("selectedCourse", courseId);
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 
