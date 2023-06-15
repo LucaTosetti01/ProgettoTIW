@@ -14,7 +14,11 @@
 			<div>
 				<h1>Verbal recap page</h1>
 			</div>
-			<a class="btn btn-info" href="Logout">Logout</a>
+			<div>
+				<a class="btn btn-info"
+					th:href="@{/GetSubscriptionToCall(callid=${call.id})}">Go back</a> <a
+					class="btn btn-info" href="Logout">Logout</a>
+			</div>
 		</div>
 		
 		<div class="div-lg">

@@ -103,6 +103,19 @@ td {
 	justify-content: space-between;
 }
 
+.page-header>div:nth-child(2) {
+	display: flex;
+	justify-content: space-between;
+}
+
+.page-header>div>a {
+	display: flex;
+	align-self: flex-start;
+	flex-direction: column;
+	margin: 10px;
+	width: 100px;
+}
+
 .page-header>a {
 	display: flex;
 	align-self: flex-start;

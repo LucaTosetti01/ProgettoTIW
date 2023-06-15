@@ -14,7 +14,12 @@
 			<div>
 				<h1>Welcome to you outcome page</h1>
 			</div>
-			<a class="btn btn-info" href="Logout">Logout</a>
+			<div>
+				<a class="btn btn-info"
+					th:href="@{/GoToHomeStudent(courseid=${course.id})}">Go back</a> <a
+					class="btn btn-info" href="Logout">Logout</a>
+			</div>
+
 		</div>
 
 		<div
@@ -89,7 +94,7 @@
 			th:if="${evaluation.state} == 'Pubblicato' and (${evaluation.mark} != '' and ${evaluation.mark} != 'Assente' and ${evaluation.mark} != 'Rimandato' and ${evaluation.mark} != 'Riprovato')">
 			<form th:action="@{/RefuseMark}">
 				<input type="hidden" name="callid" th:value="${call.id}"> <input
-					type="submit" value="Refuse">
+					type="submit" value="Refuse" class="btn btn-primary">
 			</form>
 		</div>
 		<p th:if="${evaluation.state} == 'Rifiutato'">Il voto &egrave;
