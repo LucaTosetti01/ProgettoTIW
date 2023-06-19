@@ -18,6 +18,8 @@
 --
 -- Table structure for table `calls`
 --
+CREATE DATABASE IF NOT EXISTS tiwproject;
+USE tiwproject;
 
 DROP TABLE IF EXISTS `calls`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
